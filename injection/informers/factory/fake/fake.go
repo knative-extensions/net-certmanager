@@ -23,18 +23,23 @@ import (
 
 	controller "knative.dev/pkg/controller"
 	injection "knative.dev/pkg/injection"
-	issuer "knative.dev/serving/pkg/client/certmanager/injection/informers/certmanager/v1alpha1/issuer"
-	fake "knative.dev/serving/pkg/client/certmanager/injection/informers/factory/fake"
+	externalversions "knative.dev/serving/pkg/client/certmanager/informers/externalversions"
+	fake "knative.dev/serving/pkg/client/certmanager/injection/client/fake"
+	factory "knative.dev/serving/pkg/client/certmanager/injection/informers/factory"
 )
 
-var Get = issuer.Get
+var Get = factory.Get
 
 func init() {
-	injection.Fake.RegisterInformer(withInformer)
+	injection.Fake.RegisterInformerFactory(withInformerFactory)
 }
 
-func withInformer(ctx context.Context) (context.Context, controller.Informer) {
-	f := fake.Get(ctx)
-	inf := f.Certmanager().V1alpha1().Issuers()
-	return context.WithValue(ctx, issuer.Key{}, inf), inf.Informer()
+func withInformerFactory(ctx context.Context) context.Context {
+	c := fake.Get(ctx)
+	opts := make([]externalversions.SharedInformerOption, 0, 1)
+	if injection.HasNamespaceScope(ctx) {
+		opts = append(opts, externalversions.WithNamespace(injection.GetNamespaceScope(ctx)))
+	}
+	return context.WithValue(ctx, factory.Key{},
+		externalversions.NewSharedInformerFactoryWithOptions(c, controller.GetResyncPeriod(ctx), opts...))
 }
