@@ -60,9 +60,9 @@ To check out this repository:
 ```shell
 mkdir -p ${GOPATH}/src/knative.dev
 cd ${GOPATH}/src/knative.dev
-git clone git@github.com:${YOUR_GITHUB_USERNAME}/sample-controller.git
-cd sample-controller
-git remote add upstream https://knative.dev/sample-controller.git
+git clone git@github.com:${YOUR_GITHUB_USERNAME}/net-certmanager.git
+cd net-certmanager
+git remote add upstream https://knative.dev/net-certmanager.git
 git remote set-url --push upstream no_push
 ```
 
