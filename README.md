@@ -1,9 +1,9 @@
 # Knative Sample Controller
 
-[![GoDoc](https://godoc.org/knative.dev/sample-controller?status.svg)](https://godoc.org/knative.dev/sample-controller)
-[![Go Report Card](https://goreportcard.com/badge/knative/sample-controller)](https://goreportcard.com/report/knative/sample-controller)
+[![GoDoc](https://godoc.org/knative.net-certmanager?status.svg)](https://godoc.org/knative.dev/net-certmanager)
+[![Go Report Card](https://goreportcard.com/badge/knative/net-certmanager)](https://goreportcard.com/report/knative/net-certmanager)
 
-Knative `sample-controller` defines a few simple resources that are validated by
+Knative `net-certmanager` defines a few simple resources that are validated by
 webhook and managed by a controller to demonstrate the canonical style in which
 Knative writes controllers.
 
