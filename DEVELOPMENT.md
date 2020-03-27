@@ -47,7 +47,7 @@ export PATH="${PATH}:${GOPATH}/bin"
 ### Checkout your fork
 
 The Go tools require that you clone the repository to the
-`src/knative.dev/sample-controller` directory in your
+`src/knative.dev/net-certmanager` directory in your
 [`GOPATH`](https://github.com/golang/go/wiki/SettingGOPATH).
 
 To check out this repository:
