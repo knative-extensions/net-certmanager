@@ -24,8 +24,8 @@ import (
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
-	acmev1alpha2 "knative.dev/serving/pkg/client/certmanager/clientset/versioned/typed/acme/v1alpha2"
-	certmanagerv1alpha2 "knative.dev/serving/pkg/client/certmanager/clientset/versioned/typed/certmanager/v1alpha2"
+	acmev1alpha2 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/acme/v1alpha2"
+	certmanagerv1alpha2 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/certmanager/v1alpha2"
 )
 
 type Interface interface {

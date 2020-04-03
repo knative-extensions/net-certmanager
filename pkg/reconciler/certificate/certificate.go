@@ -36,17 +36,17 @@ import (
 	kubelisters "k8s.io/client-go/listers/core/v1"
 	certreconciler "knative.dev/serving/pkg/client/injection/reconciler/networking/v1alpha1/certificate"
 
+	certmanagerclientset "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned"
+	acmelisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/acme/v1alpha2"
+	certmanagerlisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/certmanager/v1alpha2"
+	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
+	"knative.dev/net-certmanager/pkg/reconciler/certificate/resources"
 	"knative.dev/pkg/apis"
 	"knative.dev/pkg/controller"
 	"knative.dev/pkg/logging"
 	pkgreconciler "knative.dev/pkg/reconciler"
 	"knative.dev/pkg/tracker"
 	"knative.dev/serving/pkg/apis/networking/v1alpha1"
-	certmanagerclientset "knative.dev/serving/pkg/client/certmanager/clientset/versioned"
-	acmelisters "knative.dev/serving/pkg/client/certmanager/listers/acme/v1alpha2"
-	certmanagerlisters "knative.dev/serving/pkg/client/certmanager/listers/certmanager/v1alpha2"
-	"knative.dev/serving/pkg/reconciler/certificate/config"
-	"knative.dev/serving/pkg/reconciler/certificate/resources"
 )
 
 const (

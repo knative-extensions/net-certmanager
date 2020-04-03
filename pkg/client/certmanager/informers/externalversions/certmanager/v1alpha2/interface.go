@@ -19,7 +19,7 @@ limitations under the License.
 package v1alpha2
 
 import (
-	internalinterfaces "knative.dev/serving/pkg/client/certmanager/informers/externalversions/internalinterfaces"
+	internalinterfaces "knative.dev/net-certmanager/pkg/client/certmanager/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to all the informers in this group version.

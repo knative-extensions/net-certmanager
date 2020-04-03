@@ -21,10 +21,10 @@ package fake
 import (
 	context "context"
 
+	order "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/acme/v1alpha2/order"
+	fake "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/factory/fake"
 	controller "knative.dev/pkg/controller"
 	injection "knative.dev/pkg/injection"
-	order "knative.dev/serving/pkg/client/certmanager/injection/informers/acme/v1alpha2/order"
-	fake "knative.dev/serving/pkg/client/certmanager/injection/informers/factory/fake"
 )
 
 var Get = order.Get

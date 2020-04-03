@@ -22,6 +22,11 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/cache"
 
+	cmclient "knative.dev/net-certmanager/pkg/client/certmanager/injection/client"
+	cmchallengeinformer "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/acme/v1alpha2/challenge"
+	cmcertinformer "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1alpha2/certificate"
+	clusterinformer "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1alpha2/clusterissuer"
+	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	serviceinformer "knative.dev/pkg/client/injection/kube/informers/core/v1/service"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
@@ -29,15 +34,10 @@ import (
 	pkgreconciler "knative.dev/pkg/reconciler"
 	"knative.dev/pkg/tracker"
 	"knative.dev/serving/pkg/apis/networking"
-	cmclient "knative.dev/serving/pkg/client/certmanager/injection/client"
-	cmchallengeinformer "knative.dev/serving/pkg/client/certmanager/injection/informers/acme/v1alpha2/challenge"
-	cmcertinformer "knative.dev/serving/pkg/client/certmanager/injection/informers/certmanager/v1alpha2/certificate"
-	clusterinformer "knative.dev/serving/pkg/client/certmanager/injection/informers/certmanager/v1alpha2/clusterissuer"
 	kcertinformer "knative.dev/serving/pkg/client/injection/informers/networking/v1alpha1/certificate"
 	certreconciler "knative.dev/serving/pkg/client/injection/reconciler/networking/v1alpha1/certificate"
 	"knative.dev/serving/pkg/network"
 	servingreconciler "knative.dev/serving/pkg/reconciler"
-	"knative.dev/serving/pkg/reconciler/certificate/config"
 )
 
 const controllerAgentName = "certificate-controller"

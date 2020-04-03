@@ -22,9 +22,9 @@ import (
 	context "context"
 
 	rest "k8s.io/client-go/rest"
+	versioned "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned"
 	injection "knative.dev/pkg/injection"
 	logging "knative.dev/pkg/logging"
-	versioned "knative.dev/serving/pkg/client/certmanager/clientset/versioned"
 )
 
 func init() {
@@ -43,7 +43,7 @@ func Get(ctx context.Context) versioned.Interface {
 	untyped := ctx.Value(Key{})
 	if untyped == nil {
 		logging.FromContext(ctx).Panic(
-			"Unable to fetch knative.dev/serving/pkg/client/certmanager/clientset/versioned.Interface from context.")
+			"Unable to fetch knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned.Interface from context.")
 	}
 	return untyped.(versioned.Interface)
 }

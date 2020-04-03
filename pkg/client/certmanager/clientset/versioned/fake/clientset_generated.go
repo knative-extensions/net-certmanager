@@ -24,11 +24,11 @@ import (
 	"k8s.io/client-go/discovery"
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/testing"
-	clientset "knative.dev/serving/pkg/client/certmanager/clientset/versioned"
-	acmev1alpha2 "knative.dev/serving/pkg/client/certmanager/clientset/versioned/typed/acme/v1alpha2"
-	fakeacmev1alpha2 "knative.dev/serving/pkg/client/certmanager/clientset/versioned/typed/acme/v1alpha2/fake"
-	certmanagerv1alpha2 "knative.dev/serving/pkg/client/certmanager/clientset/versioned/typed/certmanager/v1alpha2"
-	fakecertmanagerv1alpha2 "knative.dev/serving/pkg/client/certmanager/clientset/versioned/typed/certmanager/v1alpha2/fake"
+	clientset "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned"
+	acmev1alpha2 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/acme/v1alpha2"
+	fakeacmev1alpha2 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/acme/v1alpha2/fake"
+	certmanagerv1alpha2 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/certmanager/v1alpha2"
+	fakecertmanagerv1alpha2 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/certmanager/v1alpha2/fake"
 )
 
 // NewSimpleClientset returns a clientset that will respond with the provided objects.

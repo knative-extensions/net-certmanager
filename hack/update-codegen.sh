@@ -23,5 +23,17 @@ CODEGEN_PKG=${CODEGEN_PKG:-$(cd ${REPO_ROOT}; ls -d -1 ./vendor/k8s.io/code-gene
 
 KNATIVE_CODEGEN_PKG=${KNATIVE_CODEGEN_PKG:-$(cd ${REPO_ROOT}; ls -d -1 ./vendor/knative.dev/pkg 2>/dev/null || echo ../pkg)}
 
+# Generate our own client for cert-manager (otherwise injection won't work)
+${CODEGEN_PKG}/generate-groups.sh "deepcopy,client,informer,lister" \
+  knative.dev/net-certmanager/pkg/client/certmanager github.com/jetstack/cert-manager/pkg/apis \
+  "certmanager:v1alpha2 acme:v1alpha2" \
+  --go-header-file ${REPO_ROOT}/hack/boilerplate/boilerplate.go.txt
+
+# Knative Injection (for cert-manager)
+${KNATIVE_CODEGEN_PKG}/hack/generate-knative.sh "injection" \
+  knative.dev/net-certmanager/pkg/client/certmanager github.com/jetstack/cert-manager/pkg/apis \
+  "certmanager:v1alpha2 acme:v1alpha2" \
+  --go-header-file ${REPO_ROOT}/hack/boilerplate/boilerplate.go.txt
+
 # Make sure our dependencies are up-to-date
 ${REPO_ROOT}/hack/update-deps.sh

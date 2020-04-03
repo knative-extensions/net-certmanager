@@ -21,7 +21,7 @@ package fake
 import (
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
-	v1alpha2 "knative.dev/serving/pkg/client/certmanager/clientset/versioned/typed/certmanager/v1alpha2"
+	v1alpha2 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/certmanager/v1alpha2"
 )
 
 type FakeCertmanagerV1alpha2 struct {

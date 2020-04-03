@@ -27,10 +27,10 @@ import (
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
-	versioned "knative.dev/serving/pkg/client/certmanager/clientset/versioned"
-	acme "knative.dev/serving/pkg/client/certmanager/informers/externalversions/acme"
-	certmanager "knative.dev/serving/pkg/client/certmanager/informers/externalversions/certmanager"
-	internalinterfaces "knative.dev/serving/pkg/client/certmanager/informers/externalversions/internalinterfaces"
+	versioned "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned"
+	acme "knative.dev/net-certmanager/pkg/client/certmanager/informers/externalversions/acme"
+	certmanager "knative.dev/net-certmanager/pkg/client/certmanager/informers/externalversions/certmanager"
+	internalinterfaces "knative.dev/net-certmanager/pkg/client/certmanager/informers/externalversions/internalinterfaces"
 )
 
 // SharedInformerOption defines the functional option type for SharedInformerFactory.
