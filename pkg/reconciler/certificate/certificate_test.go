@@ -42,6 +42,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgotesting "k8s.io/client-go/testing"
+
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/resources"
 	"knative.dev/pkg/apis"
@@ -54,8 +55,8 @@ import (
 	"knative.dev/serving/pkg/apis/networking/v1alpha1"
 	certreconciler "knative.dev/serving/pkg/client/injection/reconciler/networking/v1alpha1/certificate"
 
+	. "knative.dev/net-certmanager/pkg/reconciler/testing"
 	. "knative.dev/pkg/reconciler/testing"
-	. "knative.dev/serving/pkg/reconciler/testing/v1"
 )
 
 const generation = 23132
