@@ -25,10 +25,10 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	"knative.dev/pkg/kmeta"
 	"knative.dev/serving/pkg/apis/networking/v1alpha1"
 	"knative.dev/serving/pkg/apis/serving"
-	"knative.dev/serving/pkg/reconciler/certificate/config"
 )
 
 var cert = &v1alpha1.Certificate{

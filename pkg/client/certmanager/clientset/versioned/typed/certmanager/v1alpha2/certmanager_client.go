@@ -21,7 +21,7 @@ package v1alpha2
 import (
 	v1alpha2 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha2"
 	rest "k8s.io/client-go/rest"
-	"knative.dev/serving/pkg/client/certmanager/clientset/versioned/scheme"
+	"knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/scheme"
 )
 
 type CertmanagerV1alpha2Interface interface {

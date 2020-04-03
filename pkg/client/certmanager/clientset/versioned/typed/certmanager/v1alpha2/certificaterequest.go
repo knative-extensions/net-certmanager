@@ -26,7 +26,7 @@ import (
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	rest "k8s.io/client-go/rest"
-	scheme "knative.dev/serving/pkg/client/certmanager/clientset/versioned/scheme"
+	scheme "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/scheme"
 )
 
 // CertificateRequestsGetter has a method to return a CertificateRequestInterface.

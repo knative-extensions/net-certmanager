@@ -19,9 +19,9 @@ package resources
 import (
 	cmv1alpha2 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	"knative.dev/pkg/kmeta"
 	"knative.dev/serving/pkg/apis/networking/v1alpha1"
-	"knative.dev/serving/pkg/reconciler/certificate/config"
 )
 
 // MakeCertManagerCertificate creates a Cert-Manager `Certificate` for requesting a SSL certificate.
