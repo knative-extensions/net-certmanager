@@ -1082,24 +1082,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:214574e0178ccd6a5d5b608ed65cbc8bd5d359a0e1978f509ac6756d8e73c945"
-  name = "knative.dev/caching"
-  packages = [
-    "pkg/apis/caching",
-    "pkg/apis/caching/v1alpha1",
-    "pkg/client/clientset/versioned",
-    "pkg/client/clientset/versioned/fake",
-    "pkg/client/clientset/versioned/scheme",
-    "pkg/client/clientset/versioned/typed/caching/v1alpha1",
-    "pkg/client/clientset/versioned/typed/caching/v1alpha1/fake",
-    "pkg/client/injection/client",
-    "pkg/client/injection/client/fake",
-  ]
-  pruneopts = "NUT"
-  revision = "4f26948a1b74c192c265f90065a4a7874ae21869"
-
-[[projects]]
-  branch = "master"
   digest = "1:73d6a1f3f7a178275499102ae27b5177a91aaccc57e3a0328e628cb3ced708f8"
   name = "knative.dev/pkg"
   packages = [
@@ -1123,8 +1105,6 @@
     "configmap/testing",
     "controller",
     "injection",
-    "injection/clients/dynamicclient",
-    "injection/clients/dynamicclient/fake",
     "kmeta",
     "kmp",
     "logging",
@@ -1254,7 +1234,6 @@
     "k8s.io/code-generator/cmd/defaulter-gen",
     "k8s.io/code-generator/cmd/informer-gen",
     "k8s.io/code-generator/cmd/lister-gen",
-    "knative.dev/caching/pkg/client/injection/client/fake",
     "knative.dev/pkg/apis",
     "knative.dev/pkg/apis/duck/v1",
     "knative.dev/pkg/client/injection/kube/client/fake",
@@ -1265,7 +1244,6 @@
     "knative.dev/pkg/configmap/testing",
     "knative.dev/pkg/controller",
     "knative.dev/pkg/injection",
-    "knative.dev/pkg/injection/clients/dynamicclient/fake",
     "knative.dev/pkg/kmeta",
     "knative.dev/pkg/logging",
     "knative.dev/pkg/logging/testing",
