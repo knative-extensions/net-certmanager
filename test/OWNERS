@@ -2,11 +2,9 @@
 
 approvers:
 - productivity-approvers
-- networking-approvers
 
 reviewers:
 - productivity-reviewers
-- networking-reviewers
 
 labels:
 - area/test-and-release
