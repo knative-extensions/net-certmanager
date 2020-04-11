@@ -46,7 +46,9 @@ readonly DEP_FLAGS
 dep ensure ${DEP_FLAGS[@]}
 
 rm -rf $(find vendor/ -name 'OWNERS')
-rm -rf $(find vendor/ -name '*_test.go')
+# Remove unit tests & e2e tests.
+rm -rf $(find vendor/ -path '*/pkg/*_test.go')
+rm -rf $(find vendor/ -path '*/e2e/*_test.go')
 
 # Do this for every package under "cmd" except kodata and cmd itself.
 # TODO(zhiminx): Uncomment once we have binaries.

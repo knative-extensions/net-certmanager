@@ -8,6 +8,15 @@ required = [
   "k8s.io/code-generator/cmd/lister-gen",
   "k8s.io/code-generator/cmd/informer-gen",
   "knative.dev/pkg/codegen/cmd/injection-gen",
+  "knative.dev/serving/test/conformance/certificate",
+  "knative.dev/serving/test/conformance/certificate/http01",
+  "knative.dev/serving/test/conformance/certificate/nonhttp01",
+  "knative.dev/serving/test/test_images/flaky",
+  "knative.dev/serving/test/test_images/grpc-ping",
+  "knative.dev/serving/test/test_images/httpproxy",
+  "knative.dev/serving/test/test_images/runtime",
+  "knative.dev/serving/test/test_images/timeout",
+  "knative.dev/serving/test/test_images/wsserver",
   "knative.dev/test-infra/scripts",
   "knative.dev/test-infra/tools/dep-collector",
 ]
@@ -37,6 +46,10 @@ required = [
   version = "kubernetes-1.16.4"
 
 [[override]]
+  name = "knative.dev/serving"
+  branch = "master"
+
+[[override]]
   name = "knative.dev/pkg"
   branch = "master"
 
@@ -58,6 +71,11 @@ required = [
   unused-packages = true
   non-go = true
 
+[[prune.project]]
+  name = "knative.dev/serving"
+  non-go = false
+  go-tests = false
+  
 [[prune.project]]
   name = "knative.dev/pkg"
   unused-packages = false
