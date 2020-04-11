@@ -43,7 +43,7 @@ function test_setup() {
   kubectl apply -f ${dir}/cert-manager-crds.yaml || return 1
   kubectl apply -f ${dir}/cert-manager.yaml || return 1
   wait_until_batch_job_complete cert-manager || return 1
-  
+
   echo ">> Bringing up net-certmanager Controller"
   ko apply -f config/ || return 1
   echo ">> Waiting for Serving components to be running..."
