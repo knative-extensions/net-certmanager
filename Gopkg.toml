@@ -75,7 +75,7 @@ required = [
   name = "knative.dev/serving"
   non-go = false
   go-tests = false
-  
+
 [[prune.project]]
   name = "knative.dev/pkg"
   unused-packages = false
