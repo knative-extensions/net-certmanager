@@ -1207,7 +1207,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b921fd832b0736e7f9bd7326d9e5a0825521dc9c435659c1d5355a26677a7c20"
+  digest = "1:95ddcbccf37f4568ab6ae4952b8df9c80ef00ebf5264d48a8f5d736e9cd20ad7"
   name = "knative.dev/serving"
   packages = [
     "pkg/apis/autoscaling",
@@ -1267,6 +1267,7 @@
     "test/test_images/flaky",
     "test/test_images/grpc-ping",
     "test/test_images/grpc-ping/proto",
+    "test/test_images/helloworld",
     "test/test_images/httpproxy",
     "test/test_images/runtime",
     "test/test_images/runtime/handlers",
@@ -1366,6 +1367,7 @@
     "knative.dev/serving/test/conformance/certificate/nonhttp01",
     "knative.dev/serving/test/test_images/flaky",
     "knative.dev/serving/test/test_images/grpc-ping",
+    "knative.dev/serving/test/test_images/helloworld",
     "knative.dev/serving/test/test_images/httpproxy",
     "knative.dev/serving/test/test_images/runtime",
     "knative.dev/serving/test/test_images/timeout",
