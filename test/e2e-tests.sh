@@ -20,16 +20,18 @@ source $(dirname $0)/e2e-common.sh
 # Script entry point.
 initialize $@  --skip-istio-addon
 
+CERTIFICATE_CLASS="cert-manager.certificate.networking.knative.dev"
+
 # Certificate conformance tests must be run separately
 # because they need cert-manager specific configurations.
 kubectl apply -f ./test/config/autotls/certmanager/selfsigned/
 add_trap "kubectl delete -f ./test/config/autotls/certmanager/selfsigned/ --ignore-not-found" SIGKILL SIGTERM SIGQUIT
-go_test_e2e -timeout=10m ./vendor/knative.dev/serving/test/conformance/certificate/nonhttp01 "$(certificate_class)" || failed=1
+go_test_e2e -timeout=10m ./vendor/knative.dev/serving/test/conformance/certificate/nonhttp01 "--certificateClass=${CERTIFICATE_CLASS}" || failed=1
 kubectl delete -f ./test/config/autotls/certmanager/selfsigned/
 
 kubectl apply -f ./test/config/autotls/certmanager/http01/
 add_trap "kubectl delete -f ./test/config/autotls/certmanager/http01/ --ignore-not-found" SIGKILL SIGTERM SIGQUIT
-go_test_e2e -timeout=10m ./vendor/knative.dev/serving/test/conformance/certificate/http01 "$(certificate_class)" || failed=1
+go_test_e2e -timeout=10m ./vendor/knative.dev/serving/test/conformance/certificate/http01 "--certificateClass=${CERTIFICATE_CLASS}" || failed=1
 kubectl delete -f ./test/config/autotls/certmanager/http01/
 
 success
