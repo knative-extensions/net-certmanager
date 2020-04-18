@@ -42,7 +42,7 @@ function test_setup() {
   local dir=third_party/cert-manager-0.12.0
   kubectl apply -f ${dir}/cert-manager-crds.yaml || return 1
   kubectl apply -f ${dir}/cert-manager.yaml || return 1
-  wait_until_batch_job_complete cert-manager || return 1
+  wait_until_pods_running cert-manager || return 1
 
   echo ">> Bringing up net-certmanager Controller"
   ko apply -f config/config-certmanager || return 1
