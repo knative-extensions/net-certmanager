@@ -772,8 +772,8 @@ knative.dev/pkg v0.0.0-20200427220451-5ba6c1d101a0 h1:YREDkd+574Fv/zPchhT5kSxt1j
 knative.dev/pkg v0.0.0-20200427220451-5ba6c1d101a0/go.mod h1:pgODObA1dTyhNoFxPZTTjNWfx6F0aKsKzn+vaT9XO/Q=
 knative.dev/serving v0.14.1-0.20200426043050-7ad5cc721f86 h1:cQ+/smEqSRvaE5sSUbvKUYpFbfdSAvqwYf6jmvTH5aM=
 knative.dev/serving v0.14.1-0.20200426043050-7ad5cc721f86/go.mod h1:x2n255JS2XBI39tmjZ8CwTxIf9EKNMCrkVuiOttLRm0=
-knative.dev/test-infra v0.0.0-20200317133231-01c075fbeae4 h1:cK5BK5xVs+/MgRMlvlVwYnkvI5N69EDr99gS7KcVG5A=
-knative.dev/test-infra v0.0.0-20200317133231-01c075fbeae4/go.mod h1:xcdUkMJrLlBswIZqL5zCuBFOC22WIPMQoVX1L35i0vQ=
+knative.dev/test-infra v0.0.0-20200424202250-e6e89d29e93a h1:O+N0J0RiB3tbYws4Bt0RHE+74N2L01eX2BruW/8pNtU=
+knative.dev/test-infra v0.0.0-20200424202250-e6e89d29e93a/go.mod h1:xcdUkMJrLlBswIZqL5zCuBFOC22WIPMQoVX1L35i0vQ=
 launchpad.net/gocheck v0.0.0-20140225173054-000000000087/go.mod h1:hj7XX3B/0A+80Vse0e+BUHsHMTEhd0O4cpUHr/e/BUM=
 modernc.org/cc v1.0.0/go.mod h1:1Sk4//wdnYJiUIxnW8ddKpaOJCF37yAdqYnkxUpaYxw=
 modernc.org/golex v1.0.0/go.mod h1:b/QX9oBD/LhixY6NDh+IdGv17hgB+51fET1i2kPSmvk=
