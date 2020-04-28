@@ -367,9 +367,9 @@ google.golang.org/grpc/tap
 gopkg.in/inf.v0
 # gopkg.in/yaml.v2 v2.2.8
 gopkg.in/yaml.v2
-# istio.io/api v0.0.0-20200426234441-fcafad11e0aa
+# istio.io/api v0.0.0-20200428152309-78fa38750d5b
 istio.io/api/networking/v1alpha3
-# istio.io/client-go v0.0.0-20200427001039-e36a26d24fd2
+# istio.io/client-go v0.0.0-20200428154323-0ed2dc14724c
 istio.io/client-go/pkg/apis/networking/v1alpha3
 # istio.io/gogo-genproto v0.0.0-20190930162913-45029607206a
 istio.io/gogo-genproto/googleapis/google/api
@@ -779,7 +779,7 @@ knative.dev/pkg/tracker
 knative.dev/pkg/version
 knative.dev/pkg/webhook
 knative.dev/pkg/webhook/certificates/resources
-# knative.dev/serving v0.14.0
+# knative.dev/serving v0.14.1-0.20200426043050-7ad5cc721f86
 knative.dev/serving/pkg/apis/autoscaling
 knative.dev/serving/pkg/apis/autoscaling/v1alpha1
 knative.dev/serving/pkg/apis/config

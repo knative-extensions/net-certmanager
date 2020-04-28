@@ -32,7 +32,7 @@ require (
 	google.golang.org/api v0.13.1-0.20191104181305-997ecb25550d // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-	istio.io/client-go v0.0.0-20200427001039-e36a26d24fd2 // indirect
+	istio.io/client-go v0.0.0-20200428154323-0ed2dc14724c // indirect
 	k8s.io/api v0.18.1
 	k8s.io/apiextensions-apiserver v0.18.0 // indirect
 	k8s.io/apimachinery v0.18.1
@@ -41,7 +41,7 @@ require (
 	k8s.io/kube-openapi v0.0.0-20200121204235-bf4fb3bd569c // indirect
 	k8s.io/utils v0.0.0-20200327001022-6496210b90e8 // indirect
 	knative.dev/pkg v0.0.0-20200427220451-5ba6c1d101a0
-	knative.dev/serving v0.14.0
+	knative.dev/serving v0.14.1-0.20200426043050-7ad5cc721f86
 	knative.dev/test-infra v0.0.0-20200317133231-01c075fbeae4
 )
 

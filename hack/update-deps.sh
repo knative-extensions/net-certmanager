@@ -51,6 +51,10 @@ while [[ $# -ne 0 ]]; do
 done
 readonly GO_GET
 
+if (( GO_GET )); then
+  go get -d ${FLOATING_DEPS[@]}
+fi
+
 # Prune modules.
 go mod tidy
 go mod vendor

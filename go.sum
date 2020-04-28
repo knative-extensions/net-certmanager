@@ -726,10 +726,10 @@ honnef.co/go/tools v0.0.0-20190418001031-e561f6794a2a/go.mod h1:rf3lG4BRIbNafJWh
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.1-2019.2.3 h1:3JgtbtFHMiCmsznwGVTUWbgGov+pVqnlf1dEJTNAXeM=
 honnef.co/go/tools v0.0.1-2019.2.3/go.mod h1:a3bituU0lyd329TUQxRnasdCoJDkEUEAqEt0JzvZhAg=
-istio.io/api v0.0.0-20200426234441-fcafad11e0aa h1:mx+glcOs9CcLqMgmCfDq7mVbSNCt22Vz98kqvL5YlIM=
-istio.io/api v0.0.0-20200426234441-fcafad11e0aa/go.mod h1:kyq3g5w42zl/AKlbzDGppYpGMQYMYMyZKeq0/eexML8=
-istio.io/client-go v0.0.0-20200427001039-e36a26d24fd2 h1:dZt+9u2AMsLQSDz7DqwUtTbHzX8AsWU4xw8ihF1YHtM=
-istio.io/client-go v0.0.0-20200427001039-e36a26d24fd2/go.mod h1:AdoKa71x/i3THU6HpPNLdnwjAVbaNxOlx2gwBqqL8Ek=
+istio.io/api v0.0.0-20200428152309-78fa38750d5b h1:es7A1oyC5JRDhHz0AgtXnfTeqFdJsAFFOTTkLwfaWuQ=
+istio.io/api v0.0.0-20200428152309-78fa38750d5b/go.mod h1:kyq3g5w42zl/AKlbzDGppYpGMQYMYMyZKeq0/eexML8=
+istio.io/client-go v0.0.0-20200428154323-0ed2dc14724c h1:kPhYkTrTTgJfYv7dExPZEvxPSJugTZFrIbo4SUpctwE=
+istio.io/client-go v0.0.0-20200428154323-0ed2dc14724c/go.mod h1:ezUAwkRXKoSWNxldROOkiNaJZtKZvD403NjiQCxFtpE=
 istio.io/gogo-genproto v0.0.0-20190930162913-45029607206a h1:w7zILua2dnYo9CxImhpNW4NE/8ZxEoc/wfBfHrhUhrE=
 istio.io/gogo-genproto v0.0.0-20190930162913-45029607206a/go.mod h1:OzpAts7jljZceG4Vqi5/zXy/pOg1b209T3jb7Nv5wIs=
 k8s.io/api v0.16.4 h1:O06Ed/hgLiCrzW1SHp6HAhqcTnYHtK80bP5rXoHakpM=
@@ -770,8 +770,8 @@ k8s.io/utils v0.0.0-20200327001022-6496210b90e8 h1:6JFbaLjRyBz8K2Jvt+pcT+N3vvwMZ
 k8s.io/utils v0.0.0-20200327001022-6496210b90e8/go.mod h1:sZAwmy6armz5eXlNoLmJcl4F1QuKu7sr+mFQ0byX7Ew=
 knative.dev/pkg v0.0.0-20200427220451-5ba6c1d101a0 h1:YREDkd+574Fv/zPchhT5kSxt1j6pelAGVc+x5J00GaM=
 knative.dev/pkg v0.0.0-20200427220451-5ba6c1d101a0/go.mod h1:pgODObA1dTyhNoFxPZTTjNWfx6F0aKsKzn+vaT9XO/Q=
-knative.dev/serving v0.14.0 h1:9iDyOqTciNuAh2D5KJP0soOq23FDR4HQHdIQNBQ/rAE=
-knative.dev/serving v0.14.0/go.mod h1:x2n255JS2XBI39tmjZ8CwTxIf9EKNMCrkVuiOttLRm0=
+knative.dev/serving v0.14.1-0.20200426043050-7ad5cc721f86 h1:cQ+/smEqSRvaE5sSUbvKUYpFbfdSAvqwYf6jmvTH5aM=
+knative.dev/serving v0.14.1-0.20200426043050-7ad5cc721f86/go.mod h1:x2n255JS2XBI39tmjZ8CwTxIf9EKNMCrkVuiOttLRm0=
 knative.dev/test-infra v0.0.0-20200317133231-01c075fbeae4 h1:cK5BK5xVs+/MgRMlvlVwYnkvI5N69EDr99gS7KcVG5A=
 knative.dev/test-infra v0.0.0-20200317133231-01c075fbeae4/go.mod h1:xcdUkMJrLlBswIZqL5zCuBFOC22WIPMQoVX1L35i0vQ=
 launchpad.net/gocheck v0.0.0-20140225173054-000000000087/go.mod h1:hj7XX3B/0A+80Vse0e+BUHsHMTEhd0O4cpUHr/e/BUM=
