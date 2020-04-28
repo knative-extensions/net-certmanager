@@ -34,8 +34,9 @@ VERSION="master"
 # The list of dependencies that we track at HEAD and periodically
 # float forward in this repository.
 FLOATING_DEPS=(
-  "knative.dev/pkg@{$VERSION}"
-  "knative.dev/test-infra@{$VERSION}"
+  "knative.dev/test-infra@${VERSION}"
+  "knative.dev/pkg@${VERSION}"
+  "knative.dev/serving@${VERSION}"
 )
 
 # Parse flags to determine any we should pass to dep.
@@ -58,6 +59,10 @@ rm -rf $(find vendor/ -name 'OWNERS')
 # Remove unit tests & e2e tests.
 rm -rf $(find vendor/ -path '*/pkg/*_test.go')
 rm -rf $(find vendor/ -path '*/e2e/*_test.go')
+
+# Add permission for shell scripts
+chmod +x ./vendor/k8s.io/code-generator/generate-groups.sh
+chmod +x ./vendor/knative.dev/pkg/hack/generate-knative.sh
 
 # Do this for every package under "cmd" except kodata and cmd itself.
 # TODO(zhiminx): Uncomment once we have binaries.
