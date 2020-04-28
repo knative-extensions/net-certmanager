@@ -770,8 +770,8 @@ k8s.io/utils v0.0.0-20200327001022-6496210b90e8 h1:6JFbaLjRyBz8K2Jvt+pcT+N3vvwMZ
 k8s.io/utils v0.0.0-20200327001022-6496210b90e8/go.mod h1:sZAwmy6armz5eXlNoLmJcl4F1QuKu7sr+mFQ0byX7Ew=
 knative.dev/pkg v0.0.0-20200427220451-5ba6c1d101a0 h1:YREDkd+574Fv/zPchhT5kSxt1j6pelAGVc+x5J00GaM=
 knative.dev/pkg v0.0.0-20200427220451-5ba6c1d101a0/go.mod h1:pgODObA1dTyhNoFxPZTTjNWfx6F0aKsKzn+vaT9XO/Q=
-knative.dev/serving v0.13.1-0.20200410223306-ffafcbec908b h1:xiFBuMeI+7AQ7J7/igHIcSBPopXIRL/TPL9BIHvwuWA=
-knative.dev/serving v0.13.1-0.20200410223306-ffafcbec908b/go.mod h1:x2n255JS2XBI39tmjZ8CwTxIf9EKNMCrkVuiOttLRm0=
+knative.dev/serving v0.14.0 h1:9iDyOqTciNuAh2D5KJP0soOq23FDR4HQHdIQNBQ/rAE=
+knative.dev/serving v0.14.0/go.mod h1:x2n255JS2XBI39tmjZ8CwTxIf9EKNMCrkVuiOttLRm0=
 knative.dev/test-infra v0.0.0-20200317133231-01c075fbeae4 h1:cK5BK5xVs+/MgRMlvlVwYnkvI5N69EDr99gS7KcVG5A=
 knative.dev/test-infra v0.0.0-20200317133231-01c075fbeae4/go.mod h1:xcdUkMJrLlBswIZqL5zCuBFOC22WIPMQoVX1L35i0vQ=
 launchpad.net/gocheck v0.0.0-20140225173054-000000000087/go.mod h1:hj7XX3B/0A+80Vse0e+BUHsHMTEhd0O4cpUHr/e/BUM=

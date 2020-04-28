@@ -24,7 +24,6 @@ import (
 	// codegen: hack/generate-knative.sh
 	_ "knative.dev/pkg/hack"
 
-	_ "knative.dev/serving/test/conformance/certificate/http01"
 	_ "knative.dev/serving/test/test_images/flaky"
 	_ "knative.dev/serving/test/test_images/grpc-ping"
 	_ "knative.dev/serving/test/test_images/helloworld"
