@@ -45,7 +45,7 @@ function test_setup() {
   wait_until_pods_running cert-manager || return 1
 
   echo ">> Bringing up net-certmanager Controller"
-  ko apply -f config/config-certmanager || return 1
+  ko apply -f config || return 1
   echo ">> Waiting for Serving components to be running..."
   wait_until_pods_running knative-serving || return 1
 }
