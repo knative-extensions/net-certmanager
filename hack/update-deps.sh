@@ -68,6 +68,4 @@ rm -rf $(find vendor/ -path '*/e2e/*_test.go')
 chmod +x ./vendor/k8s.io/code-generator/generate-groups.sh
 chmod +x ./vendor/knative.dev/pkg/hack/generate-knative.sh
 
-# Do this for every package under "cmd" except kodata and cmd itself.
-# TODO(zhiminx): Uncomment once we have binaries.
-#update_licenses third_party/VENDOR-LICENSE "$(find ./cmd -type d | grep -v kodata | grep -vE 'cmd$')"
+update_licenses third_party/VENDOR-LICENSE "./..."

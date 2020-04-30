@@ -42,7 +42,7 @@ require (
 	k8s.io/utils v0.0.0-20200327001022-6496210b90e8 // indirect
 	knative.dev/pkg v0.0.0-20200427220451-5ba6c1d101a0
 	knative.dev/serving v0.14.1-0.20200426043050-7ad5cc721f86
-	knative.dev/test-infra v0.0.0-20200424202250-e6e89d29e93a
+	knative.dev/test-infra v0.0.0-20200429211942-f4c4853375cf
 )
 
 replace (
