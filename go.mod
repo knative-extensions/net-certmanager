@@ -1,6 +1,6 @@
 module knative.dev/net-certmanager
 
-go 1.13
+go 1.14
 
 require (
 	github.com/aws/aws-sdk-go v1.30.3 // indirect
@@ -17,11 +17,10 @@ require (
 	k8s.io/apiextensions-apiserver v0.18.0 // indirect
 	k8s.io/apimachinery v0.18.1
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
-	k8s.io/kube-openapi v0.0.0-20200121204235-bf4fb3bd569c // indirect
 	k8s.io/utils v0.0.0-20200327001022-6496210b90e8 // indirect
-	knative.dev/pkg v0.0.0-20200525211048-874e3e0c13f5
-	knative.dev/serving v0.15.1-0.20200526161358-ba65219c13d8
-	knative.dev/test-infra v0.0.0-20200522180958-6a0a9b9d893a
+	knative.dev/pkg v0.0.0-20200528190300-08a86da47d28
+	knative.dev/serving v0.15.1-0.20200603004117-143a598d3478
+	knative.dev/test-infra v0.0.0-20200528222301-350178ab2a0e
 )
 
 replace (
