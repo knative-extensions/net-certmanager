@@ -270,8 +270,6 @@ github.com/docker/go-units v0.4.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDD
 github.com/docker/libtrust v0.0.0-20150114040149-fa567046d9b1/go.mod h1:cyGadeNEkKy96OOhEzfZl+yxihPEzKnqJwvfuSUqbZE=
 github.com/docker/spdystream v0.0.0-20160310174837-449fdfce4d96/go.mod h1:Qh8CwZgvJUkLughtfhJv5dyTYa91l1fOUCrgjqmcifM=
 github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815/go.mod h1:WwZ+bS3ebgob9U8Nd0kOddGdZWjyMGR8Wziv+TBNwSE=
-github.com/dprotaso/serving v0.1.1-0.20200602205219-077a523f1b1b h1:FFDiNBQl+BfdlP7dvFk0gRzlNeyuj+laKsP2eddol3U=
-github.com/dprotaso/serving v0.1.1-0.20200602205219-077a523f1b1b/go.mod h1:ebxxoSXTWJjCBdyb3P6KU0kNuVEAUMi22OI2E7mAxxY=
 github.com/dsnet/compress v0.0.1/go.mod h1:Aw8dCMJ7RioblQeTqt88akK31OvO8Dhf5JflhBbQEHo=
 github.com/dsnet/golib v0.0.0-20171103203638-1ea166775780/go.mod h1:Lj+Z9rebOhdfkVLjJ8T6VcRQv3SXugXy999NBtR9aFY=
 github.com/duosecurity/duo_api_golang v0.0.0-20190308151101-6c680f768e74/go.mod h1:UqXY1lYT/ERa4OEAywUqdok1T4RCRdArkhic1Opuavo=
@@ -1418,6 +1416,8 @@ knative.dev/pkg v0.0.0-20200520073958-94316e20e860/go.mod h1:QgNZTxnwpB/oSpNcfnL
 knative.dev/pkg v0.0.0-20200527024749-495174c96651/go.mod h1:4ipprwHqpqiyYHbrEjSf1kNwL+sJOqHhj1ujO2WxvpE=
 knative.dev/pkg v0.0.0-20200528190300-08a86da47d28 h1:tLWWfrpGYT8vs/QLWYc7s0pqaw+ISz4UmM9AhrWBc8o=
 knative.dev/pkg v0.0.0-20200528190300-08a86da47d28/go.mod h1:ywZfX/0D8hoOf4uJVgeEvJpSmsOauQvr1IuAWld9UjM=
+knative.dev/serving v0.15.1-0.20200603004117-143a598d3478 h1:nvnT+Ldt3NT9fwc5vEpQYTKiZPVp5ksY3eJFHB+PCMI=
+knative.dev/serving v0.15.1-0.20200603004117-143a598d3478/go.mod h1:CtFD/6+yC6DnxVI8mtiTnePNV9VyxxkaS5epKTgKIBc=
 knative.dev/test-infra v0.0.0-20200407185800-1b88cb3b45a5/go.mod h1:xcdUkMJrLlBswIZqL5zCuBFOC22WIPMQoVX1L35i0vQ=
 knative.dev/test-infra v0.0.0-20200505052144-5ea2f705bb55/go.mod h1:WqF1Azka+FxPZ20keR2zCNtiQA1MP9ZB4BH4HuI+SIU=
 knative.dev/test-infra v0.0.0-20200513011557-d03429a76034/go.mod h1:aMif0KXL4g19YCYwsy4Ocjjz5xgPlseYV+B95Oo4JGE=

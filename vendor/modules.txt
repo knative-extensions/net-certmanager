@@ -797,7 +797,7 @@ knative.dev/pkg/webhook/certificates
 knative.dev/pkg/webhook/certificates/resources
 knative.dev/pkg/webhook/configmaps
 knative.dev/pkg/webhook/resourcesemantics
-# knative.dev/serving v0.15.1-0.20200526161358-ba65219c13d8 => github.com/dprotaso/serving v0.1.1-0.20200602205219-077a523f1b1b
+# knative.dev/serving v0.15.1-0.20200603004117-143a598d3478
 ## explicit
 knative.dev/serving/pkg/apis/autoscaling
 knative.dev/serving/pkg/apis/autoscaling/v1alpha1
@@ -874,4 +874,3 @@ sigs.k8s.io/yaml
 # k8s.io/apimachinery => k8s.io/apimachinery v0.16.4
 # k8s.io/client-go => k8s.io/client-go v0.16.4
 # k8s.io/code-generator => k8s.io/code-generator v0.16.4
-# knative.dev/serving => github.com/dprotaso/serving v0.1.1-0.20200602205219-077a523f1b1b

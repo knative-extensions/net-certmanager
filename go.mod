@@ -19,7 +19,7 @@ require (
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	k8s.io/utils v0.0.0-20200327001022-6496210b90e8 // indirect
 	knative.dev/pkg v0.0.0-20200528190300-08a86da47d28
-	knative.dev/serving v0.15.1-0.20200526161358-ba65219c13d8
+	knative.dev/serving v0.15.1-0.20200603004117-143a598d3478
 	knative.dev/test-infra v0.0.0-20200528222301-350178ab2a0e
 )
 
@@ -32,5 +32,3 @@ replace (
 	k8s.io/client-go => k8s.io/client-go v0.16.4
 	k8s.io/code-generator => k8s.io/code-generator v0.16.4
 )
-
-replace knative.dev/serving => github.com/dprotaso/serving v0.1.1-0.20200602205219-077a523f1b1b
