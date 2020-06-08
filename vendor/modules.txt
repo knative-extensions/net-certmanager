@@ -750,7 +750,7 @@ k8s.io/utils/buffer
 k8s.io/utils/integer
 k8s.io/utils/pointer
 k8s.io/utils/trace
-# knative.dev/pkg v0.0.0-20200528190300-08a86da47d28
+# knative.dev/pkg v0.0.0-20200606224418-7ed1d4a552bc
 ## explicit
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
@@ -807,7 +807,7 @@ knative.dev/pkg/webhook/certificates
 knative.dev/pkg/webhook/certificates/resources
 knative.dev/pkg/webhook/configmaps
 knative.dev/pkg/webhook/resourcesemantics
-# knative.dev/serving v0.15.1-0.20200603004117-143a598d3478
+# knative.dev/serving v0.15.1-0.20200608134619-efb0203dfa53
 ## explicit
 knative.dev/serving/pkg/apis/autoscaling
 knative.dev/serving/pkg/apis/autoscaling/v1alpha1
@@ -873,7 +873,7 @@ knative.dev/serving/test/test_images/runtime/handlers
 knative.dev/serving/test/test_images/timeout
 knative.dev/serving/test/test_images/wsserver
 knative.dev/serving/test/types
-# knative.dev/test-infra v0.0.0-20200528222301-350178ab2a0e
+# knative.dev/test-infra v0.0.0-20200606045118-14ebc4a42974
 ## explicit
 knative.dev/test-infra/scripts
 # sigs.k8s.io/yaml v1.1.0
