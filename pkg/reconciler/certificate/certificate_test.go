@@ -28,10 +28,10 @@ import (
 	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/acme/v1alpha2/challenge/fake"
 	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1alpha2/certificate/fake"
 	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1alpha2/clusterissuer/fake"
+	networkingclient "knative.dev/networking/pkg/client/injection/client/fake"
+	_ "knative.dev/networking/pkg/client/injection/informers/networking/v1alpha1/certificate/fake"
 	_ "knative.dev/pkg/client/injection/kube/informers/core/v1/service/fake"
 	"knative.dev/pkg/logging"
-	servingclient "knative.dev/serving/pkg/client/injection/client/fake"
-	_ "knative.dev/serving/pkg/client/injection/informers/networking/v1alpha1/certificate/fake"
 	"knative.dev/serving/pkg/network"
 
 	acmev1alpha2 "github.com/jetstack/cert-manager/pkg/apis/acme/v1alpha2"
@@ -45,15 +45,15 @@ import (
 
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/resources"
+	"knative.dev/networking/pkg/apis/networking"
+	"knative.dev/networking/pkg/apis/networking/v1alpha1"
+	certreconciler "knative.dev/networking/pkg/client/injection/reconciler/networking/v1alpha1/certificate"
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
 	pkgreconciler "knative.dev/pkg/reconciler"
 	"knative.dev/pkg/system"
-	"knative.dev/serving/pkg/apis/networking"
-	"knative.dev/serving/pkg/apis/networking/v1alpha1"
-	certreconciler "knative.dev/serving/pkg/client/injection/reconciler/networking/v1alpha1/certificate"
 
 	. "knative.dev/net-certmanager/pkg/reconciler/testing"
 	. "knative.dev/pkg/reconciler/testing"
@@ -359,7 +359,7 @@ func TestReconcile(t *testing.T) {
 			certManagerClient:   fakecertmanagerclient.Get(ctx),
 			tracker:             &NullTracker{},
 		}
-		return certreconciler.NewReconciler(ctx, logging.FromContext(ctx), servingclient.Get(ctx),
+		return certreconciler.NewReconciler(ctx, logging.FromContext(ctx), networkingclient.Get(ctx),
 			listers.GetCertificateLister(), controller.GetEventRecorder(ctx), r,
 			network.CertManagerCertificateClassName, controller.Options{
 				ConfigStore: &testConfigStore{
@@ -504,7 +504,7 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 			certManagerClient:   fakecertmanagerclient.Get(ctx),
 			tracker:             &NullTracker{},
 		}
-		return certreconciler.NewReconciler(ctx, logging.FromContext(ctx), servingclient.Get(ctx),
+		return certreconciler.NewReconciler(ctx, logging.FromContext(ctx), networkingclient.Get(ctx),
 			listers.GetCertificateLister(), controller.GetEventRecorder(ctx), r,
 			network.CertManagerCertificateClassName, controller.Options{
 				ConfigStore: &testConfigStore{

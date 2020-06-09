@@ -34,19 +34,19 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
 	kubelisters "k8s.io/client-go/listers/core/v1"
-	certreconciler "knative.dev/serving/pkg/client/injection/reconciler/networking/v1alpha1/certificate"
+	certreconciler "knative.dev/networking/pkg/client/injection/reconciler/networking/v1alpha1/certificate"
 
 	certmanagerclientset "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned"
 	acmelisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/acme/v1alpha2"
 	certmanagerlisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/certmanager/v1alpha2"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/resources"
+	"knative.dev/networking/pkg/apis/networking/v1alpha1"
 	"knative.dev/pkg/apis"
 	"knative.dev/pkg/controller"
 	"knative.dev/pkg/logging"
 	pkgreconciler "knative.dev/pkg/reconciler"
 	"knative.dev/pkg/tracker"
-	"knative.dev/serving/pkg/apis/networking/v1alpha1"
 )
 
 const (
