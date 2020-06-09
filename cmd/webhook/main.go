@@ -19,7 +19,6 @@ package main
 import (
 	"context"
 
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	certconfig "knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
@@ -28,10 +27,7 @@ import (
 	"knative.dev/pkg/webhook"
 	"knative.dev/pkg/webhook/certificates"
 	"knative.dev/pkg/webhook/configmaps"
-	"knative.dev/pkg/webhook/resourcesemantics"
 )
-
-var types = map[schema.GroupVersionKind]resourcesemantics.GenericCRD{}
 
 func NewConfigValidationController(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
 	return configmaps.NewAdmissionController(ctx,
