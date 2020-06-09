@@ -22,8 +22,8 @@ import (
 	ktesting "k8s.io/client-go/testing"
 	"k8s.io/client-go/tools/record"
 	fakecertmanagerclient "knative.dev/net-certmanager/pkg/client/certmanager/injection/client/fake"
+	fakenetworkingclient "knative.dev/networking/pkg/client/injection/client/fake"
 	fakekubeclient "knative.dev/pkg/client/injection/kube/client/fake"
-	fakeservingclient "knative.dev/serving/pkg/client/injection/client/fake"
 
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
@@ -49,7 +49,7 @@ func MakeFactory(ctor Ctor) rtesting.Factory {
 		ctx = logging.WithLogger(ctx, logger)
 
 		ctx, kubeClient := fakekubeclient.With(ctx, ls.GetKubeObjects()...)
-		ctx, client := fakeservingclient.With(ctx, ls.GetServingObjects()...)
+		ctx, client := fakenetworkingclient.With(ctx, ls.GetNetworkingObjects()...)
 		ctx, certManagerClient := fakecertmanagerclient.With(ctx, ls.GetCMCertificateObjects()...)
 
 		eventRecorder := record.NewFakeRecorder(10)

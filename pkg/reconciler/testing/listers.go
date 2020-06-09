@@ -24,17 +24,17 @@ import (
 
 	acmelisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/acme/v1alpha2"
 	certmanagerlisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/certmanager/v1alpha2"
+	networking "knative.dev/networking/pkg/apis/networking/v1alpha1"
+	fakenetworkingclientset "knative.dev/networking/pkg/client/clientset/versioned/fake"
+	networkinglisters "knative.dev/networking/pkg/client/listers/networking/v1alpha1"
 	"knative.dev/pkg/reconciler/testing"
-	networking "knative.dev/serving/pkg/apis/networking/v1alpha1"
-	fakeservingclientset "knative.dev/serving/pkg/client/clientset/versioned/fake"
-	networkinglisters "knative.dev/serving/pkg/client/listers/networking/v1alpha1"
 
 	acmev1alpha2 "github.com/jetstack/cert-manager/pkg/apis/acme/v1alpha2"
 	cmv1alpha2 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha2"
 )
 
 var clientSetSchemes = []func(*runtime.Scheme) error{
-	fakeservingclientset.AddToScheme,
+	fakenetworkingclientset.AddToScheme,
 	fakekubeclientset.AddToScheme,
 	cmv1alpha2.AddToScheme,
 	acmev1alpha2.AddToScheme,
@@ -74,8 +74,8 @@ func (l *Listers) IndexerFor(obj runtime.Object) cache.Indexer {
 	return l.sorter.IndexerForObjectType(obj)
 }
 
-func (l *Listers) GetServingObjects() []runtime.Object {
-	return l.sorter.ObjectsForSchemeFunc(fakeservingclientset.AddToScheme)
+func (l *Listers) GetNetworkingObjects() []runtime.Object {
+	return l.sorter.ObjectsForSchemeFunc(fakenetworkingclientset.AddToScheme)
 }
 
 func (l *Listers) GetKubeObjects() []runtime.Object {
