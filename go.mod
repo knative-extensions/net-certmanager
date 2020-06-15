@@ -3,7 +3,6 @@ module knative.dev/net-certmanager
 go 1.14
 
 require (
-	github.com/aws/aws-sdk-go v1.30.3 // indirect
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-cmp v0.4.0
 	github.com/grpc-ecosystem/grpc-gateway v1.14.3 // indirect
@@ -16,10 +15,10 @@ require (
 	k8s.io/apimachinery v0.18.1
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	k8s.io/utils v0.0.0-20200327001022-6496210b90e8 // indirect
-	knative.dev/networking v0.0.0-20200607161819-2086ac6759c2
-	knative.dev/pkg v0.0.0-20200608155520-39a1f43fc050
-	knative.dev/serving v0.15.1-0.20200608213432-f1582404be27
-	knative.dev/test-infra v0.0.0-20200608183332-3442736aebd0
+	knative.dev/networking v0.0.0-20200611155523-bd13675bcf70
+	knative.dev/pkg v0.0.0-20200614232523-aec2008e6656
+	knative.dev/serving v0.15.1-0.20200615083925-19a458c63ede
+	knative.dev/test-infra v0.0.0-20200612191923-a4dd434e085b
 )
 
 replace (
