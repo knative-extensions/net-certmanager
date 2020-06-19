@@ -1,6 +1,5 @@
-# Knative Sample Controller
+# Knative `net-certmanager`
 
-[![GoDoc](https://godoc.org/knative.dev/net-certmanager?status.svg)](https://godoc.org/knative.dev/net-certmanager)
 [![Go Report Card](https://goreportcard.com/badge/knative/net-certmanager)](https://goreportcard.com/report/knative/net-certmanager)
 
 Knative `net-certmanager` defines a few simple resources that are validated by
