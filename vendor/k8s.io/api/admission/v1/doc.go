@@ -1,5 +1,5 @@
 /*
-Copyright 2018 The Knative Authors
+Copyright 2019 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,16 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package duck
+// +k8s:deepcopy-gen=package
+// +k8s:protobuf-gen=package
+// +k8s:openapi-gen=false
 
-const (
-	GroupName = "duck.knative.dev"
+// +groupName=admission.k8s.io
 
-	// AddressableDuckVersionLabel is the label we use to declare
-	// that a type conforms to the Addressable duck type.
-	AddressableDuckVersionLabel = "duck.knative.dev/addressable"
-
-	// SourceDuckVersionLabel is the label we use to declare
-	// that a type conforms to the Source duck type.
-	SourceDuckVersionLabel = "duck.knative.dev/source"
-)
+package v1 // import "k8s.io/api/admission/v1"
