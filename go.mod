@@ -4,18 +4,17 @@ go 1.14
 
 require (
 	github.com/ghodss/yaml v1.0.0
-	github.com/google/go-cmp v0.5.0
-	github.com/grpc-ecosystem/grpc-gateway v1.14.3 // indirect
+	github.com/google/go-cmp v0.5.1
 	github.com/jetstack/cert-manager v0.12.0
 	github.com/json-iterator/go v1.1.9 // indirect
 	k8s.io/api v0.18.1
-	k8s.io/apimachinery v0.18.5
+	k8s.io/apimachinery v0.18.6
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	k8s.io/utils v0.0.0-20200327001022-6496210b90e8 // indirect
-	knative.dev/networking v0.0.0-20200715190634-e189256cc68f
-	knative.dev/pkg v0.0.0-20200715203233-3ba0019af6be
-	knative.dev/serving v0.16.1-0.20200715221333-9b1b6b7d0dbe
-	knative.dev/test-infra v0.0.0-20200715185233-6964ba126fee
+	knative.dev/networking v0.0.0-20200724160858-a48770266a29
+	knative.dev/pkg v0.0.0-20200724211057-f21f66204a5c
+	knative.dev/serving v0.16.1-0.20200724203457-1517b1735305
+	knative.dev/test-infra v0.0.0-20200724213858-d5ec9cdc6b33
 )
 
 replace (
