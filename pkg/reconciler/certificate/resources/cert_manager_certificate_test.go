@@ -28,7 +28,12 @@ import (
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	"knative.dev/networking/pkg/apis/networking/v1alpha1"
 	"knative.dev/pkg/kmeta"
-	"knative.dev/serving/pkg/apis/serving"
+)
+
+const (
+	servingRouteLabelKey     = "serving.knative.dev/route"
+	servingCreatorAnnotation = "serving.knative.dev/creator"
+	servingUpdaterAnnotation = "serving.knative.dev/lastModifier"
 )
 
 var cert = &v1alpha1.Certificate{
@@ -36,11 +41,11 @@ var cert = &v1alpha1.Certificate{
 		Name:      "test-cert",
 		Namespace: "test-ns",
 		Labels: map[string]string{
-			serving.RouteLabelKey: "test-route",
+			servingRouteLabelKey: "test-route",
 		},
 		Annotations: map[string]string{
-			serving.CreatorAnnotation: "someone",
-			serving.UpdaterAnnotation: "someone",
+			servingCreatorAnnotation: "someone",
+			servingUpdaterAnnotation: "someone",
 		},
 	},
 	Spec: v1alpha1.CertificateSpec{
@@ -63,11 +68,11 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 			Namespace:       "test-ns",
 			OwnerReferences: []metav1.OwnerReference{*kmeta.NewControllerRef(cert)},
 			Labels: map[string]string{
-				serving.RouteLabelKey: "test-route",
+				servingRouteLabelKey: "test-route",
 			},
 			Annotations: map[string]string{
-				serving.CreatorAnnotation: "someone",
-				serving.UpdaterAnnotation: "someone",
+				servingCreatorAnnotation: "someone",
+				servingUpdaterAnnotation: "someone",
 			},
 		},
 		Spec: cmv1alpha2.CertificateSpec{

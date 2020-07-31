@@ -19,6 +19,7 @@ package certificate
 import (
 	"context"
 
+	"go.uber.org/zap"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/cache"
 
@@ -27,6 +28,7 @@ import (
 	cmcertinformer "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1alpha2/certificate"
 	clusterinformer "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1alpha2/clusterissuer"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
+	network "knative.dev/networking/pkg"
 	"knative.dev/networking/pkg/apis/networking"
 	kcertinformer "knative.dev/networking/pkg/client/injection/informers/networking/v1alpha1/certificate"
 	certreconciler "knative.dev/networking/pkg/client/injection/reconciler/networking/v1alpha1/certificate"
@@ -34,13 +36,25 @@ import (
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
 	"knative.dev/pkg/logging"
+	"knative.dev/pkg/logging/logkey"
 	pkgreconciler "knative.dev/pkg/reconciler"
 	"knative.dev/pkg/tracker"
-	"knative.dev/serving/pkg/network"
-	servingreconciler "knative.dev/serving/pkg/reconciler"
 )
 
 const controllerAgentName = "certificate-controller"
+
+// AnnotateLoggerWithName names the logger in the context with the supplied name
+//
+// This is a stop gap until the generated reconcilers can do this
+// automatically for you
+func AnnotateLoggerWithName(ctx context.Context, name string) context.Context {
+	logger := logging.FromContext(ctx).
+		Named(name).
+		With(zap.String(logkey.ControllerType, name))
+
+	return logging.WithLogger(ctx, logger)
+
+}
 
 // NewController initializes the controller and is called by the generated code
 // Registers eventhandlers to enqueue events.
@@ -48,7 +62,7 @@ func NewController(
 	ctx context.Context,
 	cmw configmap.Watcher,
 ) *controller.Impl {
-	ctx = servingreconciler.AnnotateLoggerWithName(ctx, controllerAgentName)
+	ctx = AnnotateLoggerWithName(ctx, controllerAgentName)
 	logger := logging.FromContext(ctx)
 	knCertificateInformer := kcertinformer.Get(ctx)
 	cmCertificateInformer := cmcertinformer.Get(ctx)

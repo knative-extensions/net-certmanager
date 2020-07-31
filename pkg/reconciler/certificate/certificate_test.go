@@ -28,11 +28,11 @@ import (
 	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/acme/v1alpha2/challenge/fake"
 	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1alpha2/certificate/fake"
 	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1alpha2/clusterissuer/fake"
+	network "knative.dev/networking/pkg"
 	networkingclient "knative.dev/networking/pkg/client/injection/client/fake"
 	_ "knative.dev/networking/pkg/client/injection/informers/networking/v1alpha1/certificate/fake"
 	_ "knative.dev/pkg/client/injection/kube/informers/core/v1/service/fake"
 	"knative.dev/pkg/logging"
-	"knative.dev/serving/pkg/network"
 
 	acmev1alpha2 "github.com/jetstack/cert-manager/pkg/apis/acme/v1alpha2"
 	cmv1alpha2 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha2"
