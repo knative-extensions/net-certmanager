@@ -24,11 +24,11 @@ import (
 	// codegen: hack/generate-knative.sh
 	_ "knative.dev/pkg/hack"
 
-	_ "knative.dev/serving/test/test_images/flaky"
-	_ "knative.dev/serving/test/test_images/grpc-ping"
-	_ "knative.dev/serving/test/test_images/helloworld"
-	_ "knative.dev/serving/test/test_images/httpproxy"
-	_ "knative.dev/serving/test/test_images/runtime"
-	_ "knative.dev/serving/test/test_images/timeout"
-	_ "knative.dev/serving/test/test_images/wsserver"
+	_ "knative.dev/networking/test/test_images/flaky"
+	_ "knative.dev/networking/test/test_images/grpc-ping"
+	_ "knative.dev/networking/test/test_images/helloworld"
+	_ "knative.dev/networking/test/test_images/httpproxy"
+	_ "knative.dev/networking/test/test_images/runtime"
+	_ "knative.dev/networking/test/test_images/timeout"
+	_ "knative.dev/networking/test/test_images/wsserver"
 )
