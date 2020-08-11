@@ -155,12 +155,40 @@ func setFactory(f ResourceExporterFactory) error {
 	return retErr
 }
 
+func setReportingPeriod(mc *metricsConfig) {
+	allMeters.lock.Lock()
+	defer allMeters.lock.Unlock()
+
+	rp := time.Duration(0)
+	if mc != nil {
+		rp = mc.reportingPeriod
+	}
+	for _, meter := range allMeters.meters {
+		meter.m.SetReportingPeriod(rp)
+	}
+}
+
 func flushResourceExporters() {
 	allMeters.lock.Lock()
 	defer allMeters.lock.Unlock()
 
 	for _, meter := range allMeters.meters {
 		flushGivenExporter(meter.e)
+	}
+}
+
+// ClearMetersForTest clears the internal set of metrics being exported,
+// including cleaning up background threads.
+func ClearMetersForTest() {
+	allMeters.lock.Lock()
+	defer allMeters.lock.Unlock()
+
+	for k, meter := range allMeters.meters {
+		if k == "" {
+			continue
+		}
+		meter.m.Stop()
+		delete(allMeters.meters, k)
 	}
 }
 
@@ -177,6 +205,11 @@ func meterExporterForResource(r *resource.Resource) *meterExporter {
 	mE.m = view.NewMeter()
 	mE.m.SetResource(r)
 	mE.m.Start()
+
+	mc := getCurMetricsConfig()
+	if mc != nil {
+		mE.m.SetReportingPeriod(mc.reportingPeriod)
+	}
 	resourceViews.lock.Lock()
 	defer resourceViews.lock.Unlock()
 	// make a copy of views to avoid data races
