@@ -37,7 +37,6 @@ FLOATING_DEPS=(
   "knative.dev/networking@${VERSION}"
   "knative.dev/test-infra@${VERSION}"
   "knative.dev/pkg@${VERSION}"
-  "knative.dev/serving@master"
 )
 
 # Parse flags to determine any we should pass to dep.
