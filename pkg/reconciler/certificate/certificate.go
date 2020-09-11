@@ -134,7 +134,7 @@ func (c *Reconciler) reconcileCMCertificate(ctx context.Context, knCert *v1alpha
 
 	cmCert, err := c.cmCertificateLister.Certificates(desired.Namespace).Get(desired.Name)
 	if apierrs.IsNotFound(err) {
-		cmCert, err = c.certManagerClient.CertmanagerV1alpha2().Certificates(desired.Namespace).Create(desired)
+		cmCert, err = c.certManagerClient.CertmanagerV1alpha2().Certificates(desired.Namespace).Create(ctx, desired, metav1.CreateOptions{})
 		if err != nil {
 			recorder.Eventf(knCert, corev1.EventTypeWarning, "CreationFailed",
 				"Failed to create Cert-Manager Certificate %s/%s: %v", desired.Name, desired.Namespace, err)
@@ -150,7 +150,7 @@ func (c *Reconciler) reconcileCMCertificate(ctx context.Context, knCert *v1alpha
 	} else if !equality.Semantic.DeepEqual(cmCert.Spec, desired.Spec) {
 		copy := cmCert.DeepCopy()
 		copy.Spec = desired.Spec
-		updated, err := c.certManagerClient.CertmanagerV1alpha2().Certificates(copy.Namespace).Update(copy)
+		updated, err := c.certManagerClient.CertmanagerV1alpha2().Certificates(copy.Namespace).Update(ctx, copy, metav1.UpdateOptions{})
 		if err != nil {
 			recorder.Eventf(knCert, corev1.EventTypeWarning, "UpdateFailed",
 				"Failed to create Cert-Manager Certificate %s/%s: %v", desired.Namespace, desired.Name, err)
