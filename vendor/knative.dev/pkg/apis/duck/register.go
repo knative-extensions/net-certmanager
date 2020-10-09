@@ -1,5 +1,5 @@
 /*
-Copyright 2019 The Knative Authors
+Copyright 2018 The Knative Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,19 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package helpers
+package duck
 
 import (
-	"log"
+	"knative.dev/pkg/apis/duck/ducktypes"
 )
 
-// Run can run functions that needs dryrun support.
-func Run(message string, call func() error, dryrun bool) error {
-	if dryrun {
-		log.Print("[dry run] ", message)
-		return nil
-	}
-	log.Print(message)
+const (
+	GroupName = ducktypes.GroupName
 
-	return call()
-}
+	// AddressableDuckVersionLabel is the label we use to declare
+	// that a type conforms to the Addressable duck type.
+	AddressableDuckVersionLabel = "duck.knative.dev/addressable"
+
+	// SourceDuckVersionLabel is the label we use to declare
+	// that a type conforms to the Source duck type.
+	SourceDuckVersionLabel = "duck.knative.dev/source"
+)
