@@ -8,13 +8,12 @@ require (
 	github.com/jetstack/cert-manager v1.0.0
 	go.uber.org/zap v1.15.0
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
-	honnef.co/go/tools v0.0.1-2020.1.5 // indirect
 	k8s.io/api v0.19.0
 	k8s.io/apimachinery v0.19.0
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
-	knative.dev/networking v0.0.0-20201012170717-953c086174f1
-	knative.dev/pkg v0.0.0-20201012221417-e3b4e9c22943
-	knative.dev/test-infra v0.0.0-20201009204121-322fb08edae7
+	knative.dev/networking v0.0.0-20201013020930-800e8e255ada
+	knative.dev/pkg v0.0.0-20201013114130-602db5ee124d
+	knative.dev/test-infra v0.0.0-20201013100530-45e0761df397
 )
 
 replace (
