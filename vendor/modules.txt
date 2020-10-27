@@ -781,7 +781,7 @@ k8s.io/utils/buffer
 k8s.io/utils/integer
 k8s.io/utils/pointer
 k8s.io/utils/trace
-# knative.dev/networking v0.0.0-20201026014042-780d7c40cbad
+# knative.dev/networking v0.0.0-20201027015433-dc85b99d4646
 ## explicit
 knative.dev/networking/pkg
 knative.dev/networking/pkg/apis/networking
@@ -818,7 +818,7 @@ knative.dev/networking/test/test_images/runtime/handlers
 knative.dev/networking/test/test_images/timeout
 knative.dev/networking/test/test_images/wsserver
 knative.dev/networking/test/types
-# knative.dev/pkg v0.0.0-20201026015042-efadd36f9c63
+# knative.dev/pkg v0.0.0-20201027020033-875095c42ee0
 ## explicit
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
@@ -881,7 +881,7 @@ knative.dev/pkg/webhook
 knative.dev/pkg/webhook/certificates
 knative.dev/pkg/webhook/certificates/resources
 knative.dev/pkg/webhook/configmaps
-# knative.dev/test-infra v0.0.0-20201023182438-7efa632471b9
+# knative.dev/test-infra v0.0.0-20201026182042-46291de4ab66
 ## explicit
 knative.dev/test-infra/scripts
 # sigs.k8s.io/structured-merge-diff/v3 v3.0.1-0.20200706213357-43c19bbb7fba
