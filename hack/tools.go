@@ -19,7 +19,7 @@ package tools
 
 // This package imports things required by this repository, to force `go mod` to see them as dependencies
 import (
-	_ "knative.dev/test-infra/scripts"
+	_ "knative.dev/hack"
 
 	// codegen: hack/generate-knative.sh
 	_ "knative.dev/pkg/hack"
