@@ -6,13 +6,13 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-cmp v0.5.2
 	github.com/jetstack/cert-manager v1.0.0
-	go.uber.org/zap v1.15.0
+	go.uber.org/zap v1.16.0
 	k8s.io/api v0.19.0
 	k8s.io/apimachinery v0.19.0
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
-	knative.dev/hack v0.0.0-20201027221733-0d7f2f064b7b
-	knative.dev/networking v0.0.0-20201028132534-429a6210295c
-	knative.dev/pkg v0.0.0-20201028133634-8ae84fe12a61
+	knative.dev/hack v0.0.0-20201028205534-fe80f1c8af68
+	knative.dev/networking v0.0.0-20201101040934-f77f64474b76
+	knative.dev/pkg v0.0.0-20201030200734-72451e0d5973
 )
 
 replace (
