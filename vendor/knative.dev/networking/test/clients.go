@@ -21,9 +21,11 @@ package test
 import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+
+	// Allow E2E to run against a cluster using OpenID.
+	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 
 	"knative.dev/networking/pkg/client/clientset/versioned"
 	networkingv1alpha1 "knative.dev/networking/pkg/client/clientset/versioned/typed/networking/v1alpha1"
@@ -69,7 +71,7 @@ func NewClientsFromConfig(cfg *rest.Config, namespace string) (*Clients, error) 
 	if err != nil {
 		return nil, err
 	}
-	clients.KubeClient = &test.KubeClient{Kube: kubeClient}
+	clients.KubeClient = &test.KubeClient{Interface: kubeClient}
 
 	clients.Dynamic, err = dynamic.NewForConfig(cfg)
 	if err != nil {

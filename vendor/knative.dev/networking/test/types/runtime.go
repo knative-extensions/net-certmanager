@@ -122,8 +122,8 @@ type RuntimeInfo struct {
 
 // RequestInfo encapsulates information about the request.
 type RequestInfo struct {
-	// Ts is the timestamp of when the request came in from the system time.
-	Ts time.Time `json:"ts"`
+	// Timestamp is the timestamp of when the request came in from the system time.
+	Timestamp time.Time `json:"ts"`
 	// URI is the request-target of the Request-Line.
 	URI string `json:"uri"`
 	// Host is the hostname on which the URL is sought.
@@ -159,7 +159,7 @@ type HostInfo struct {
 type Stdin struct {
 	// EOF is true if the first byte read from stdin results in EOF.
 	EOF *bool `json:"eof,omitempty"`
-	// Error is the String representation of an error probing sdtin.
+	// Error is the String representation of an error probing stdin.
 	Error string `json:"error,omitempty"`
 }
 

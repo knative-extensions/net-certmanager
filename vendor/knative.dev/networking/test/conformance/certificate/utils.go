@@ -48,7 +48,7 @@ func CreateCertificate(ctx context.Context, t *testing.T, clients *test.Clients,
 			Name:      name,
 			Namespace: test.ServingNamespace,
 			Annotations: map[string]string{
-				networking.CertificateClassAnnotationKey: test.ServingFlags.CertificateClass,
+				networking.CertificateClassAnnotationKey: test.NetworkingFlags.CertificateClass,
 			},
 		},
 		Spec: v1alpha1.CertificateSpec{
@@ -59,7 +59,7 @@ func CreateCertificate(ctx context.Context, t *testing.T, clients *test.Clients,
 
 	test.EnsureCleanup(t, func() {
 		clients.NetworkingClient.Certificates.Delete(ctx, cert.Name, metav1.DeleteOptions{})
-		clients.KubeClient.Kube.CoreV1().Secrets(test.ServingNamespace).Delete(ctx, cert.Spec.SecretName, metav1.DeleteOptions{})
+		clients.KubeClient.CoreV1().Secrets(test.ServingNamespace).Delete(ctx, cert.Spec.SecretName, metav1.DeleteOptions{})
 	})
 
 	cert, err := clients.NetworkingClient.Certificates.Create(ctx, cert, metav1.CreateOptions{})
@@ -83,7 +83,7 @@ func WaitForCertificateSecret(ctx context.Context, t *testing.T, client *test.Cl
 	defer span.End()
 
 	return wait.PollImmediate(test.PollInterval, test.PollTimeout, func() (bool, error) {
-		secret, err := client.KubeClient.Kube.CoreV1().Secrets(test.ServingNamespace).Get(ctx, cert.Spec.SecretName, metav1.GetOptions{})
+		secret, err := client.KubeClient.CoreV1().Secrets(test.ServingNamespace).Get(ctx, cert.Spec.SecretName, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
 			return false, nil
 		} else if err != nil {
@@ -144,9 +144,9 @@ func VerifyChallenges(ctx context.Context, t *testing.T, client *test.Clients, c
 		if !certDomains.Has(challenge.URL.Host) {
 			t.Errorf("HTTP01 Challenge host %s is not one of: %v", challenge.URL.Host, cert.Spec.DNSNames)
 		}
-		_, err := client.KubeClient.Kube.CoreV1().Services(challenge.ServiceNamespace).Get(ctx, challenge.ServiceName, metav1.GetOptions{})
+		_, err := client.KubeClient.CoreV1().Services(challenge.ServiceNamespace).Get(ctx, challenge.ServiceName, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
-			t.Errorf("failed to find solver service for challenge: %v", err)
+			t.Error("failed to find solver service for challenge:", err)
 		}
 	}
 }

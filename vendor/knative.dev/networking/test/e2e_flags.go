@@ -25,24 +25,29 @@ import (
 	network "knative.dev/networking/pkg"
 )
 
-// ServingFlags holds the flags or defaults for knative/serving settings in the user's environment.
-var ServingFlags = initializeServingFlags()
+// NetworkingFlags holds the flags or defaults for knative/networking settings in the user's environment.
+var NetworkingFlags = initializeNetworkingFlags()
 
-// ServingEnvironmentFlags holds the e2e flags needed only by the serving repo.
-type ServingEnvironmentFlags struct {
+// ServingFlags is an alias of NetworkingFlags.
+// TODO: Delete this variable once all downstream migrate it to NetworkingFlags.
+var ServingFlags = NetworkingFlags
+
+// NetworkingEnvironmentFlags holds the e2e flags needed only by the networking repo.
+type NetworkingEnvironmentFlags struct {
 	ResolvableDomain    bool   // Resolve Route controller's `domainSuffix`
-	Https               bool   // Indicates where the test service will be created with https
+	HTTPS               bool   // Indicates where the test service will be created with https
 	IngressClass        string // Indicates the class of Ingress provider to test.
 	CertificateClass    string // Indicates the class of Certificate provider to test.
-	SystemNamespace     string // Indicates the system namespace, in which Knative Serving is installed.
 	Buckets             int    // The number of reconciler buckets configured.
 	Replicas            int    // The number of controlplane replicas being run.
 	EnableAlphaFeatures bool   // Indicates whether we run tests for alpha features
 	EnableBetaFeatures  bool   // Indicates whether we run tests for beta features
+	SkipTests           string // Indicates the test names we want to skip in alpha or beta features.
+	ClusterSuffix       string // Specifies the cluster DNS suffix to be used in tests.
 }
 
-func initializeServingFlags() *ServingEnvironmentFlags {
-	var f ServingEnvironmentFlags
+func initializeNetworkingFlags() *NetworkingEnvironmentFlags {
+	var f NetworkingEnvironmentFlags
 
 	// Only define and set flags here. Flag values cannot be read at package init time.
 	flag.BoolVar(&f.ResolvableDomain,
@@ -50,7 +55,7 @@ func initializeServingFlags() *ServingEnvironmentFlags {
 		false,
 		"Set this flag to true if you have configured the `domainSuffix` on your Route controller to a domain that will resolve to your test cluster.")
 
-	flag.BoolVar(&f.Https,
+	flag.BoolVar(&f.HTTPS,
 		"https",
 		false,
 		"Set this flag to true to run all tests with https.")
@@ -78,12 +83,22 @@ func initializeServingFlags() *ServingEnvironmentFlags {
 	flag.BoolVar(&f.EnableAlphaFeatures,
 		"enable-alpha",
 		false,
-		"Set this flag to run tests against alpha features")
+		"Set this flag to run tests against alpha features.")
 
 	flag.BoolVar(&f.EnableBetaFeatures,
 		"enable-beta",
 		false,
-		"Set this flag to run tests against beta features")
+		"Set this flag to run tests against beta features.")
+
+	flag.StringVar(&f.SkipTests,
+		"skip-tests",
+		"",
+		"Set this flag to the tests you want to skip in alpha or beta features. Accepts a comma separated list.")
+
+	flag.StringVar(&f.ClusterSuffix,
+		"cluster-suffix",
+		"cluster.local",
+		"Set this flag to the cluster suffix to be used in tests.")
 
 	return &f
 }
