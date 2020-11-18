@@ -1,1 +1,1 @@
-/usr/local/google/home/zhiminx/go/src/knative.dev/net-certmanager/vendor/knative.dev/pkg/hack/update-k8s-deps.sh
+../vendor/knative.dev/pkg/hack/update-k8s-deps.sh
