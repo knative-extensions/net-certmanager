@@ -420,7 +420,7 @@ gopkg.in/evanphx/json-patch.v4
 gopkg.in/inf.v0
 # gopkg.in/yaml.v2 v2.3.0
 gopkg.in/yaml.v2
-# k8s.io/api v0.19.0 => k8s.io/api v0.18.12
+# k8s.io/api v0.19.7 => k8s.io/api v0.18.12
 ## explicit
 k8s.io/api/admission/v1
 k8s.io/api/admissionregistration/v1
@@ -463,11 +463,11 @@ k8s.io/api/settings/v1alpha1
 k8s.io/api/storage/v1
 k8s.io/api/storage/v1alpha1
 k8s.io/api/storage/v1beta1
-# k8s.io/apiextensions-apiserver v0.19.0 => k8s.io/apiextensions-apiserver v0.18.12
+# k8s.io/apiextensions-apiserver v0.19.7 => k8s.io/apiextensions-apiserver v0.18.12
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1
-# k8s.io/apimachinery v0.19.0 => k8s.io/apimachinery v0.18.12
+# k8s.io/apimachinery v0.19.7 => k8s.io/apimachinery v0.18.12
 ## explicit
 k8s.io/apimachinery/pkg/api/equality
 k8s.io/apimachinery/pkg/api/errors
@@ -515,7 +515,7 @@ k8s.io/apimachinery/pkg/version
 k8s.io/apimachinery/pkg/watch
 k8s.io/apimachinery/third_party/forked/golang/json
 k8s.io/apimachinery/third_party/forked/golang/reflect
-# k8s.io/client-go v0.19.0 => k8s.io/client-go v0.18.12
+# k8s.io/client-go v0.19.7 => k8s.io/client-go v0.18.12
 ## explicit
 k8s.io/client-go/discovery
 k8s.io/client-go/discovery/fake
@@ -729,7 +729,7 @@ k8s.io/client-go/util/jsonpath
 k8s.io/client-go/util/keyutil
 k8s.io/client-go/util/retry
 k8s.io/client-go/util/workqueue
-# k8s.io/code-generator v0.19.0 => k8s.io/code-generator v0.18.12
+# k8s.io/code-generator v0.19.7 => k8s.io/code-generator v0.18.12
 k8s.io/code-generator
 k8s.io/code-generator/cmd/client-gen
 k8s.io/code-generator/cmd/client-gen/args
@@ -763,7 +763,7 @@ k8s.io/code-generator/cmd/set-gen
 k8s.io/code-generator/pkg/namer
 k8s.io/code-generator/pkg/util
 k8s.io/code-generator/third_party/forked/golang/reflect
-# k8s.io/gengo v0.0.0-20200205140755-e0e292d8aa12
+# k8s.io/gengo v0.0.0-20200428234225-8167cfdcfc14
 k8s.io/gengo/args
 k8s.io/gengo/examples/deepcopy-gen/generators
 k8s.io/gengo/examples/defaulter-gen/generators
@@ -790,10 +790,10 @@ k8s.io/utils/buffer
 k8s.io/utils/integer
 k8s.io/utils/pointer
 k8s.io/utils/trace
-# knative.dev/hack v0.0.0-20210114150620-4422dcadb3c8
+# knative.dev/hack v0.0.0-20210120165453-8d623a0af457
 ## explicit
 knative.dev/hack
-# knative.dev/networking v0.0.0-20210119135323-4751606d2e26
+# knative.dev/networking v0.0.0-20210125050654-94433ab7f620
 ## explicit
 knative.dev/networking/pkg
 knative.dev/networking/pkg/apis/networking
@@ -828,7 +828,7 @@ knative.dev/networking/test/test_images/runtime/handlers
 knative.dev/networking/test/test_images/timeout
 knative.dev/networking/test/test_images/wsserver
 knative.dev/networking/test/types
-# knative.dev/pkg v0.0.0-20210118192521-75d66b58948d
+# knative.dev/pkg v0.0.0-20210125222030-6040b3af4803
 ## explicit
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
@@ -892,6 +892,7 @@ knative.dev/pkg/webhook/certificates
 knative.dev/pkg/webhook/certificates/resources
 knative.dev/pkg/webhook/configmaps
 # sigs.k8s.io/structured-merge-diff/v3 v3.0.1-0.20200706213357-43c19bbb7fba
+## explicit
 sigs.k8s.io/structured-merge-diff/v3/value
 # sigs.k8s.io/yaml v1.2.0
 sigs.k8s.io/yaml
