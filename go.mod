@@ -11,8 +11,8 @@ require (
 	k8s.io/apimachinery v0.19.7
 	k8s.io/client-go v0.19.7
 	knative.dev/hack v0.0.0-20210203173706-8368e1f6eacf
-	knative.dev/networking v0.0.0-20210211230105-9757667cd59a
-	knative.dev/pkg v0.0.0-20210211034618-e38bb8931ffe
+	knative.dev/networking v0.0.0-20210215030235-088986a1c2a3
+	knative.dev/pkg v0.0.0-20210212203835-448ae657fb5f
 	sigs.k8s.io/structured-merge-diff/v3 v3.0.1-0.20200706213357-43c19bbb7fba // indirect
 )
 
