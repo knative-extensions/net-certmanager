@@ -43,6 +43,8 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 			SecretName: knCert.Spec.SecretName,
 			DNSNames:   knCert.Spec.DNSNames,
 			IssuerRef:  *cmConfig.IssuerRef,
+			KeyAlgorithm: cmConfig.KeyAlgorithm,
+			KeySize: cmConfig.KeySize,
 		},
 	}
 	return cert

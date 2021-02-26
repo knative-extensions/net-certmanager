@@ -20,11 +20,14 @@ import (
 	"github.com/ghodss/yaml"
 
 	cmeta "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
+	cmv1alpha2 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha2"
 	corev1 "k8s.io/api/core/v1"
 )
 
 const (
 	issuerRefKey = "issuerRef"
+	keyAlgorithmKey = "keyAlgorithm"
+	keySizeKey = "keySize"
 
 	// CertManagerConfigName is the name of the configmap containing all
 	// configuration related to Cert-Manager.
@@ -35,6 +38,8 @@ const (
 // `config-certmanager` config map.
 type CertManagerConfig struct {
 	IssuerRef *cmeta.ObjectReference
+	KeyAlgorithm cmv1alpha2.KeyAlgorithm
+	KeySize int
 }
 
 // NewCertManagerConfigFromConfigMap creates an CertManagerConfig from the supplied ConfigMap
@@ -48,6 +53,18 @@ func NewCertManagerConfigFromConfigMap(configMap *corev1.ConfigMap) (*CertManage
 
 	if v, ok := configMap.Data[issuerRefKey]; ok {
 		if err := yaml.Unmarshal([]byte(v), config.IssuerRef); err != nil {
+			return nil, err
+		}
+	}
+
+	if v, ok := configMap.Data[keyAlgorithmKey]; ok {
+		if err := yaml.Unmarshal([]byte(v), &config.KeyAlgorithm); err != nil {
+			return nil, err
+		}
+	}
+
+	if v, ok := configMap.Data[keySizeKey]; ok {
+		if err := yaml.Unmarshal([]byte(v), &config.KeySize); err != nil {
 			return nil, err
 		}
 	}
