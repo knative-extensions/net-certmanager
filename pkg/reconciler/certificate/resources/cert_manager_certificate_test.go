@@ -77,6 +77,7 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 		},
 		Spec: cmv1alpha2.CertificateSpec{
 			SecretName: "secret0",
+			CommonName: "host1.example.com",
 			DNSNames:   []string{"host1.example.com", "host2.example.com"},
 			IssuerRef: cmmeta.ObjectReference{
 				Kind: "ClusterIssuer",

@@ -26,6 +26,10 @@ import (
 
 // MakeCertManagerCertificate creates a Cert-Manager `Certificate` for requesting a SSL certificate.
 func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1alpha1.Certificate) *cmv1alpha2.Certificate {
+	var commonName string
+	if len(knCert.Spec.DNSNames) > 0 {
+		commonName = knCert.Spec.DNSNames[0]
+	}
 	cert := &cmv1alpha2.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            knCert.Name,
@@ -35,6 +39,7 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 			Labels:          knCert.GetLabels(),
 		},
 		Spec: cmv1alpha2.CertificateSpec{
+			CommonName: commonName,
 			SecretName: knCert.Spec.SecretName,
 			DNSNames:   knCert.Spec.DNSNames,
 			IssuerRef:  *cmConfig.IssuerRef,
