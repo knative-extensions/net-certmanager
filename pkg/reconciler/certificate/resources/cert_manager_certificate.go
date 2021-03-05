@@ -39,12 +39,12 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 			Labels:          knCert.GetLabels(),
 		},
 		Spec: cmv1alpha2.CertificateSpec{
-			CommonName: commonName,
-			SecretName: knCert.Spec.SecretName,
-			DNSNames:   knCert.Spec.DNSNames,
-			IssuerRef:  *cmConfig.IssuerRef,
+			CommonName:   commonName,
+			SecretName:   knCert.Spec.SecretName,
+			DNSNames:     knCert.Spec.DNSNames,
+			IssuerRef:    *cmConfig.IssuerRef,
 			KeyAlgorithm: cmConfig.KeyAlgorithm,
-			KeySize: cmConfig.KeySize,
+			KeySize:      cmConfig.KeySize,
 		},
 	}
 	return cert

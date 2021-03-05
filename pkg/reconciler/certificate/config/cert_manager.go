@@ -19,15 +19,15 @@ package config
 import (
 	"github.com/ghodss/yaml"
 
-	cmeta "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	cmv1alpha2 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha2"
+	cmeta "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	corev1 "k8s.io/api/core/v1"
 )
 
 const (
-	issuerRefKey = "issuerRef"
+	issuerRefKey    = "issuerRef"
 	keyAlgorithmKey = "keyAlgorithm"
-	keySizeKey = "keySize"
+	keySizeKey      = "keySize"
 
 	// CertManagerConfigName is the name of the configmap containing all
 	// configuration related to Cert-Manager.
@@ -37,9 +37,9 @@ const (
 // CertManagerConfig contains Cert-Manager related configuration defined in the
 // `config-certmanager` config map.
 type CertManagerConfig struct {
-	IssuerRef *cmeta.ObjectReference
+	IssuerRef    *cmeta.ObjectReference
 	KeyAlgorithm cmv1alpha2.KeyAlgorithm
-	KeySize int
+	KeySize      int
 }
 
 // NewCertManagerConfigFromConfigMap creates an CertManagerConfig from the supplied ConfigMap
