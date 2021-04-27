@@ -1,12 +1,9 @@
 approvers:
-# TOC
-- evankanderson
-- mattmoor
-- vaikas
-# Networking Approvers
-- markusthoemmes
-- mdemirhan
-- nak3
-- tcnghia
-- vagababov
-- ZhiminXiang
+- technical-oversight-committee
+- knative-release-leads
+- networking-wg-leads
+- net-certmanager-approvers
+
+reviewers:
+- networking-wg-leads
+- net-certmanager-approvers
