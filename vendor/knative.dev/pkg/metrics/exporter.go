@@ -81,7 +81,7 @@ type ExporterOptions struct {
 	PrometheusHost string
 
 	// ConfigMap is the data from config map config-observability. Must be present.
-	// See https://github.com/knative/serving/blob/master/config/config-observability.yaml
+	// See https://github.com/knative/serving/blob/main/config/config-observability.yaml
 	// for details.
 	ConfigMap map[string]string
 
@@ -181,6 +181,10 @@ func isNewExporterRequired(newConfig *metricsConfig) bool {
 	// TODO(evankanderson): Should we just always restart the opencensus agent?
 	if newConfig.backendDestination == openCensus {
 		return newConfig.collectorAddress != cc.collectorAddress || newConfig.requireSecure != cc.requireSecure
+	}
+
+	if newConfig.backendDestination == prometheus {
+		return newConfig.prometheusHost != cc.prometheusHost || newConfig.prometheusPort != cc.prometheusPort
 	}
 
 	return newConfig.backendDestination == stackdriver && newConfig.stackdriverClientConfig != cc.stackdriverClientConfig
