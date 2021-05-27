@@ -24,9 +24,9 @@ import (
 	"k8s.io/client-go/tools/cache"
 
 	cmclient "knative.dev/net-certmanager/pkg/client/certmanager/injection/client"
-	cmchallengeinformer "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/acme/v1alpha2/challenge"
-	cmcertinformer "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1alpha2/certificate"
-	clusterinformer "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1alpha2/clusterissuer"
+	cmchallengeinformer "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/acme/v1/challenge"
+	cmcertinformer "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1/certificate"
+	clusterinformer "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1/clusterissuer"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	network "knative.dev/networking/pkg"
 	"knative.dev/networking/pkg/apis/networking"

@@ -22,22 +22,22 @@ import (
 	corev1listers "k8s.io/client-go/listers/core/v1"
 	"k8s.io/client-go/tools/cache"
 
-	acmelisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/acme/v1alpha2"
-	certmanagerlisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/certmanager/v1alpha2"
+	acmelisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/acme/v1"
+	certmanagerlisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/certmanager/v1"
 	networking "knative.dev/networking/pkg/apis/networking/v1alpha1"
 	fakenetworkingclientset "knative.dev/networking/pkg/client/clientset/versioned/fake"
 	networkinglisters "knative.dev/networking/pkg/client/listers/networking/v1alpha1"
 	"knative.dev/pkg/reconciler/testing"
 
-	acmev1alpha2 "github.com/jetstack/cert-manager/pkg/apis/acme/v1alpha2"
-	cmv1alpha2 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha2"
+	acmev1 "github.com/jetstack/cert-manager/pkg/apis/acme/v1"
+	cmv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
 )
 
 var clientSetSchemes = []func(*runtime.Scheme) error{
 	fakenetworkingclientset.AddToScheme,
 	fakekubeclientset.AddToScheme,
-	cmv1alpha2.AddToScheme,
-	acmev1alpha2.AddToScheme,
+	cmv1.AddToScheme,
+	acmev1.AddToScheme,
 }
 
 type Listers struct {
@@ -104,22 +104,22 @@ func (l *Listers) GetSecretLister() corev1listers.SecretLister {
 
 // GetCMCertificateLister gets lister for Cert Manager Certificate resource.
 func (l *Listers) GetCMCertificateLister() certmanagerlisters.CertificateLister {
-	return certmanagerlisters.NewCertificateLister(l.IndexerFor(&cmv1alpha2.Certificate{}))
+	return certmanagerlisters.NewCertificateLister(l.IndexerFor(&cmv1.Certificate{}))
 }
 
 // GetCMClusterIssuerLister gets lister for Cert Manager ClusterIssuer resource.
 func (l *Listers) GetCMClusterIssuerLister() certmanagerlisters.ClusterIssuerLister {
-	return certmanagerlisters.NewClusterIssuerLister(l.IndexerFor(&cmv1alpha2.ClusterIssuer{}))
+	return certmanagerlisters.NewClusterIssuerLister(l.IndexerFor(&cmv1.ClusterIssuer{}))
 }
 
 // GetCMChallengeLister gets lister for Cert Manager Challenge resource.
 func (l *Listers) GetCMChallengeLister() acmelisters.ChallengeLister {
-	return acmelisters.NewChallengeLister(l.IndexerFor(&acmev1alpha2.Challenge{}))
+	return acmelisters.NewChallengeLister(l.IndexerFor(&acmev1.Challenge{}))
 }
 
 // GetCMCertificateObjects gets a list of Cert-Manager Certificate objects.
 func (l *Listers) GetCMCertificateObjects() []runtime.Object {
-	return l.sorter.ObjectsForSchemeFunc(cmv1alpha2.AddToScheme)
+	return l.sorter.ObjectsForSchemeFunc(cmv1.AddToScheme)
 }
 
 // GetCertificateLister get lister for Certificate resource.

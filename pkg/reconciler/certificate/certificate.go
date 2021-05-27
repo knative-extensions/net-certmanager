@@ -24,7 +24,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/sets"
 
-	cmv1alpha2 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha2"
+	cmv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
 	cmmeta "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 
 	corev1 "k8s.io/api/core/v1"
@@ -37,8 +37,8 @@ import (
 	certreconciler "knative.dev/networking/pkg/client/injection/reconciler/networking/v1alpha1/certificate"
 
 	certmanagerclientset "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned"
-	acmelisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/acme/v1alpha2"
-	certmanagerlisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/certmanager/v1alpha2"
+	acmelisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/acme/v1"
+	certmanagerlisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/certmanager/v1"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/resources"
 	"knative.dev/networking/pkg/apis/networking/v1alpha1"
@@ -129,12 +129,12 @@ func (c *Reconciler) reconcile(ctx context.Context, knCert *v1alpha1.Certificate
 	return nil
 }
 
-func (c *Reconciler) reconcileCMCertificate(ctx context.Context, knCert *v1alpha1.Certificate, desired *cmv1alpha2.Certificate) (*cmv1alpha2.Certificate, error) {
+func (c *Reconciler) reconcileCMCertificate(ctx context.Context, knCert *v1alpha1.Certificate, desired *cmv1.Certificate) (*cmv1.Certificate, error) {
 	recorder := controller.GetEventRecorder(ctx)
 
 	cmCert, err := c.cmCertificateLister.Certificates(desired.Namespace).Get(desired.Name)
 	if apierrs.IsNotFound(err) {
-		cmCert, err = c.certManagerClient.CertmanagerV1alpha2().Certificates(desired.Namespace).Create(ctx, desired, metav1.CreateOptions{})
+		cmCert, err = c.certManagerClient.CertmanagerV1().Certificates(desired.Namespace).Create(ctx, desired, metav1.CreateOptions{})
 		if err != nil {
 			recorder.Eventf(knCert, corev1.EventTypeWarning, "CreationFailed",
 				"Failed to create Cert-Manager Certificate %s/%s: %v", desired.Name, desired.Namespace, err)
@@ -150,7 +150,7 @@ func (c *Reconciler) reconcileCMCertificate(ctx context.Context, knCert *v1alpha
 	} else if !equality.Semantic.DeepEqual(cmCert.Spec, desired.Spec) {
 		copy := cmCert.DeepCopy()
 		copy.Spec = desired.Spec
-		updated, err := c.certManagerClient.CertmanagerV1alpha2().Certificates(copy.Namespace).Update(ctx, copy, metav1.UpdateOptions{})
+		updated, err := c.certManagerClient.CertmanagerV1().Certificates(copy.Namespace).Update(ctx, copy, metav1.UpdateOptions{})
 		if err != nil {
 			recorder.Eventf(knCert, corev1.EventTypeWarning, "UpdateFailed",
 				"Failed to create Cert-Manager Certificate %s/%s: %v", desired.Namespace, desired.Name, err)
@@ -163,7 +163,7 @@ func (c *Reconciler) reconcileCMCertificate(ctx context.Context, knCert *v1alpha
 	return cmCert, nil
 }
 
-func (c *Reconciler) setHTTP01Challenges(knCert *v1alpha1.Certificate, cmCert *cmv1alpha2.Certificate) error {
+func (c *Reconciler) setHTTP01Challenges(knCert *v1alpha1.Certificate, cmCert *cmv1.Certificate) error {
 	if isHTTP, err := c.isHTTPChallenge(cmCert); err != nil {
 		return err
 	} else if !isHTTP {
@@ -216,7 +216,7 @@ func (c *Reconciler) setHTTP01Challenges(knCert *v1alpha1.Certificate, cmCert *c
 	return nil
 }
 
-func (c *Reconciler) isHTTPChallenge(cmCert *cmv1alpha2.Certificate) (bool, error) {
+func (c *Reconciler) isHTTPChallenge(cmCert *cmv1.Certificate) (bool, error) {
 	if issuer, err := c.cmIssuerLister.Get(cmCert.Spec.IssuerRef.Name); err != nil {
 		return false, err
 	} else {

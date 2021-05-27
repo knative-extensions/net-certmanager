@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	cmv1alpha2 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha2"
+	cmv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
 	cmmeta "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -62,7 +62,7 @@ var cmConfig = &config.CertManagerConfig{
 }
 
 func TestMakeCertManagerCertificate(t *testing.T) {
-	want := &cmv1alpha2.Certificate{
+	want := &cmv1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            "test-cert",
 			Namespace:       "test-ns",
@@ -75,7 +75,7 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 				servingUpdaterAnnotation: "someone",
 			},
 		},
-		Spec: cmv1alpha2.CertificateSpec{
+		Spec: cmv1.CertificateSpec{
 			SecretName: "secret0",
 			CommonName: "host1.example.com",
 			DNSNames:   []string{"host1.example.com", "host2.example.com"},
@@ -94,29 +94,29 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 func TestGetReadyCondition(t *testing.T) {
 	tests := []struct {
 		name          string
-		cmCertificate *cmv1alpha2.Certificate
-		want          *cmv1alpha2.CertificateCondition
+		cmCertificate *cmv1.Certificate
+		want          *cmv1.CertificateCondition
 	}{{
 		name:          "ready",
 		cmCertificate: makeTestCertificate(cmmeta.ConditionTrue, "ready", "ready"),
-		want: &cmv1alpha2.CertificateCondition{
-			Type:    cmv1alpha2.CertificateConditionReady,
+		want: &cmv1.CertificateCondition{
+			Type:    cmv1.CertificateConditionReady,
 			Status:  cmmeta.ConditionTrue,
 			Reason:  "ready",
 			Message: "ready",
 		}}, {
 		name:          "not ready",
 		cmCertificate: makeTestCertificate(cmmeta.ConditionFalse, "not ready", "not ready"),
-		want: &cmv1alpha2.CertificateCondition{
-			Type:    cmv1alpha2.CertificateConditionReady,
+		want: &cmv1.CertificateCondition{
+			Type:    cmv1.CertificateConditionReady,
 			Status:  cmmeta.ConditionFalse,
 			Reason:  "not ready",
 			Message: "not ready",
 		}}, {
 		name:          "unknow",
 		cmCertificate: makeTestCertificate(cmmeta.ConditionUnknown, "unknown", "unknown"),
-		want: &cmv1alpha2.CertificateCondition{
-			Type:    cmv1alpha2.CertificateConditionReady,
+		want: &cmv1.CertificateCondition{
+			Type:    cmv1.CertificateConditionReady,
 			Status:  cmmeta.ConditionUnknown,
 			Reason:  "unknown",
 			Message: "unknown",
@@ -133,11 +133,11 @@ func TestGetReadyCondition(t *testing.T) {
 	}
 }
 
-func makeTestCertificate(cond cmmeta.ConditionStatus, reason, message string) *cmv1alpha2.Certificate {
-	cert := &cmv1alpha2.Certificate{
-		Status: cmv1alpha2.CertificateStatus{
-			Conditions: []cmv1alpha2.CertificateCondition{{
-				Type:    cmv1alpha2.CertificateConditionReady,
+func makeTestCertificate(cond cmmeta.ConditionStatus, reason, message string) *cmv1.Certificate {
+	cert := &cmv1.Certificate{
+		Status: cmv1.CertificateStatus{
+			Conditions: []cmv1.CertificateCondition{{
+				Type:    cmv1.CertificateConditionReady,
 				Status:  cond,
 				Reason:  reason,
 				Message: message,
