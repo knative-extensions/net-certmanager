@@ -17,7 +17,7 @@ limitations under the License.
 package resources
 
 import (
-	cmv1alpha2 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha2"
+	cmv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	"knative.dev/networking/pkg/apis/networking/v1alpha1"
@@ -25,12 +25,12 @@ import (
 )
 
 // MakeCertManagerCertificate creates a Cert-Manager `Certificate` for requesting a SSL certificate.
-func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1alpha1.Certificate) *cmv1alpha2.Certificate {
+func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1alpha1.Certificate) *cmv1.Certificate {
 	var commonName string
 	if len(knCert.Spec.DNSNames) > 0 {
 		commonName = knCert.Spec.DNSNames[0]
 	}
-	cert := &cmv1alpha2.Certificate{
+	cert := &cmv1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            knCert.Name,
 			Namespace:       knCert.Namespace,
@@ -38,7 +38,7 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 			Annotations:     knCert.GetAnnotations(),
 			Labels:          knCert.GetLabels(),
 		},
-		Spec: cmv1alpha2.CertificateSpec{
+		Spec: cmv1.CertificateSpec{
 			CommonName: commonName,
 			SecretName: knCert.Spec.SecretName,
 			DNSNames:   knCert.Spec.DNSNames,
@@ -49,9 +49,9 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 }
 
 // GetReadyCondition gets the ready condition of a Cert-Manager `Certificate`.
-func GetReadyCondition(cmCert *cmv1alpha2.Certificate) *cmv1alpha2.CertificateCondition {
+func GetReadyCondition(cmCert *cmv1.Certificate) *cmv1.CertificateCondition {
 	for _, cond := range cmCert.Status.Conditions {
-		if cond.Type == cmv1alpha2.CertificateConditionReady {
+		if cond.Type == cmv1.CertificateConditionReady {
 			return &cond
 		}
 	}

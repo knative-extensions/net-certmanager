@@ -25,17 +25,17 @@ import (
 	"time"
 
 	fakecertmanagerclient "knative.dev/net-certmanager/pkg/client/certmanager/injection/client/fake"
-	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/acme/v1alpha2/challenge/fake"
-	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1alpha2/certificate/fake"
-	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1alpha2/clusterissuer/fake"
+	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/acme/v1/challenge/fake"
+	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1/certificate/fake"
+	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1/clusterissuer/fake"
 	network "knative.dev/networking/pkg"
 	networkingclient "knative.dev/networking/pkg/client/injection/client/fake"
 	_ "knative.dev/networking/pkg/client/injection/informers/networking/v1alpha1/certificate/fake"
 	_ "knative.dev/pkg/client/injection/kube/informers/core/v1/service/fake"
 	"knative.dev/pkg/logging"
 
-	acmev1alpha2 "github.com/jetstack/cert-manager/pkg/apis/acme/v1alpha2"
-	cmv1alpha2 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha2"
+	acmev1 "github.com/jetstack/cert-manager/pkg/apis/acme/v1"
+	cmv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
 	cmmeta "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
@@ -67,21 +67,21 @@ var (
 	notAfter          = &metav1.Time{
 		Time: time.Unix(123, 456),
 	}
-	nonHTTP01Issuer = &cmv1alpha2.ClusterIssuer{
+	nonHTTP01Issuer = &cmv1.ClusterIssuer{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "Letsencrypt-issuer",
 		},
-		Spec: cmv1alpha2.IssuerSpec{},
+		Spec: cmv1.IssuerSpec{},
 	}
-	http01Issuer = &cmv1alpha2.ClusterIssuer{
+	http01Issuer = &cmv1.ClusterIssuer{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "Letsencrypt-issuer",
 		},
-		Spec: cmv1alpha2.IssuerSpec{
-			IssuerConfig: cmv1alpha2.IssuerConfig{
-				ACME: &acmev1alpha2.ACMEIssuer{
-					Solvers: []acmev1alpha2.ACMEChallengeSolver{{
-						HTTP01: &acmev1alpha2.ACMEChallengeSolverHTTP01{},
+		Spec: cmv1.IssuerSpec{
+			IssuerConfig: cmv1.IssuerConfig{
+				ACME: &acmev1.ACMEIssuer{
+					Solvers: []acmev1.ACMEChallengeSolver{{
+						HTTP01: &acmev1.ACMEChallengeSolverHTTP01{},
 					}},
 				},
 			},
@@ -246,8 +246,8 @@ func TestReconcile(t *testing.T) {
 		Name: "set Knative Certificate ready status with CM Certificate ready status",
 		Objects: []runtime.Object{
 			knCert("knCert", "foo"),
-			cmCertWithStatus("knCert", "foo", correctDNSNames, cmv1alpha2.CertificateCondition{
-				Type:   cmv1alpha2.CertificateConditionReady,
+			cmCertWithStatus("knCert", "foo", correctDNSNames, cmv1.CertificateCondition{
+				Type:   cmv1.CertificateConditionReady,
 				Status: cmmeta.ConditionTrue}),
 			nonHTTP01Issuer,
 		},
@@ -270,8 +270,8 @@ func TestReconcile(t *testing.T) {
 		Name: "set Knative Certificate unknown status with CM Certificate unknown status",
 		Objects: []runtime.Object{
 			knCert("knCert", "foo"),
-			cmCertWithStatus("knCert", "foo", correctDNSNames, cmv1alpha2.CertificateCondition{
-				Type:   cmv1alpha2.CertificateConditionReady,
+			cmCertWithStatus("knCert", "foo", correctDNSNames, cmv1.CertificateCondition{
+				Type:   cmv1.CertificateConditionReady,
 				Status: cmmeta.ConditionUnknown}),
 			nonHTTP01Issuer,
 		},
@@ -294,8 +294,8 @@ func TestReconcile(t *testing.T) {
 		Name: "set Knative Certificate not ready status with CM Certificate not ready status",
 		Objects: []runtime.Object{
 			knCert("knCert", "foo"),
-			cmCertWithStatus("knCert", "foo", correctDNSNames, cmv1alpha2.CertificateCondition{
-				Type:   cmv1alpha2.CertificateConditionReady,
+			cmCertWithStatus("knCert", "foo", correctDNSNames, cmv1.CertificateCondition{
+				Type:   cmv1.CertificateConditionReady,
 				Status: cmmeta.ConditionFalse}),
 			nonHTTP01Issuer,
 		},
@@ -454,8 +454,8 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 			cmSolverService(correctDNSNames[1], "foo"),
 			cmChallenge(correctDNSNames[0], "foo"),
 			cmChallenge(correctDNSNames[1], "foo"),
-			cmCertWithStatus("knCert", "foo", correctDNSNames, cmv1alpha2.CertificateCondition{
-				Type:   cmv1alpha2.CertificateConditionReady,
+			cmCertWithStatus("knCert", "foo", correctDNSNames, cmv1.CertificateCondition{
+				Type:   cmv1.CertificateConditionReady,
 				Status: cmmeta.ConditionFalse,
 				Reason: "InProgress"}),
 			knCert("knCert", "foo"),
@@ -561,26 +561,26 @@ func knCertWithStatusAndGeneration(name, namespace string, status *v1alpha1.Cert
 	}
 }
 
-func cmCert(name, namespace string, dnsNames []string) *cmv1alpha2.Certificate {
+func cmCert(name, namespace string, dnsNames []string) *cmv1.Certificate {
 	cert := resources.MakeCertManagerCertificate(certmanagerConfig(), knCert(name, namespace))
 	cert.Spec.DNSNames = dnsNames
 	return cert
 }
 
-func cmCertWithStatus(name, namespace string, dnsNames []string, condition cmv1alpha2.CertificateCondition) *cmv1alpha2.Certificate {
+func cmCertWithStatus(name, namespace string, dnsNames []string, condition cmv1.CertificateCondition) *cmv1.Certificate {
 	cert := cmCert(name, namespace, dnsNames)
-	cert.Status.Conditions = []cmv1alpha2.CertificateCondition{condition}
+	cert.Status.Conditions = []cmv1.CertificateCondition{condition}
 	cert.Status.NotAfter = notAfter
 	return cert
 }
 
-func cmChallenge(hostname, namespace string) *acmev1alpha2.Challenge {
-	return &acmev1alpha2.Challenge{
+func cmChallenge(hostname, namespace string) *acmev1.Challenge {
+	return &acmev1.Challenge{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "challenge-" + hostname,
 			Namespace: namespace,
 		},
-		Spec: acmev1alpha2.ChallengeSpec{
+		Spec: acmev1.ChallengeSpec{
 			Type:    "http01",
 			DNSName: hostname,
 			Token:   "cm-challenge-token",

@@ -25,10 +25,10 @@ import (
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/testing"
 	clientset "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned"
-	acmev1alpha2 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/acme/v1alpha2"
-	fakeacmev1alpha2 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/acme/v1alpha2/fake"
-	certmanagerv1alpha2 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/certmanager/v1alpha2"
-	fakecertmanagerv1alpha2 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/certmanager/v1alpha2/fake"
+	acmev1 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/acme/v1"
+	fakeacmev1 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/acme/v1/fake"
+	certmanagerv1 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/certmanager/v1"
+	fakecertmanagerv1 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/certmanager/v1/fake"
 )
 
 // NewSimpleClientset returns a clientset that will respond with the provided objects.
@@ -78,12 +78,12 @@ func (c *Clientset) Tracker() testing.ObjectTracker {
 
 var _ clientset.Interface = &Clientset{}
 
-// AcmeV1alpha2 retrieves the AcmeV1alpha2Client
-func (c *Clientset) AcmeV1alpha2() acmev1alpha2.AcmeV1alpha2Interface {
-	return &fakeacmev1alpha2.FakeAcmeV1alpha2{Fake: &c.Fake}
+// AcmeV1 retrieves the AcmeV1Client
+func (c *Clientset) AcmeV1() acmev1.AcmeV1Interface {
+	return &fakeacmev1.FakeAcmeV1{Fake: &c.Fake}
 }
 
-// CertmanagerV1alpha2 retrieves the CertmanagerV1alpha2Client
-func (c *Clientset) CertmanagerV1alpha2() certmanagerv1alpha2.CertmanagerV1alpha2Interface {
-	return &fakecertmanagerv1alpha2.FakeCertmanagerV1alpha2{Fake: &c.Fake}
+// CertmanagerV1 retrieves the CertmanagerV1Client
+func (c *Clientset) CertmanagerV1() certmanagerv1.CertmanagerV1Interface {
+	return &fakecertmanagerv1.FakeCertmanagerV1{Fake: &c.Fake}
 }

@@ -24,32 +24,32 @@ import (
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
-	acmev1alpha2 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/acme/v1alpha2"
-	certmanagerv1alpha2 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/certmanager/v1alpha2"
+	acmev1 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/acme/v1"
+	certmanagerv1 "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/typed/certmanager/v1"
 )
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
-	AcmeV1alpha2() acmev1alpha2.AcmeV1alpha2Interface
-	CertmanagerV1alpha2() certmanagerv1alpha2.CertmanagerV1alpha2Interface
+	AcmeV1() acmev1.AcmeV1Interface
+	CertmanagerV1() certmanagerv1.CertmanagerV1Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
 // version included in a Clientset.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	acmeV1alpha2        *acmev1alpha2.AcmeV1alpha2Client
-	certmanagerV1alpha2 *certmanagerv1alpha2.CertmanagerV1alpha2Client
+	acmeV1        *acmev1.AcmeV1Client
+	certmanagerV1 *certmanagerv1.CertmanagerV1Client
 }
 
-// AcmeV1alpha2 retrieves the AcmeV1alpha2Client
-func (c *Clientset) AcmeV1alpha2() acmev1alpha2.AcmeV1alpha2Interface {
-	return c.acmeV1alpha2
+// AcmeV1 retrieves the AcmeV1Client
+func (c *Clientset) AcmeV1() acmev1.AcmeV1Interface {
+	return c.acmeV1
 }
 
-// CertmanagerV1alpha2 retrieves the CertmanagerV1alpha2Client
-func (c *Clientset) CertmanagerV1alpha2() certmanagerv1alpha2.CertmanagerV1alpha2Interface {
-	return c.certmanagerV1alpha2
+// CertmanagerV1 retrieves the CertmanagerV1Client
+func (c *Clientset) CertmanagerV1() certmanagerv1.CertmanagerV1Interface {
+	return c.certmanagerV1
 }
 
 // Discovery retrieves the DiscoveryClient
@@ -73,11 +73,11 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	}
 	var cs Clientset
 	var err error
-	cs.acmeV1alpha2, err = acmev1alpha2.NewForConfig(&configShallowCopy)
+	cs.acmeV1, err = acmev1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
-	cs.certmanagerV1alpha2, err = certmanagerv1alpha2.NewForConfig(&configShallowCopy)
+	cs.certmanagerV1, err = certmanagerv1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
@@ -93,8 +93,8 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 // panics if there is an error in the config.
 func NewForConfigOrDie(c *rest.Config) *Clientset {
 	var cs Clientset
-	cs.acmeV1alpha2 = acmev1alpha2.NewForConfigOrDie(c)
-	cs.certmanagerV1alpha2 = certmanagerv1alpha2.NewForConfigOrDie(c)
+	cs.acmeV1 = acmev1.NewForConfigOrDie(c)
+	cs.certmanagerV1 = certmanagerv1.NewForConfigOrDie(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClientForConfigOrDie(c)
 	return &cs
@@ -103,8 +103,8 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
-	cs.acmeV1alpha2 = acmev1alpha2.New(c)
-	cs.certmanagerV1alpha2 = certmanagerv1alpha2.New(c)
+	cs.acmeV1 = acmev1.New(c)
+	cs.certmanagerV1 = certmanagerv1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
 	return &cs
