@@ -167,13 +167,13 @@ github.com/modern-go/reflect2
 github.com/openzipkin/zipkin-go/model
 # github.com/pkg/errors v0.9.1
 github.com/pkg/errors
-# github.com/prometheus/client_golang v1.10.0 => github.com/prometheus/client_golang v0.9.2
+# github.com/prometheus/client_golang v1.11.0 => github.com/prometheus/client_golang v0.9.2
 github.com/prometheus/client_golang/prometheus
 github.com/prometheus/client_golang/prometheus/internal
 github.com/prometheus/client_golang/prometheus/promhttp
 # github.com/prometheus/client_model v0.2.0
 github.com/prometheus/client_model/go
-# github.com/prometheus/common v0.25.0
+# github.com/prometheus/common v0.26.0
 github.com/prometheus/common/expfmt
 github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
 github.com/prometheus/common/log
@@ -212,7 +212,7 @@ go.opencensus.io/trace
 go.opencensus.io/trace/internal
 go.opencensus.io/trace/propagation
 go.opencensus.io/trace/tracestate
-# go.uber.org/atomic v1.7.0
+# go.uber.org/atomic v1.8.0
 go.uber.org/atomic
 # go.uber.org/automaxprocs v1.4.0
 go.uber.org/automaxprocs/internal/cgroups
@@ -801,7 +801,7 @@ k8s.io/utils/trace
 # knative.dev/hack v0.0.0-20210609124042-e35bcb8f21ec
 ## explicit
 knative.dev/hack
-# knative.dev/networking v0.0.0-20210609135543-afa764805e49
+# knative.dev/networking v0.0.0-20210610043142-ddb4035f00e9
 ## explicit
 knative.dev/networking/pkg
 knative.dev/networking/pkg/apis/networking
@@ -836,7 +836,7 @@ knative.dev/networking/test/test_images/runtime/handlers
 knative.dev/networking/test/test_images/timeout
 knative.dev/networking/test/test_images/wsserver
 knative.dev/networking/test/types
-# knative.dev/pkg v0.0.0-20210609135543-c1db741846b8
+# knative.dev/pkg v0.0.0-20210610083643-00fa1549f723
 ## explicit
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
