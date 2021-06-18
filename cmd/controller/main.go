@@ -24,6 +24,5 @@ import (
 )
 
 func main() {
-	sharedmain.Main("certcontroller",
-		certificate.NewController)
+	sharedmain.Main("net-certmanager-controller", certificate.NewController)
 }
