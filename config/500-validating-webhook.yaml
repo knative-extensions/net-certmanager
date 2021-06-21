@@ -18,6 +18,7 @@ metadata:
   name: config.webhook.net-certmanager.networking.internal.knative.dev
   labels:
     serving.knative.dev/release: devel
+    networking.knative.dev/certificate-provider: cert-manager
 webhooks:
 - admissionReviewVersions:
   - v1beta1

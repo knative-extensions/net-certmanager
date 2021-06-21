@@ -20,6 +20,7 @@ metadata:
   labels:
     role: net-certmanager-webhook
     serving.knative.dev/release: devel
+    networking.knative.dev/certificate-provider: cert-manager
 spec:
   ports:
   # Define metrics and profiling for them to be accessible within service meshes.
