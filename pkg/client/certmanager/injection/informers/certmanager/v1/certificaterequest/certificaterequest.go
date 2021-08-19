@@ -21,8 +21,15 @@ package certificaterequest
 import (
 	context "context"
 
+	apiscertmanagerv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	labels "k8s.io/apimachinery/pkg/labels"
+	cache "k8s.io/client-go/tools/cache"
+	versioned "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned"
 	v1 "knative.dev/net-certmanager/pkg/client/certmanager/informers/externalversions/certmanager/v1"
+	client "knative.dev/net-certmanager/pkg/client/certmanager/injection/client"
 	factory "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/factory"
+	certmanagerv1 "knative.dev/net-certmanager/pkg/client/certmanager/listers/certmanager/v1"
 	controller "knative.dev/pkg/controller"
 	injection "knative.dev/pkg/injection"
 	logging "knative.dev/pkg/logging"
@@ -30,6 +37,7 @@ import (
 
 func init() {
 	injection.Default.RegisterInformer(withInformer)
+	injection.Dynamic.RegisterDynamicInformer(withDynamicInformer)
 }
 
 // Key is used for associating the Informer inside the context.Context.
@@ -41,6 +49,11 @@ func withInformer(ctx context.Context) (context.Context, controller.Informer) {
 	return context.WithValue(ctx, Key{}, inf), inf.Informer()
 }
 
+func withDynamicInformer(ctx context.Context) context.Context {
+	inf := &wrapper{client: client.Get(ctx)}
+	return context.WithValue(ctx, Key{}, inf)
+}
+
 // Get extracts the typed informer from the context.
 func Get(ctx context.Context) v1.CertificateRequestInformer {
 	untyped := ctx.Value(Key{})
@@ -49,4 +62,45 @@ func Get(ctx context.Context) v1.CertificateRequestInformer {
 			"Unable to fetch knative.dev/net-certmanager/pkg/client/certmanager/informers/externalversions/certmanager/v1.CertificateRequestInformer from context.")
 	}
 	return untyped.(v1.CertificateRequestInformer)
+}
+
+type wrapper struct {
+	client versioned.Interface
+
+	namespace string
+}
+
+var _ v1.CertificateRequestInformer = (*wrapper)(nil)
+var _ certmanagerv1.CertificateRequestLister = (*wrapper)(nil)
+
+func (w *wrapper) Informer() cache.SharedIndexInformer {
+	return cache.NewSharedIndexInformer(nil, &apiscertmanagerv1.CertificateRequest{}, 0, nil)
+}
+
+func (w *wrapper) Lister() certmanagerv1.CertificateRequestLister {
+	return w
+}
+
+func (w *wrapper) CertificateRequests(namespace string) certmanagerv1.CertificateRequestNamespaceLister {
+	return &wrapper{client: w.client, namespace: namespace}
+}
+
+func (w *wrapper) List(selector labels.Selector) (ret []*apiscertmanagerv1.CertificateRequest, err error) {
+	lo, err := w.client.CertmanagerV1().CertificateRequests(w.namespace).List(context.TODO(), metav1.ListOptions{
+		LabelSelector: selector.String(),
+		// TODO(mattmoor): Incorporate resourceVersion bounds based on staleness criteria.
+	})
+	if err != nil {
+		return nil, err
+	}
+	for idx := range lo.Items {
+		ret = append(ret, &lo.Items[idx])
+	}
+	return ret, nil
+}
+
+func (w *wrapper) Get(name string) (*apiscertmanagerv1.CertificateRequest, error) {
+	return w.client.CertmanagerV1().CertificateRequests(w.namespace).Get(context.TODO(), name, metav1.GetOptions{
+		// TODO(mattmoor): Incorporate resourceVersion bounds based on staleness criteria.
+	})
 }
