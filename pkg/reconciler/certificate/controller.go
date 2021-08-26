@@ -30,6 +30,7 @@ import (
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	network "knative.dev/networking/pkg"
 	"knative.dev/networking/pkg/apis/networking"
+	"knative.dev/networking/pkg/apis/networking/v1alpha1"
 	kcertinformer "knative.dev/networking/pkg/client/injection/informers/networking/v1alpha1/certificate"
 	certreconciler "knative.dev/networking/pkg/client/injection/reconciler/networking/v1alpha1/certificate"
 	serviceinformer "knative.dev/pkg/client/injection/kube/informers/core/v1/service"
@@ -38,7 +39,6 @@ import (
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/logging/logkey"
 	pkgreconciler "knative.dev/pkg/reconciler"
-	"knative.dev/pkg/tracker"
 )
 
 const controllerAgentName = "certificate-controller"
@@ -78,28 +78,31 @@ func NewController(
 		certManagerClient:   cmclient.Get(ctx),
 	}
 
+	classFilterFunc := pkgreconciler.AnnotationFilterFunc(networking.CertificateClassAnnotationKey, network.CertManagerCertificateClassName, true)
+
 	impl := certreconciler.NewImpl(ctx, c, network.CertManagerCertificateClassName,
 		func(impl *controller.Impl) controller.Options {
-			logger.Info("Setting up ConfigMap receivers")
-			resyncCertOnCertManagerconfigChange := configmap.TypeFilter(&config.CertManagerConfig{})(func(string, interface{}) {
-				impl.GlobalResync(knCertificateInformer.Informer())
-			})
-			configStore := config.NewStore(logger.Named("config-store"), resyncCertOnCertManagerconfigChange)
+			configStore := config.NewStore(logger.Named("config-store"), configmap.TypeFilter(&config.CertManagerConfig{})(func(string, interface{}) {
+				impl.FilteredGlobalResync(classFilterFunc, knCertificateInformer.Informer())
+			}))
 			configStore.WatchConfigs(cmw)
-			return controller.Options{ConfigStore: configStore}
+			return controller.Options{
+				ConfigStore:       configStore,
+				PromoteFilterFunc: classFilterFunc,
+			}
 		})
 
-	logger.Info("Setting up event handlers")
-	classFilterFunc := pkgreconciler.AnnotationFilterFunc(networking.CertificateClassAnnotationKey, network.CertManagerCertificateClassName, true)
-	certHandler := cache.FilteringResourceEventHandler{
+	knCertificateInformer.Informer().AddEventHandler(cache.FilteringResourceEventHandler{
 		FilterFunc: classFilterFunc,
 		Handler:    controller.HandleAll(impl.Enqueue),
-	}
-	knCertificateInformer.Informer().AddEventHandler(certHandler)
+	})
 
-	cmCertificateInformer.Informer().AddEventHandler(controller.HandleAll(impl.EnqueueControllerOf))
+	cmCertificateInformer.Informer().AddEventHandler(cache.FilteringResourceEventHandler{
+		FilterFunc: controller.FilterController(&v1alpha1.Certificate{}),
+		Handler:    controller.HandleAll(impl.EnqueueControllerOf),
+	})
 
-	c.tracker = tracker.New(impl.EnqueueKey, controller.GetTrackerLease(ctx))
+	c.tracker = impl.Tracker
 
 	// Make sure trackers are deleted once the observers are removed.
 	knCertificateInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
