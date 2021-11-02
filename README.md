@@ -1,5 +1,7 @@
 # Knative `net-certmanager`
 
+**[This component is GA](https://github.com/knative/community/tree/main/mechanics/MATURITY-LEVELS.md)**
+
 [![Go Report Card](https://goreportcard.com/badge/knative/net-certmanager)](https://goreportcard.com/report/knative/net-certmanager)
 
 Knative `net-certmanager` defines a few simple resources that are validated by
