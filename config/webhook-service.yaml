@@ -19,6 +19,9 @@ metadata:
   namespace: knative-serving
   labels:
     role: net-certmanager-webhook
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/version: devel
+    app.kubernetes.io/part-of: knative-serving
     serving.knative.dev/release: devel
     networking.knative.dev/certificate-provider: cert-manager
 spec:

@@ -17,6 +17,9 @@ kind: ValidatingWebhookConfiguration
 metadata:
   name: config.webhook.net-certmanager.networking.internal.knative.dev
   labels:
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/version: devel
+    app.kubernetes.io/part-of: knative-serving
     serving.knative.dev/release: devel
     networking.knative.dev/certificate-provider: cert-manager
 webhooks:
