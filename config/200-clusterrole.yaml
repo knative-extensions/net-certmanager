@@ -18,6 +18,9 @@ metadata:
   # These are the permissions needed by the `cert-manager` `Certificate` implementation.
   name: knative-serving-certmanager
   labels:
+    app.kubernetes.io/component: net-certmanager
+    app.kubernetes.io/version: devel
+    app.kubernetes.io/name: knative-serving
     serving.knative.dev/release: devel
     serving.knative.dev/controller: "true"
     networking.knative.dev/certificate-provider: cert-manager
