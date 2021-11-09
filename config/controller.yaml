@@ -18,9 +18,9 @@ metadata:
   name: net-certmanager-controller
   namespace: knative-serving
   labels:
-    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/component: net-certmanager
     app.kubernetes.io/version: devel
-    app.kubernetes.io/part-of: knative-serving
+    app.kubernetes.io/name: knative-serving
     serving.knative.dev/release: devel
     networking.knative.dev/certificate-provider: cert-manager
 spec:
@@ -33,9 +33,9 @@ spec:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
       labels:
         app: net-certmanager-controller
-        app.kubernetes.io/name: cert-manager
+        app.kubernetes.io/component: net-certmanager
         app.kubernetes.io/version: devel
-        app.kubernetes.io/part-of: knative-serving
+        app.kubernetes.io/name: knative-serving
         serving.knative.dev/release: devel
     spec:
       serviceAccountName: controller
@@ -87,9 +87,9 @@ kind: Service
 metadata:
   labels:
     app: net-certmanager-controller
-    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/component: net-certmanager
     app.kubernetes.io/version: devel
-    app.kubernetes.io/part-of: knative-serving
+    app.kubernetes.io/name: knative-serving
     serving.knative.dev/release: devel
     networking.knative.dev/certificate-provider: cert-manager
   name: net-certmanager-controller
