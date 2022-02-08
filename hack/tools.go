@@ -25,6 +25,9 @@ import (
 	// codegen: hack/generate-knative.sh
 	_ "knative.dev/pkg/hack"
 
+	// To get the certificate CRD
+	_ "knative.dev/networking/config"
+
 	_ "knative.dev/networking/test/test_images/grpc-ping"
 	_ "knative.dev/networking/test/test_images/httpproxy"
 	_ "knative.dev/networking/test/test_images/runtime"
