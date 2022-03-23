@@ -21,7 +21,6 @@ metadata:
     app.kubernetes.io/component: net-certmanager
     app.kubernetes.io/version: devel
     app.kubernetes.io/name: knative-serving
-    serving.knative.dev/release: devel
     networking.knative.dev/certificate-provider: cert-manager
 spec:
   selector:
@@ -36,7 +35,6 @@ spec:
         app.kubernetes.io/component: net-certmanager
         app.kubernetes.io/version: devel
         app.kubernetes.io/name: knative-serving
-        serving.knative.dev/release: devel
     spec:
       serviceAccountName: controller
       containers:
@@ -90,7 +88,6 @@ metadata:
     app.kubernetes.io/component: net-certmanager
     app.kubernetes.io/version: devel
     app.kubernetes.io/name: knative-serving
-    serving.knative.dev/release: devel
     networking.knative.dev/certificate-provider: cert-manager
   name: net-certmanager-controller
   namespace: knative-serving
