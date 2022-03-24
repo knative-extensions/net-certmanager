@@ -30,6 +30,12 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 	if len(knCert.Spec.DNSNames) > 0 {
 		commonName = knCert.Spec.DNSNames[0]
 	}
+	if len(commonName) > 63 {
+		// Max length of a CN for cert-manager is 64 characters:
+		// https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.CertificateSpec
+		commonName = commonName[:63]
+	}
+
 	cert := &cmv1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            knCert.Name,

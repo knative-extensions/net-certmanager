@@ -17,6 +17,8 @@ limitations under the License.
 package resources
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -88,6 +90,24 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 	got := MakeCertManagerCertificate(cmConfig, cert)
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
+	}
+}
+
+func TestTruncateCommonName(t *testing.T) {
+	longDnsName := fmt.Sprintf("a-%s.%s", strings.Repeat("1234567890", 5), "a-thirty-characters-dns-suffix")
+	if len(longDnsName) <= 64 {
+		t.Fatalf("%q is not as long as expected", longDnsName)
+	}
+	longCert := cert.DeepCopy()
+	longCert.Spec.DNSNames[0] = longDnsName
+
+	certManagerCert := MakeCertManagerCertificate(cmConfig, longCert)
+	if len(certManagerCert.Spec.CommonName) > 64 {
+		t.Fatalf("Cert commonName is longer than accepted: %q", certManagerCert.Spec.CommonName)
+	}
+	// Ensure the first 20 characters match
+	if certManagerCert.Spec.CommonName[:20] != longDnsName[:20] {
+		t.Fatalf("Unexpected common name. Expect a prefix of %q, got %q", longDnsName[:20], certManagerCert.Spec.CommonName)
 	}
 }
 
