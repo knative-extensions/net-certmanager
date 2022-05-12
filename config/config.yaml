@@ -41,7 +41,7 @@ data:
 
     # issuerRef is a reference to the issuer for this certificate.
     # IssuerRef should be either `ClusterIssuer` or `Issuer`.
-    # Please refer `IssuerRef` in https://github.com/jetstack/cert-manager/blob/master/pkg/apis/certmanager/v1alpha1/types_certificate.go
+    # Please refer `IssuerRef` in https://github.com/cert-manager/cert-manager/tree/master/pkg/apis/certmanager/v1/types_certificate.go
     # for more details about IssuerRef configuration.
     issuerRef: |
       kind: ClusterIssuer

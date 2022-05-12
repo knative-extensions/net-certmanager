@@ -29,7 +29,7 @@ group "Kubernetes Codegen"
 
 # Generate our own client for cert-manager (otherwise injection won't work)
 ${CODEGEN_PKG}/generate-groups.sh "deepcopy,client,informer,lister" \
-  knative.dev/net-certmanager/pkg/client/certmanager github.com/jetstack/cert-manager/pkg/apis \
+  knative.dev/net-certmanager/pkg/client/certmanager github.com/cert-manager/cert-manager/pkg/apis \
   "certmanager:v1 acme:v1" \
   --go-header-file ${REPO_ROOT_DIR}/hack/boilerplate/boilerplate.go.txt
 
@@ -37,7 +37,7 @@ group "Knative Codegen"
 
 # Knative Injection (for cert-manager)
 ${KNATIVE_CODEGEN_PKG}/hack/generate-knative.sh "injection" \
-  knative.dev/net-certmanager/pkg/client/certmanager github.com/jetstack/cert-manager/pkg/apis \
+  knative.dev/net-certmanager/pkg/client/certmanager github.com/cert-manager/cert-manager/pkg/apis \
   "certmanager:v1 acme:v1" \
   --go-header-file ${REPO_ROOT_DIR}/hack/boilerplate/boilerplate.go.txt
 
