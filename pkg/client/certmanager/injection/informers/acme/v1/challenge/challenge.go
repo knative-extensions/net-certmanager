@@ -21,7 +21,7 @@ package challenge
 import (
 	context "context"
 
-	apisacmev1 "github.com/jetstack/cert-manager/pkg/apis/acme/v1"
+	apisacmev1 "github.com/cert-manager/cert-manager/pkg/apis/acme/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	cache "k8s.io/client-go/tools/cache"
