@@ -24,8 +24,8 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/sets"
 
-	cmv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
-	cmmeta "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
+	cmv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
+	cmmeta "github.com/cert-manager/cert-manager/pkg/apis/meta/v1"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
@@ -59,7 +59,7 @@ const (
 )
 
 // It comes from cert-manager status:
-// https://github.com/jetstack/cert-manager/blob/b7e83b53820e712e7cf6b8dce3e5a050f249da79/pkg/controller/certificates/sync.go#L130
+// https://github.com/cert-manager/cert-manager/blob/b7e83b53820e712e7cf6b8dce3e5a050f249da79/pkg/controller/certificates/sync.go#L130
 var notReadyReasons = sets.NewString("InProgress", "Pending", "TemporaryCertificate")
 
 // Reconciler implements controller.Reconciler for Certificate resources.

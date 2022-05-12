@@ -21,7 +21,7 @@ package v1
 import (
 	"net/http"
 
-	v1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
+	v1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	rest "k8s.io/client-go/rest"
 	"knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned/scheme"
 )

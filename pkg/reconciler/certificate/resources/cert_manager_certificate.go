@@ -17,7 +17,7 @@ limitations under the License.
 package resources
 
 import (
-	cmv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
+	cmv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	"knative.dev/networking/pkg/apis/networking/v1alpha1"

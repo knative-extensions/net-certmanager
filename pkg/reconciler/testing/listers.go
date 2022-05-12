@@ -29,8 +29,8 @@ import (
 	networkinglisters "knative.dev/networking/pkg/client/listers/networking/v1alpha1"
 	"knative.dev/pkg/reconciler/testing"
 
-	acmev1 "github.com/jetstack/cert-manager/pkg/apis/acme/v1"
-	cmv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
+	acmev1 "github.com/cert-manager/cert-manager/pkg/apis/acme/v1"
+	cmv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 )
 
 var clientSetSchemes = []func(*runtime.Scheme) error{

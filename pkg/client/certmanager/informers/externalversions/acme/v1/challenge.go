@@ -22,7 +22,7 @@ import (
 	"context"
 	time "time"
 
-	acmev1 "github.com/jetstack/cert-manager/pkg/apis/acme/v1"
+	acmev1 "github.com/cert-manager/cert-manager/pkg/apis/acme/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
