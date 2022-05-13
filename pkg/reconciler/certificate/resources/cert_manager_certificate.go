@@ -17,9 +17,13 @@ limitations under the License.
 package resources
 
 import (
+	"regexp"
+
 	cmv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/validation"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
+	network "knative.dev/networking/pkg"
 	"knative.dev/networking/pkg/apis/networking/v1alpha1"
 	"knative.dev/pkg/kmeta"
 )
@@ -43,9 +47,23 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 			SecretName: knCert.Spec.SecretName,
 			DNSNames:   knCert.Spec.DNSNames,
 			IssuerRef:  *cmConfig.IssuerRef,
+			SecretTemplate: &cmv1.CertificateSecretTemplate{
+				Labels: map[string]string{
+					network.SecretInformerLabelKey: getLabelFromCertName(knCert.Name),
+				}},
 		},
 	}
 	return cert
+}
+
+// K8s names don't comply with Label requirements out of the box
+func getLabelFromCertName(name string) string {
+	reg, _ := regexp.Compile("[^a-zA-Z0-9-]+")
+	res := reg.ReplaceAllString(name, "")
+	if len(res) > validation.LabelValueMaxLength {
+		return res[0 : validation.LabelValueMaxLength-1]
+	}
+	return res
 }
 
 // GetReadyCondition gets the ready condition of a Cert-Manager `Certificate`.

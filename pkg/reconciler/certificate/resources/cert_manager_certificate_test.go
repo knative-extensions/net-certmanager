@@ -83,6 +83,9 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 				Kind: "ClusterIssuer",
 				Name: "Letsencrypt-issuer",
 			},
+			SecretTemplate: &cmv1.CertificateSecretTemplate{
+				Labels: map[string]string{"certificate.networking.knative.dev": "test-cert"},
+			},
 		},
 	}
 	got := MakeCertManagerCertificate(cmConfig, cert)
