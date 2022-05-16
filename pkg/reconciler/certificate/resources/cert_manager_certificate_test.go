@@ -85,7 +85,7 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 				Name: "Letsencrypt-issuer",
 			},
 			SecretTemplate: &cmv1.CertificateSecretTemplate{
-				Labels: map[string]string{networking.CertifcateUIDLabelKey: ""},
+				Labels: map[string]string{networking.CertificateUIDLabelKey: ""},
 			},
 		},
 	}
