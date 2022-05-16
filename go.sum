@@ -433,6 +433,8 @@ github.com/kisielk/errcheck v1.2.0/go.mod h1:/BMXB+zMLi60iA8Vv6Ksmxu/1UDYcXs4uQL
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/klauspost/compress v1.13.6/go.mod h1:/3/Vjq9QcHkK5uEr5lBEmyoZ1iFhe47etQ6QUkpK6sk=
+github.com/knative/networking v0.0.0-20220516202057-7363ea66ba54 h1:7c2uuNiAsc4OlKLD3vcb0g8qcIwRJ0TgpzE5T4IM7x4=
+github.com/knative/networking v0.0.0-20220516202057-7363ea66ba54/go.mod h1:+H5KnK/r/4/WtRRacuQuuGEjCn0961q2o7gwl+FoZfo=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
 github.com/konsorten/go-windows-terminal-sequences v1.0.3/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
 github.com/kr/fs v0.1.0/go.mod h1:FFnZGqtBN9Gxj7eW1uZ42v5BccTP0vu6NEaFoC2HwRg=
@@ -1269,6 +1271,8 @@ knative.dev/hack v0.0.0-20220506160929-a8076b0510ed h1:6mFHY1IFMRnO9O1z9q6xL9mAy
 knative.dev/hack v0.0.0-20220506160929-a8076b0510ed/go.mod h1:PHt8x8yX5Z9pPquBEfIj0X66f8iWkWfR0S/sarACJrI=
 knative.dev/networking v0.0.0-20220505013701-91dcb36802a9 h1:3/5bRIjG/cHKCQVmD/lMVCFKaym1U+0+Hlah25sF8c8=
 knative.dev/networking v0.0.0-20220505013701-91dcb36802a9/go.mod h1:+H5KnK/r/4/WtRRacuQuuGEjCn0961q2o7gwl+FoZfo=
+knative.dev/networking v0.0.0-20220516202057-7363ea66ba54 h1:Zu1scweYeLGu/5oCezvss+IzwvBrxf/AZG2xifogXVQ=
+knative.dev/networking v0.0.0-20220516202057-7363ea66ba54/go.mod h1:+H5KnK/r/4/WtRRacuQuuGEjCn0961q2o7gwl+FoZfo=
 knative.dev/pkg v0.0.0-20220503223858-245166458ef4/go.mod h1:NXK3p/UMCbFybBM9xQGii3TuMN/WKHByXcYsTwZ6Y6U=
 knative.dev/pkg v0.0.0-20220505013700-a8b7d99374a3 h1:odf5hudTbupqdYDsxeqofZtMsZuU0FqPZqWI6xETYIA=
 knative.dev/pkg v0.0.0-20220505013700-a8b7d99374a3/go.mod h1:mRzBIY8eoQurpADZ4+3LzNuucKOBhsSvhX6lXqMVpIc=

@@ -20,6 +20,7 @@ import (
 	cmv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
+	"knative.dev/networking/pkg/apis/networking"
 	"knative.dev/networking/pkg/apis/networking/v1alpha1"
 	"knative.dev/pkg/kmeta"
 )
@@ -43,6 +44,10 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 			SecretName: knCert.Spec.SecretName,
 			DNSNames:   knCert.Spec.DNSNames,
 			IssuerRef:  *cmConfig.IssuerRef,
+			SecretTemplate: &cmv1.CertificateSecretTemplate{
+				Labels: map[string]string{
+					networking.CertificateUIDLabelKey: string(knCert.GetUID()),
+				}},
 		},
 	}
 	return cert
