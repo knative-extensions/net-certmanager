@@ -26,6 +26,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
+	"knative.dev/networking/pkg/apis/networking"
 	"knative.dev/networking/pkg/apis/networking/v1alpha1"
 	"knative.dev/pkg/kmeta"
 )
@@ -84,7 +85,7 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 				Name: "Letsencrypt-issuer",
 			},
 			SecretTemplate: &cmv1.CertificateSecretTemplate{
-				Labels: map[string]string{"certificate.networking.knative.dev": "test-cert"},
+				Labels: map[string]string{networking.CertifcateUIDLabelKey: ""},
 			},
 		},
 	}

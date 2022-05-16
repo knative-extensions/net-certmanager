@@ -873,7 +873,7 @@ k8s.io/utils/trace
 # knative.dev/hack v0.0.0-20220506160929-a8076b0510ed
 ## explicit; go 1.14
 knative.dev/hack
-# knative.dev/networking v0.0.0-20220505013701-91dcb36802a9 => github.com/skonto/networking v0.0.0-20220511230850-2595d6d1c7c0
+# knative.dev/networking v0.0.0-20220505013701-91dcb36802a9 => github.com/skonto/networking v0.0.0-20220516113028-b96cbdcc21bf
 ## explicit; go 1.16
 knative.dev/networking/config
 knative.dev/networking/pkg
@@ -990,4 +990,4 @@ sigs.k8s.io/structured-merge-diff/v4/value
 # sigs.k8s.io/yaml v1.3.0
 ## explicit; go 1.12
 sigs.k8s.io/yaml
-# knative.dev/networking => github.com/skonto/networking v0.0.0-20220511230850-2595d6d1c7c0
+# knative.dev/networking => github.com/skonto/networking v0.0.0-20220516113028-b96cbdcc21bf

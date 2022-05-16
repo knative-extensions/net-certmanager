@@ -6,6 +6,7 @@ require (
 	github.com/cert-manager/cert-manager v1.8.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-cmp v0.5.6
+	github.com/hashicorp/golang-lru v0.5.4
 	go.uber.org/zap v1.19.1
 	k8s.io/api v0.23.5
 	k8s.io/apimachinery v0.23.5
@@ -44,7 +45,6 @@ require (
 	github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
-	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -97,4 +97,4 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace knative.dev/networking => github.com/skonto/networking v0.0.0-20220511230850-2595d6d1c7c0
+replace knative.dev/networking => github.com/skonto/networking v0.0.0-20220516113028-b96cbdcc21bf
