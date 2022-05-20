@@ -875,7 +875,7 @@ k8s.io/utils/trace
 # knative.dev/hack v0.0.0-20220518013938-b4d4d73a2995
 ## explicit; go 1.14
 knative.dev/hack
-# knative.dev/networking v0.0.0-20220518013728-3f52bdb63511
+# knative.dev/networking v0.0.0-20220519194057-941c61aa258b
 ## explicit; go 1.17
 knative.dev/networking/config
 knative.dev/networking/pkg
@@ -905,7 +905,6 @@ knative.dev/networking/pkg/http/probe
 knative.dev/networking/pkg/http/proxy
 knative.dev/networking/pkg/http/stats
 knative.dev/networking/pkg/k8s
-knative.dev/networking/pkg/labels
 knative.dev/networking/test
 knative.dev/networking/test/conformance/certificate
 knative.dev/networking/test/conformance/certificate/http01
