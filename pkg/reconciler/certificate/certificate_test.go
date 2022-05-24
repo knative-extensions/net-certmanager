@@ -24,16 +24,6 @@ import (
 	"testing"
 	"time"
 
-	fakecertmanagerclient "knative.dev/net-certmanager/pkg/client/certmanager/injection/client/fake"
-	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/acme/v1/challenge/fake"
-	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1/certificate/fake"
-	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1/clusterissuer/fake"
-	network "knative.dev/networking/pkg"
-	networkingclient "knative.dev/networking/pkg/client/injection/client/fake"
-	_ "knative.dev/networking/pkg/client/injection/informers/networking/v1alpha1/certificate/fake"
-	_ "knative.dev/pkg/client/injection/kube/informers/core/v1/service/fake"
-	"knative.dev/pkg/logging"
-
 	acmev1 "github.com/cert-manager/cert-manager/pkg/apis/acme/v1"
 	cmv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	cmmeta "github.com/cert-manager/cert-manager/pkg/apis/meta/v1"
@@ -43,20 +33,30 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgotesting "k8s.io/client-go/testing"
 
+	fakecertmanagerclient "knative.dev/net-certmanager/pkg/client/certmanager/injection/client/fake"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/resources"
-	"knative.dev/networking/pkg/apis/networking"
+	netapi "knative.dev/networking/pkg/apis/networking"
 	"knative.dev/networking/pkg/apis/networking/v1alpha1"
+	networkingclient "knative.dev/networking/pkg/client/injection/client/fake"
 	certreconciler "knative.dev/networking/pkg/client/injection/reconciler/networking/v1alpha1/certificate"
+	netcfg "knative.dev/networking/pkg/config"
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
+	"knative.dev/pkg/logging"
 	pkgreconciler "knative.dev/pkg/reconciler"
 	"knative.dev/pkg/system"
 
 	. "knative.dev/net-certmanager/pkg/reconciler/testing"
 	. "knative.dev/pkg/reconciler/testing"
+
+	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/acme/v1/challenge/fake"
+	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1/certificate/fake"
+	_ "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1/clusterissuer/fake"
+	_ "knative.dev/networking/pkg/client/injection/informers/networking/v1alpha1/certificate/fake"
+	_ "knative.dev/pkg/client/injection/kube/informers/core/v1/service/fake"
 )
 
 const generation = 23132
@@ -361,7 +361,7 @@ func TestReconcile(t *testing.T) {
 		}
 		return certreconciler.NewReconciler(ctx, logging.FromContext(ctx), networkingclient.Get(ctx),
 			listers.GetCertificateLister(), controller.GetEventRecorder(ctx), r,
-			network.CertManagerCertificateClassName, controller.Options{
+			netcfg.CertManagerCertificateClassName, controller.Options{
 				ConfigStore: &testConfigStore{
 					config: &config.Config{
 						CertManager: certmanagerConfig(),
@@ -506,7 +506,7 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 		}
 		return certreconciler.NewReconciler(ctx, logging.FromContext(ctx), networkingclient.Get(ctx),
 			listers.GetCertificateLister(), controller.GetEventRecorder(ctx), r,
-			network.CertManagerCertificateClassName, controller.Options{
+			netcfg.CertManagerCertificateClassName, controller.Options{
 				ConfigStore: &testConfigStore{
 					config: &config.Config{
 						CertManager: certmanagerConfig(),
@@ -550,7 +550,7 @@ func knCertWithStatusAndGeneration(name, namespace string, status *v1alpha1.Cert
 			Namespace:  namespace,
 			Generation: int64(gen),
 			Annotations: map[string]string{
-				networking.CertificateClassAnnotationKey: network.CertManagerCertificateClassName,
+				netapi.CertificateClassAnnotationKey: netcfg.CertManagerCertificateClassName,
 			},
 		},
 		Spec: v1alpha1.CertificateSpec{
