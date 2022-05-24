@@ -28,11 +28,11 @@ import (
 	cmcertinformer "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1/certificate"
 	clusterinformer "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/certmanager/v1/clusterissuer"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
-	network "knative.dev/networking/pkg"
-	"knative.dev/networking/pkg/apis/networking"
+	netapi "knative.dev/networking/pkg/apis/networking"
 	"knative.dev/networking/pkg/apis/networking/v1alpha1"
 	kcertinformer "knative.dev/networking/pkg/client/injection/informers/networking/v1alpha1/certificate"
 	certreconciler "knative.dev/networking/pkg/client/injection/reconciler/networking/v1alpha1/certificate"
+	netcfg "knative.dev/networking/pkg/config"
 	serviceinformer "knative.dev/pkg/client/injection/kube/informers/core/v1/service"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
@@ -78,9 +78,9 @@ func NewController(
 		certManagerClient:   cmclient.Get(ctx),
 	}
 
-	classFilterFunc := pkgreconciler.AnnotationFilterFunc(networking.CertificateClassAnnotationKey, network.CertManagerCertificateClassName, true)
+	classFilterFunc := pkgreconciler.AnnotationFilterFunc(netapi.CertificateClassAnnotationKey, netcfg.CertManagerCertificateClassName, true)
 
-	impl := certreconciler.NewImpl(ctx, c, network.CertManagerCertificateClassName,
+	impl := certreconciler.NewImpl(ctx, c, netcfg.CertManagerCertificateClassName,
 		func(impl *controller.Impl) controller.Options {
 			configStore := config.NewStore(logger.Named("config-store"), configmap.TypeFilter(&config.CertManagerConfig{})(func(string, interface{}) {
 				impl.FilteredGlobalResync(classFilterFunc, knCertificateInformer.Informer())
