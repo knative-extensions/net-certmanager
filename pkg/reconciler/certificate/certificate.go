@@ -56,6 +56,7 @@ const (
 	notReconciledMessage = "Cert-Manager certificate has not yet been reconciled."
 	httpDomainLabel      = "acme.cert-manager.io/http-domain"
 	httpChallengePath    = "/.well-known/acme-challenge"
+	renewReason          = "Renewing"
 )
 
 // It comes from cert-manager status:
@@ -107,6 +108,8 @@ func (c *Reconciler) reconcile(ctx context.Context, knCert *v1alpha1.Certificate
 	// Propagate cert-manager Certificate status to Knative Certificate.
 	cmCertReadyCondition := resources.GetReadyCondition(cmCert)
 	logger.Infof("cm cert condition %v.", cmCertReadyCondition)
+	cmCertRenewingCondition := resources.GetRenewingCondition(cmCert)
+	logger.Infof("cm cert renew condition %v.", cmCertRenewingCondition)
 
 	switch {
 	case cmCertReadyCondition == nil:
@@ -116,6 +119,10 @@ func (c *Reconciler) reconcile(ctx context.Context, knCert *v1alpha1.Certificate
 		knCert.Status.MarkNotReady(cmCertReadyCondition.Reason, cmCertReadyCondition.Message)
 		return c.setHTTP01Challenges(knCert, cmCert)
 	case cmCertReadyCondition.Status == cmmeta.ConditionTrue:
+		if cmCertRenewingCondition != nil && cmCertRenewingCondition.Reason == renewReason {
+			knCert.Status.MarkNotReady(cmCertReadyCondition.Reason, cmCertReadyCondition.Message)
+			return c.setHTTP01Challenges(knCert, cmCert)
+		}
 		knCert.Status.MarkReady()
 		knCert.Status.HTTP01Challenges = []v1alpha1.HTTP01Challenge{}
 	case cmCertReadyCondition.Status == cmmeta.ConditionFalse:

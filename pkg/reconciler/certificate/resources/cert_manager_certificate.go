@@ -62,3 +62,13 @@ func GetReadyCondition(cmCert *cmv1.Certificate) *cmv1.CertificateCondition {
 	}
 	return nil
 }
+
+// GetRenewingCondition gets the renewing state of a Cert-manager `Certificate`.
+func GetRenewingCondition(cmCert *cmv1.Certificate) *cmv1.CertificateCondition {
+	for _, cond := range cmCert.Status.Conditions {
+		if cond.Type == cmv1.CertificateConditionIssuing {
+			return &cond
+		}
+	}
+	return nil
+}
