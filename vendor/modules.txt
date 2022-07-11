@@ -416,10 +416,10 @@ gopkg.in/inf.v0
 # gopkg.in/yaml.v2 v2.4.0
 ## explicit; go 1.15
 gopkg.in/yaml.v2
-# gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+# gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
-# k8s.io/api v0.23.5
+# k8s.io/api v0.23.8
 ## explicit; go 1.16
 k8s.io/api/admission/v1
 k8s.io/api/admissionregistration/v1
@@ -467,11 +467,11 @@ k8s.io/api/scheduling/v1beta1
 k8s.io/api/storage/v1
 k8s.io/api/storage/v1alpha1
 k8s.io/api/storage/v1beta1
-# k8s.io/apiextensions-apiserver v0.23.4
+# k8s.io/apiextensions-apiserver v0.23.8
 ## explicit; go 1.16
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
-# k8s.io/apimachinery v0.23.5
+# k8s.io/apimachinery v0.23.8
 ## explicit; go 1.16
 k8s.io/apimachinery/pkg/api/equality
 k8s.io/apimachinery/pkg/api/errors
@@ -520,7 +520,7 @@ k8s.io/apimachinery/pkg/version
 k8s.io/apimachinery/pkg/watch
 k8s.io/apimachinery/third_party/forked/golang/json
 k8s.io/apimachinery/third_party/forked/golang/reflect
-# k8s.io/client-go v0.23.5
+# k8s.io/client-go v0.23.8
 ## explicit; go 1.16
 k8s.io/client-go/applyconfigurations/admissionregistration/v1
 k8s.io/client-go/applyconfigurations/admissionregistration/v1beta1
@@ -799,7 +799,7 @@ k8s.io/client-go/util/jsonpath
 k8s.io/client-go/util/keyutil
 k8s.io/client-go/util/retry
 k8s.io/client-go/util/workqueue
-# k8s.io/code-generator v0.23.5
+# k8s.io/code-generator v0.23.8
 ## explicit; go 1.16
 k8s.io/code-generator
 k8s.io/code-generator/cmd/client-gen
@@ -874,10 +874,10 @@ k8s.io/utils/lru
 k8s.io/utils/net
 k8s.io/utils/pointer
 k8s.io/utils/trace
-# knative.dev/hack v0.0.0-20220610014127-dc6c287516dc
+# knative.dev/hack v0.0.0-20220701014203-65c463ac8c98
 ## explicit; go 1.14
 knative.dev/hack
-# knative.dev/networking v0.0.0-20220614203516-07c9d7614c61
+# knative.dev/networking v0.0.0-20220705142707-f087178076e4
 ## explicit; go 1.17
 knative.dev/networking/config
 knative.dev/networking/pkg/apis/networking
@@ -916,7 +916,7 @@ knative.dev/networking/test/test_images/runtime/handlers
 knative.dev/networking/test/test_images/timeout
 knative.dev/networking/test/test_images/wsserver
 knative.dev/networking/test/types
-# knative.dev/pkg v0.0.0-20220610014025-7d607d643ee2
+# knative.dev/pkg v0.0.0-20220705130606-e60d250dc637
 ## explicit; go 1.17
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
