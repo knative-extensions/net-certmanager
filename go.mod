@@ -1,6 +1,6 @@
 module knative.dev/net-certmanager
 
-go 1.17
+go 1.18
 
 require (
 	github.com/cert-manager/cert-manager v1.8.0
