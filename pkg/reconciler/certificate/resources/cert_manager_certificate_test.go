@@ -141,35 +141,6 @@ func TestGetReadyCondition(t *testing.T) {
 	}
 }
 
-func TestGetRenewingCondition(t *testing.T) {
-	tests := []struct {
-		name          string
-		cmCertificate *cmv1.Certificate
-		want          *cmv1.CertificateCondition
-	}{{
-		name:          "renewing",
-		cmCertificate: makeTestCertificate(cmmeta.ConditionTrue, cmv1.CertificateConditionIssuing, "Renewing", "Renewing certificate"),
-		want: &cmv1.CertificateCondition{
-			Type:    cmv1.CertificateConditionIssuing,
-			Status:  cmmeta.ConditionTrue,
-			Reason:  "Renewing",
-			Message: "Renewing certificate",
-		}}, {
-		name:          "nothing to renew",
-		cmCertificate: makeTestCertificate(cmmeta.ConditionUnknown, cmv1.CertificateConditionReady, "ready", "ready"),
-		want:          nil,
-	}}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			got := GetRenewingCondition(test.cmCertificate)
-			if diff := cmp.Diff(test.want, got); diff != "" {
-				t.Errorf("GetReadyCondition (-want, +got) = %s", diff)
-			}
-		})
-	}
-}
-
 func makeTestCertificate(condStatus cmmeta.ConditionStatus, condType cmv1.CertificateConditionType, reason, message string) *cmv1.Certificate {
 	cert := &cmv1.Certificate{
 		Status: cmv1.CertificateStatus{
