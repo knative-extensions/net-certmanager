@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"hash/adler32"
 	"strconv"
+	"time"
 
 	"k8s.io/apimachinery/pkg/util/sets"
 
@@ -56,11 +57,14 @@ const (
 	notReconciledMessage = "Cert-Manager certificate has not yet been reconciled."
 	httpDomainLabel      = "acme.cert-manager.io/http-domain"
 	httpChallengePath    = "/.well-known/acme-challenge"
+	renewingEvent        = "Renewing"
 )
 
 // It comes from cert-manager status:
 // https://github.com/cert-manager/cert-manager/blob/b7e83b53820e712e7cf6b8dce3e5a050f249da79/pkg/controller/certificates/sync.go#L130
 var notReadyReasons = sets.NewString("InProgress", "Pending", "TemporaryCertificate")
+
+var certificateCondSet = apis.NewLivingConditionSet(apis.ConditionReady)
 
 // Reconciler implements controller.Reconciler for Certificate resources.
 type Reconciler struct {
@@ -104,6 +108,16 @@ func (c *Reconciler) reconcile(ctx context.Context, knCert *v1alpha1.Certificate
 	}
 
 	knCert.Status.NotAfter = cmCert.Status.NotAfter
+
+	// add a temporary renewing state when cm certificate is being renewed
+	// this will reconfigure the ingress in order to route HTTP01 challenge traffic
+	// before cm certificate expiration
+	// https://github.com/knative-sandbox/net-certmanager/issues/416
+	renewing := false
+	if cmCert.Status.RenewalTime != nil && time.Now().After(cmCert.Status.RenewalTime.Time) {
+		renewing = true
+	}
+
 	// Propagate cert-manager Certificate status to Knative Certificate.
 	cmCertReadyCondition := resources.GetReadyCondition(cmCert)
 	logger.Infof("cm cert condition %v.", cmCertReadyCondition)
@@ -116,6 +130,17 @@ func (c *Reconciler) reconcile(ctx context.Context, knCert *v1alpha1.Certificate
 		knCert.Status.MarkNotReady(cmCertReadyCondition.Reason, cmCertReadyCondition.Message)
 		return c.setHTTP01Challenges(knCert, cmCert)
 	case cmCertReadyCondition.Status == cmmeta.ConditionTrue:
+		if renewing {
+			// set renew condition
+			renewCondition := apis.Condition{
+				Type:   renewingEvent,
+				Status: corev1.ConditionTrue,
+			}
+			certificateCondSet.Manage(&knCert.Status).SetCondition(renewCondition)
+			return c.setHTTP01Challenges(knCert, cmCert)
+		}
+		// remove renew condition if exists
+		certificateCondSet.Manage(&knCert.Status).ClearCondition(renewingEvent)
 		knCert.Status.MarkReady()
 		knCert.Status.HTTP01Challenges = []v1alpha1.HTTP01Challenge{}
 	case cmCertReadyCondition.Status == cmmeta.ConditionFalse:

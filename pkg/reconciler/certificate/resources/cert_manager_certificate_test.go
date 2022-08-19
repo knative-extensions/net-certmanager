@@ -102,7 +102,7 @@ func TestGetReadyCondition(t *testing.T) {
 		want          *cmv1.CertificateCondition
 	}{{
 		name:          "ready",
-		cmCertificate: makeTestCertificate(cmmeta.ConditionTrue, "ready", "ready"),
+		cmCertificate: makeTestCertificate(cmmeta.ConditionTrue, cmv1.CertificateConditionReady, "ready", "ready"),
 		want: &cmv1.CertificateCondition{
 			Type:    cmv1.CertificateConditionReady,
 			Status:  cmmeta.ConditionTrue,
@@ -110,7 +110,7 @@ func TestGetReadyCondition(t *testing.T) {
 			Message: "ready",
 		}}, {
 		name:          "not ready",
-		cmCertificate: makeTestCertificate(cmmeta.ConditionFalse, "not ready", "not ready"),
+		cmCertificate: makeTestCertificate(cmmeta.ConditionFalse, cmv1.CertificateConditionReady, "not ready", "not ready"),
 		want: &cmv1.CertificateCondition{
 			Type:    cmv1.CertificateConditionReady,
 			Status:  cmmeta.ConditionFalse,
@@ -118,14 +118,18 @@ func TestGetReadyCondition(t *testing.T) {
 			Message: "not ready",
 		}}, {
 		name:          "unknow",
-		cmCertificate: makeTestCertificate(cmmeta.ConditionUnknown, "unknown", "unknown"),
+		cmCertificate: makeTestCertificate(cmmeta.ConditionUnknown, cmv1.CertificateConditionReady, "unknown", "unknown"),
 		want: &cmv1.CertificateCondition{
 			Type:    cmv1.CertificateConditionReady,
 			Status:  cmmeta.ConditionUnknown,
 			Reason:  "unknown",
 			Message: "unknown",
-		},
-	}}
+		}}, {
+		name:          "condition not ready",
+		cmCertificate: makeTestCertificate(cmmeta.ConditionTrue, cmv1.CertificateConditionIssuing, "Renewing", "Renewing certificate"),
+		want:          nil,
+	},
+	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -137,12 +141,12 @@ func TestGetReadyCondition(t *testing.T) {
 	}
 }
 
-func makeTestCertificate(cond cmmeta.ConditionStatus, reason, message string) *cmv1.Certificate {
+func makeTestCertificate(condStatus cmmeta.ConditionStatus, condType cmv1.CertificateConditionType, reason, message string) *cmv1.Certificate {
 	cert := &cmv1.Certificate{
 		Status: cmv1.CertificateStatus{
 			Conditions: []cmv1.CertificateCondition{{
-				Type:    cmv1.CertificateConditionReady,
-				Status:  cond,
+				Type:    condType,
+				Status:  condStatus,
 				Reason:  reason,
 				Message: message,
 			}},
