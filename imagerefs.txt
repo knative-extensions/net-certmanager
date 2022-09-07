@@ -1,0 +1,6 @@
+gcr.io/knative-nightly/knative.dev/net-certmanager/cmd/webhook@sha256:4944c40c6091b743a1b9eebe18a6cb7213978c2ae927028354e346b76d11af2a
+gcr.io/knative-nightly/knative.dev/net-certmanager/cmd/webhook@sha256:767194bbc6e0b6ca3b60739a43a8d99b90ca21c3d1e9e76c0503d1d848a2282a
+gcr.io/knative-nightly/knative.dev/net-certmanager/cmd/webhook@sha256:7d1fc142cec25e3d335d152025fc5a7ba4d66de48cf3e1312a2df036c87592c6
+gcr.io/knative-nightly/knative.dev/net-certmanager/cmd/controller@sha256:0e478df2ba9783baf567a561b3a1db1951df9b6041a97041593cbd46d559d8ba
+gcr.io/knative-nightly/knative.dev/net-certmanager/cmd/controller@sha256:67340ddf0f9558acfb9504f05ba838be7dbf1e663ddfe2c225fdab3b3dea12dd
+gcr.io/knative-nightly/knative.dev/net-certmanager/cmd/controller@sha256:4178e05f78d6fa1a17dee89b7ea9cf1b894109df8d8fd461347480cd74fa30e0
