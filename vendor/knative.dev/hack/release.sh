@@ -319,10 +319,10 @@ function sign_release() {
   ## the release for all jobs that publish images.
   if [[ -f "imagerefs.txt" ]]; then
       echo "Signing Images with the identity ${SIGNING_IDENTITY}"
-      COSIGN_EXPERIMENTAL=1 cosign sign "$(cat imagerefs.txt)" --recursive --identity-token="$(
+      COSIGN_EXPERIMENTAL=1 cosign sign $(cat imagerefs.txt) --recursive --identity-token="$(
         gcloud auth print-identity-token --audiences=sigstore \
         --include-email \
-        --impersonate-service-account="${SIGNING_IDENTITY}")" --verbose
+        --impersonate-service-account="${SIGNING_IDENTITY}")"
   fi
 
   ## Check if there is checksums.txt file. If so, sign the checksum file
