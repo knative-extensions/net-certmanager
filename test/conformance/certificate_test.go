@@ -31,5 +31,6 @@ func TestNonHTTP01Conformance(t *testing.T) {
 }
 
 func TestHTTP01Conformance(t *testing.T) {
+	t.Skip("Skipping http01 test. See issues/449.")
 	http01.RunConformance(t)
 }
