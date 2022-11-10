@@ -66,6 +66,10 @@ spec:
           value: knative.dev/net-certmanager
         - name: WEBHOOK_NAME
           value: net-certmanager-webhook
+        # If you change WEBHOOK_PORT, you will also need to change the
+        # containerPort "https-webhook" to the same value.
+        - name: WEBHOOK_PORT
+          value: "8443"
 
         securityContext:
           allowPrivilegeEscalation: false
