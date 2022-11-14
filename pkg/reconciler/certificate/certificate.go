@@ -278,7 +278,7 @@ func (c *Reconciler) reconfigureIngress(ctx context.Context, knCert *v1alpha1.Ce
 		routeresources.MakeACMEIngressPaths(knCert.Status.HTTP01Challenges, knCert.Name),
 		ingress.Spec.Rules[0].HTTP.Paths...)
 
-	ingress, err = c.knativeClient.NetworkingV1alpha1().Ingresses(knCert.Namespace).Update(ctx, ingress, metav1.UpdateOptions{})
+	_, err = c.knativeClient.NetworkingV1alpha1().Ingresses(knCert.Namespace).Update(ctx, ingress, metav1.UpdateOptions{})
 	if err != nil {
 		return err
 	}
