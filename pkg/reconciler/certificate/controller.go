@@ -30,6 +30,7 @@ import (
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	netapi "knative.dev/networking/pkg/apis/networking"
 	"knative.dev/networking/pkg/apis/networking/v1alpha1"
+	knativeclient "knative.dev/networking/pkg/client/injection/client"
 	kcertinformer "knative.dev/networking/pkg/client/injection/informers/networking/v1alpha1/certificate"
 	certreconciler "knative.dev/networking/pkg/client/injection/reconciler/networking/v1alpha1/certificate"
 	netcfg "knative.dev/networking/pkg/config"
@@ -76,6 +77,7 @@ func NewController(
 		cmIssuerLister:      clusterIssuerInformer.Lister(),
 		svcLister:           svcInformer.Lister(),
 		certManagerClient:   cmclient.Get(ctx),
+		knativeClient:       knativeclient.Get(ctx),
 	}
 
 	classFilterFunc := pkgreconciler.AnnotationFilterFunc(netapi.CertificateClassAnnotationKey, netcfg.CertManagerCertificateClassName, true)

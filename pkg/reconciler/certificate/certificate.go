@@ -37,6 +37,8 @@ import (
 	kubelisters "k8s.io/client-go/listers/core/v1"
 	certreconciler "knative.dev/networking/pkg/client/injection/reconciler/networking/v1alpha1/certificate"
 
+	knativeclientset "knative.dev/networking/pkg/client/clientset/versioned"
+
 	certmanagerclientset "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned"
 	acmelisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/acme/v1"
 	certmanagerlisters "knative.dev/net-certmanager/pkg/client/certmanager/listers/certmanager/v1"
@@ -48,6 +50,7 @@ import (
 	"knative.dev/pkg/logging"
 	pkgreconciler "knative.dev/pkg/reconciler"
 	"knative.dev/pkg/tracker"
+	routeresources "knative.dev/serving/pkg/reconciler/route/resources"
 )
 
 const (
@@ -75,6 +78,7 @@ type Reconciler struct {
 	svcLister           kubelisters.ServiceLister
 	certManagerClient   certmanagerclientset.Interface
 	tracker             tracker.Interface
+	knativeClient       knativeclientset.Interface
 }
 
 // Check that our Reconciler implements certreconciler.Interface
@@ -137,12 +141,17 @@ func (c *Reconciler) reconcile(ctx context.Context, knCert *v1alpha1.Certificate
 				Status: corev1.ConditionTrue,
 			}
 			certificateCondSet.Manage(&knCert.Status).SetCondition(renewCondition)
-			return c.setHTTP01Challenges(knCert, cmCert)
+			err = c.setHTTP01Challenges(knCert, cmCert)
+			if err != nil {
+				return err
+			}
+			return c.reconfigureIngress(ctx, knCert)
 		}
 		// remove renew condition if exists
 		certificateCondSet.Manage(&knCert.Status).ClearCondition(renewingEvent)
 		knCert.Status.MarkReady()
 		knCert.Status.HTTP01Challenges = []v1alpha1.HTTP01Challenge{}
+		return c.resetIngressOwnership(ctx, knCert)
 	case cmCertReadyCondition.Status == cmmeta.ConditionFalse:
 		if notReadyReasons.Has(cmCertReadyCondition.Reason) {
 			knCert.Status.MarkNotReady(cmCertReadyCondition.Reason, cmCertReadyCondition.Message)
@@ -249,6 +258,51 @@ func (c *Reconciler) isHTTPChallenge(cmCert *cmv1.Certificate) (bool, error) {
 			len(issuer.Spec.ACME.Solvers) > 0 &&
 			issuer.Spec.ACME.Solvers[0].HTTP01 != nil, nil
 	}
+}
+
+func (c *Reconciler) reconfigureIngress(ctx context.Context, knCert *v1alpha1.Certificate) error {
+	ingress, err := c.knativeClient.NetworkingV1alpha1().Ingresses(knCert.Namespace).Get(ctx, knCert.Name, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	// Patch the ingress
+	ingress.SetOwnerReferences(nil)
+	ingress, err = c.knativeClient.NetworkingV1alpha1().Ingresses(knCert.Namespace).Update(ctx, ingress, metav1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
+
+	// Set up HTTP01 challenge routes
+	ingress.Spec.Rules[0].HTTP.Paths = append(
+		routeresources.MakeACMEIngressPaths(knCert.Status.HTTP01Challenges, knCert.Name),
+		ingress.Spec.Rules[0].HTTP.Paths...)
+
+	ingress, err = c.knativeClient.NetworkingV1alpha1().Ingresses(knCert.Namespace).Update(ctx, ingress, metav1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Reconciler) resetIngressOwnership(ctx context.Context, knCert *v1alpha1.Certificate) error {
+	ingress, err := c.knativeClient.NetworkingV1alpha1().Ingresses(knCert.Namespace).Get(ctx, knCert.Name, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	if ingress.GetOwnerReferences() != nil {
+		return nil
+	}
+
+	ingress.SetOwnerReferences(knCert.OwnerReferences)
+	_, err = c.knativeClient.NetworkingV1alpha1().Ingresses(ingress.Namespace).Update(ctx, ingress, metav1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func svcRef(namespace, name string) tracker.Reference {
