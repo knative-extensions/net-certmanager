@@ -60,7 +60,6 @@ function setup_test_cluster() {
 
   header "Setting up test cluster"
   kubectl get nodes
-
   # Set the actual project the test cluster resides in
   # It will be a project assigned by Boskos if test is running on Prow,
   # otherwise will be ${E2E_GCP_PROJECT_ID} set up by user.
@@ -91,6 +90,8 @@ function setup_test_cluster() {
   echo "- Cluster is ${k8s_cluster}"
   echo "- Docker is ${KO_DOCKER_REPO}"
 
+  export KO_DATA_PATH="${REPO_ROOT_DIR}/.git"
+
   # Do not run teardowns if we explicitly want to skip them.
   (( ! SKIP_TEARDOWNS )) && add_trap teardown_test_resources EXIT
 
@@ -98,6 +99,9 @@ function setup_test_cluster() {
   set +o errexit
   set +o pipefail
 
+  # Wait for Istio installation to complete, if necessary, before calling knative_setup.
+  # TODO(chizhg): is it really needed?
+  (( ! SKIP_ISTIO_ADDON )) && (wait_until_batch_job_complete istio-system || return 1)
   if function_exists knative_setup; then
     knative_setup || fail_test "Knative setup failed"
   fi
@@ -127,6 +131,7 @@ function fail_test() {
 }
 
 SKIP_TEARDOWNS=0
+SKIP_ISTIO_ADDON=0
 E2E_SCRIPT=""
 CLOUD_PROVIDER="gke"
 
@@ -166,8 +171,8 @@ function initialize() {
     case ${parameter} in
       --run-tests) run_tests=1 ;;
       --skip-teardowns) SKIP_TEARDOWNS=1 ;;
-      --skip-istio-addon) echo "--skip-istio-addon is no longer supported"
-        ;; # This flag is a noop
+      # TODO(chizhg): remove this flag once the addons is defined as an env var.
+      --skip-istio-addon) SKIP_ISTIO_ADDON=1 ;;
       *)
         case ${parameter} in
           --cloud-provider) shift; CLOUD_PROVIDER="$1" ;;
@@ -180,7 +185,11 @@ function initialize() {
   (( IS_PROW )) && [[ -z "${GCP_PROJECT_ID:-}" ]] && IS_BOSKOS=1
 
   if [[ "${CLOUD_PROVIDER}" == "gke" ]]; then
+    if (( SKIP_ISTIO_ADDON )); then
       custom_flags+=("--addons=NodeLocalDNS")
+    else
+      custom_flags+=("--addons=Istio,NodeLocalDNS")
+    fi
   fi
 
   readonly IS_BOSKOS

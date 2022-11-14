@@ -110,7 +110,6 @@ func NewServer(handler http.Handler) *http.Server {
 		port = strconv.Itoa(ProfilingPort)
 	}
 
-	//nolint:gosec
 	return &http.Server{
 		Addr:    ":" + port,
 		Handler: handler,

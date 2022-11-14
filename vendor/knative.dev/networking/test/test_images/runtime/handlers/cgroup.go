@@ -17,6 +17,7 @@ limitations under the License.
 package handlers
 
 import (
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -45,7 +46,7 @@ func cgroups(paths ...string) []*types.Cgroup {
 			continue
 		}
 
-		bc, err := os.ReadFile(path)
+		bc, err := ioutil.ReadFile(path)
 		if err != nil {
 			cgroups = append(cgroups, &types.Cgroup{Name: path, Error: err.Error()})
 			continue
@@ -60,7 +61,7 @@ func cgroups(paths ...string) []*types.Cgroup {
 		// Try to write to the Cgroup. We expect this to fail as a cheap
 		// method for read-only validation
 		newValue := []byte{'9'}
-		err = os.WriteFile(path, newValue, 0644)
+		err = ioutil.WriteFile(path, newValue, 0644)
 		if err != nil {
 			cgroups = append(cgroups, &types.Cgroup{Name: path, Value: &ic, ReadOnly: &yes})
 		} else {
