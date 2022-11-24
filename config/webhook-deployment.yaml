@@ -73,7 +73,7 @@ spec:
           runAsNonRoot: true
           capabilities:
             drop:
-            - all
+            - ALL
 
         ports:
         - name: metrics
