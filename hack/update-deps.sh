@@ -21,10 +21,3 @@ set -o pipefail
 source $(dirname "$0")/../vendor/knative.dev/hack/library.sh
 
 go_update_deps "$@"
-# Remove unit tests & e2e tests.
-rm -rf $(find vendor/ -path '*/pkg/*_test.go')
-rm -rf $(find vendor/ -path '*/e2e/*_test.go')
-
-# Add permission for shell scripts
-chmod +x ./vendor/k8s.io/code-generator/generate-groups.sh
-chmod +x ./vendor/knative.dev/pkg/hack/generate-knative.sh
