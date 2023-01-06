@@ -25,12 +25,23 @@ import (
 	"knative.dev/pkg/kmeta"
 )
 
+const (
+	commonNamePrefix = "k."
+)
+
 // MakeCertManagerCertificate creates a Cert-Manager `Certificate` for requesting a SSL certificate.
 func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1alpha1.Certificate) *cmv1.Certificate {
 	var commonName string
-	if len(knCert.Spec.DNSNames) > 0 {
+	var dnsNames []string
+	if knCert.Spec.Domain != "" {
+		commonName = commonNamePrefix + knCert.Spec.Domain
+		dnsNames = append(dnsNames, commonName)
+	} else if len(knCert.Spec.DNSNames) > 0 {
 		commonName = knCert.Spec.DNSNames[0]
 	}
+
+	dnsNames = append(dnsNames, knCert.Spec.DNSNames...)
+
 	cert := &cmv1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            knCert.Name,
@@ -42,7 +53,7 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 		Spec: cmv1.CertificateSpec{
 			CommonName: commonName,
 			SecretName: knCert.Spec.SecretName,
-			DNSNames:   knCert.Spec.DNSNames,
+			DNSNames:   dnsNames,
 			IssuerRef:  *cmConfig.IssuerRef,
 			SecretTemplate: &cmv1.CertificateSecretTemplate{
 				Labels: map[string]string{

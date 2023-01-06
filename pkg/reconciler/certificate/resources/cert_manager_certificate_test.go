@@ -51,6 +51,7 @@ var cert = &v1alpha1.Certificate{
 	},
 	Spec: v1alpha1.CertificateSpec{
 		DNSNames:   []string{"host1.example.com", "host2.example.com"},
+		Domain:     "example.com",
 		SecretName: "secret0",
 	},
 }
@@ -78,8 +79,8 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 		},
 		Spec: cmv1.CertificateSpec{
 			SecretName: "secret0",
-			CommonName: "host1.example.com",
-			DNSNames:   []string{"host1.example.com", "host2.example.com"},
+			CommonName: "k.example.com",
+			DNSNames:   []string{"k.example.com", "host1.example.com", "host2.example.com"},
 			IssuerRef: cmmeta.ObjectReference{
 				Kind: "ClusterIssuer",
 				Name: "Letsencrypt-issuer",
