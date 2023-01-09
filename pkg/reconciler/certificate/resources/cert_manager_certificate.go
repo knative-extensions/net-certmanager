@@ -17,6 +17,10 @@ limitations under the License.
 package resources
 
 import (
+	"bytes"
+	"fmt"
+	"text/template"
+
 	cmv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
@@ -25,16 +29,23 @@ import (
 	"knative.dev/pkg/kmeta"
 )
 
-const (
-	commonNamePrefix = "k."
-)
-
 // MakeCertManagerCertificate creates a Cert-Manager `Certificate` for requesting a SSL certificate.
 func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1alpha1.Certificate) *cmv1.Certificate {
 	var commonName string
 	var dnsNames []string
 	if knCert.Spec.Domain != "" {
-		commonName = commonNamePrefix + knCert.Spec.Domain
+		data := config.CommonNameTemplateValues{Domain: knCert.Spec.Domain}
+		var templ *template.Template
+		buf := bytes.Buffer{}
+
+		templ = cmConfig.GetCommonNameTemplate()
+
+		if err := templ.Execute(&buf, data); err != nil {
+			fmt.Println("template failed!: ", err)
+			//return nil, fmt.Errorf("error executing the CommonNameTemplate: %w", err)
+		}
+
+		commonName = buf.String()
 		dnsNames = append(dnsNames, commonName)
 	} else if len(knCert.Spec.DNSNames) > 0 {
 		commonName = knCert.Spec.DNSNames[0]

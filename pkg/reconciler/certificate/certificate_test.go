@@ -62,8 +62,9 @@ import (
 const generation = 23132
 
 var (
-	correctDNSNames   = []string{"correct-dns1.example.com", "correct-dns2.example.com"}
+	correctDNSNames   = []string{"k.example.com", "correct-dns1.example.com", "correct-dns2.example.com"}
 	incorrectDNSNames = []string{"incorrect-dns.example.com"}
+	exampleDomain     = "example.com"
 	notAfter          = &metav1.Time{
 		Time: time.Unix(123, 456),
 	}
@@ -631,6 +632,7 @@ func certmanagerConfig() *config.CertManagerConfig {
 			Kind: "ClusterIssuer",
 			Name: "Letsencrypt-issuer",
 		},
+		CommonNameTemplate: config.DefaultCommonNameTemplate,
 	}
 }
 
@@ -654,6 +656,7 @@ func knCertWithStatusAndGeneration(name, namespace string, status *v1alpha1.Cert
 		},
 		Spec: v1alpha1.CertificateSpec{
 			DNSNames:   correctDNSNames,
+			Domain:     exampleDomain,
 			SecretName: "secret0",
 		},
 		Status: *status,
