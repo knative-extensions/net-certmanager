@@ -16,37 +16,36 @@ limitations under the License.
 
 package config
 
-//
-//import (
-//	"context"
-//	"testing"
-//
-//	"github.com/google/go-cmp/cmp"
-//	. "knative.dev/pkg/configmap/testing"
-//	. "knative.dev/pkg/logging/testing"
-//)
-//
-//func TestStoreLoadWithContext(t *testing.T) {
-//	store := NewStore(TestLogger(t))
-//
-//	certManagerConfig := ConfigMapFromTestFile(t, CertManagerConfigName)
-//	store.OnConfigChanged(certManagerConfig)
-//	config := FromContext(store.ToContext(context.Background()))
-//
-//	expected, _ := NewCertManagerConfigFromConfigMap(certManagerConfig)
-//	if diff := cmp.Diff(expected, config.CertManager); diff != "" {
-//		t.Errorf("Unexpected CertManager config (-want, +got): %v", diff)
-//	}
-//}
-//
-//func TestStoreImmutableConfig(t *testing.T) {
-//	store := NewStore(TestLogger(t))
-//	store.OnConfigChanged(ConfigMapFromTestFile(t, CertManagerConfigName))
-//	config := store.Load()
-//
-//	config.CertManager.IssuerRef.Kind = "newKind"
-//	newConfig := store.Load()
-//	if newConfig.CertManager.IssuerRef.Kind == "newKind" {
-//		t.Error("CertManager config is not immutable")
-//	}
-//}
+import (
+	"context"
+	"testing"
+
+	"github.com/google/go-cmp/cmp"
+	configmaptesting "knative.dev/pkg/configmap/testing"
+	logtesting "knative.dev/pkg/logging/testing"
+)
+
+func TestStoreLoadWithContext(t *testing.T) {
+	store := NewStore(logtesting.TestLogger(t))
+
+	certManagerConfig := configmaptesting.ConfigMapFromTestFile(t, CertManagerConfigName)
+	store.OnConfigChanged(certManagerConfig)
+	config := FromContext(store.ToContext(context.Background()))
+
+	expected, _ := NewCertManagerConfigFromConfigMap(certManagerConfig)
+	if diff := cmp.Diff(expected, config.CertManager); diff != "" {
+		t.Errorf("Unexpected CertManager config (-want, +got): %v", diff)
+	}
+}
+
+func TestStoreImmutableConfig(t *testing.T) {
+	store := NewStore(logtesting.TestLogger(t))
+	store.OnConfigChanged(configmaptesting.ConfigMapFromTestFile(t, CertManagerConfigName))
+	config := store.Load()
+
+	config.CertManager.IssuerRef.Kind = "newKind"
+	newConfig := store.Load()
+	if newConfig.CertManager.IssuerRef.Kind == "newKind" {
+		t.Error("CertManager config is not immutable")
+	}
+}
