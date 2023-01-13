@@ -88,6 +88,8 @@ var (
 			},
 		},
 	}
+
+	fooCert, _ = resources.MakeCertManagerCertificate(certmanagerConfig(), knCert("knCert", "foo"))
 )
 
 func TestNewController(t *testing.T) {
@@ -134,7 +136,7 @@ func TestReconcile(t *testing.T) {
 			},
 		},
 		WantCreates: []runtime.Object{
-			resources.MakeCertManagerCertificate(certmanagerConfig(), knCert("knCert", "foo")),
+			fooCert,
 		},
 		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
 			Object: knCertWithStatus("knCert", "foo",
@@ -430,7 +432,7 @@ func TestReconcile(t *testing.T) {
 			Eventf(corev1.EventTypeWarning, "InternalError", "failed to create Cert-Manager Certificate: inducing failure for create certificates"),
 		},
 		WantCreates: []runtime.Object{
-			resources.MakeCertManagerCertificate(certmanagerConfig(), knCert("knCert", "foo")),
+			fooCert,
 		},
 		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
 			Object: knCertWithStatus("knCert", "foo",
@@ -481,7 +483,7 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 			http01Issuer,
 		},
 		WantCreates: []runtime.Object{
-			resources.MakeCertManagerCertificate(certmanagerConfig(), knCert("knCert", "foo")),
+			fooCert,
 		},
 		WantEvents: []string{
 			Eventf(corev1.EventTypeNormal, "Created", "Created Cert-Manager Certificate %s/%s", "foo", "knCert"),
@@ -664,7 +666,7 @@ func knCertWithStatusAndGeneration(name, namespace string, status *v1alpha1.Cert
 }
 
 func cmCert(name, namespace string, dnsNames []string) *cmv1.Certificate {
-	cert := resources.MakeCertManagerCertificate(certmanagerConfig(), knCert(name, namespace))
+	cert, _ := resources.MakeCertManagerCertificate(certmanagerConfig(), knCert(name, namespace))
 	cert.Spec.DNSNames = dnsNames
 	return cert
 }

@@ -116,7 +116,10 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 			},
 		},
 	}
-	got := MakeCertManagerCertificate(cmConfig, cert)
+	got, err := MakeCertManagerCertificate(cmConfig, cert)
+	if err != nil {
+		t.Errorf("MakeCertManagerCertificate Error: %s", err)
+	}
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
 	}
@@ -149,7 +152,10 @@ func TestMakeCertManagerCertificateValidLengthCommonName(t *testing.T) {
 			},
 		},
 	}
-	got := MakeCertManagerCertificate(cmConfig, certWithLongDomain)
+	got, err := MakeCertManagerCertificate(cmConfig, certWithLongDomain)
+	if err != nil {
+		t.Errorf("MakeCertManagerCertificate Error: %s", err)
+	}
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
 	}
