@@ -48,7 +48,7 @@ func NewConfigValidationController(ctx context.Context, cmw configmap.Watcher) *
 func main() {
 	ctx := webhook.WithOptions(signals.NewContext(), webhook.Options{
 		ServiceName: "net-certmanager-webhook",
-		Port:        8443,
+		Port:        webhook.PortFromEnv(8443),
 		SecretName:  "net-certmanager-webhook-certs",
 	})
 
