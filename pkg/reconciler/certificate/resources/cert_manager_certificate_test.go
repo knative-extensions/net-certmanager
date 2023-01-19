@@ -105,8 +105,8 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 		},
 		Spec: cmv1.CertificateSpec{
 			SecretName: "secret0",
-			CommonName: "k.example.com",
-			DNSNames:   []string{"k.example.com", "host1.example.com", "host2.example.com"},
+			CommonName: "host1.example.com",
+			DNSNames:   []string{"host1.example.com", "host2.example.com"},
 			IssuerRef: cmmeta.ObjectReference{
 				Kind: "ClusterIssuer",
 				Name: "Letsencrypt-issuer",
