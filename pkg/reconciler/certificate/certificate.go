@@ -191,8 +191,8 @@ func (c *Reconciler) reconcileCMCertificate(ctx context.Context, knCert *v1alpha
 	return cmCert, nil
 }
 
-func (c *Reconciler) nameExistInOtherCert(namespace, dnsName string) bool {
-	certs, err := c.cmCertificateLister.Certificates(namespace).List(labels.Everything())
+func (c *Reconciler) nameExistInOtherReadyCert(namespace, dnsName string) bool {
+	certs, err := c.cmCertificateLister.List(labels.Everything())
 	if err != nil {
 		return false
 	}
