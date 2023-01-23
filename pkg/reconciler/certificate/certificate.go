@@ -200,8 +200,10 @@ func (c *Reconciler) nameExistInOtherReadyCert(namespace, dnsName string) bool {
 	for _, cert := range certs {
 		for _, cond := range cert.Status.Conditions {
 			if cond.Type == cmv1.CertificateConditionReady {
-				if cert.Spec.CommonName == dnsName {
-					return true
+				if cond.Status == cmmeta.ConditionTrue {
+					if cert.Spec.CommonName == dnsName {
+						return true
+					}
 				}
 			}
 		}
@@ -232,6 +234,7 @@ func (c *Reconciler) setHTTP01Challenges(knCert *v1alpha1.Certificate, cmCert *c
 			return fmt.Errorf("failed to list services: %w", err)
 		}
 		if len(svcs) == 0 {
+			// TODO: handle renewing certs and possibly log
 			if c.nameExistInOtherReadyCert(knCert.Namespace, dnsName) {
 				continue
 			}
