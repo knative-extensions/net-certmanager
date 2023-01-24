@@ -56,7 +56,7 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 				return nil, fmt.Errorf("error executing the CommonNameTemplate: %w", err)
 			}
 
-			commonName = kmeta.ChildName(buf.String(), "")
+			commonName = buf.String()
 			dnsNames = append(dnsNames, commonName)
 		} else {
 			return nil, fmt.Errorf("error creating Certmanager Certificate: %s", "commonName too long and no Domain available")
