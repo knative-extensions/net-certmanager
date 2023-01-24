@@ -59,7 +59,7 @@ var cert = &v1alpha1.Certificate{
 }
 
 var (
-	longDomain         = fmt.Sprintf("%s.%s", strings.Repeat("a", 62), "com")
+	longDomain         = fmt.Sprintf("%s.%s", strings.Repeat("a", 54), "com")
 	longDNSNames       = []string{"host1." + longDomain, "host2." + longDomain}
 	certWithLongDomain = &v1alpha1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
@@ -125,7 +125,7 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 	}
 }
 
-func TestMakeCertManagerCertificateValidLengthCommonName(t *testing.T) {
+func TestMakeCertManagerCertificateUseDomainTemplateWhenCommonNameIsTooLong(t *testing.T) {
 	want := &cmv1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            "test-cert",
@@ -141,8 +141,8 @@ func TestMakeCertManagerCertificateValidLengthCommonName(t *testing.T) {
 		},
 		Spec: cmv1.CertificateSpec{
 			SecretName: "secret0",
-			CommonName: "k.aaaaaaaaaaaaaaaaaaaaaaaaaaaaa5e9ef16706806dca9cc47a7d55eec088",
-			DNSNames:   append([]string{"k.aaaaaaaaaaaaaaaaaaaaaaaaaaaaa5e9ef16706806dca9cc47a7d55eec088"}, longDNSNames...),
+			CommonName: "k.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com",
+			DNSNames:   append([]string{"k.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com"}, longDNSNames...),
 			IssuerRef: cmmeta.ObjectReference{
 				Kind: "ClusterIssuer",
 				Name: "Letsencrypt-issuer",
