@@ -17,6 +17,8 @@ limitations under the License.
 package resources
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	cmv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
@@ -51,16 +53,41 @@ var cert = &v1alpha1.Certificate{
 	},
 	Spec: v1alpha1.CertificateSpec{
 		DNSNames:   []string{"host1.example.com", "host2.example.com"},
+		Domain:     "example.com",
 		SecretName: "secret0",
 	},
 }
 
-var cmConfig = &config.CertManagerConfig{
-	IssuerRef: &cmmeta.ObjectReference{
-		Kind: "ClusterIssuer",
-		Name: "Letsencrypt-issuer",
-	},
-}
+var (
+	longDomain         = fmt.Sprintf("%s.%s", strings.Repeat("a", 62), "com")
+	longDNSNames       = []string{"host1." + longDomain, "host2." + longDomain}
+	certWithLongDomain = &v1alpha1.Certificate{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-cert",
+			Namespace: "test-ns",
+			Labels: map[string]string{
+				servingRouteLabelKey: "test-route",
+			},
+			Annotations: map[string]string{
+				servingCreatorAnnotation: "someone",
+				servingUpdaterAnnotation: "someone",
+			},
+		},
+		Spec: v1alpha1.CertificateSpec{
+			DNSNames:   longDNSNames,
+			Domain:     longDomain,
+			SecretName: "secret0",
+		},
+	}
+
+	cmConfig = &config.CertManagerConfig{
+		IssuerRef: &cmmeta.ObjectReference{
+			Kind: "ClusterIssuer",
+			Name: "Letsencrypt-issuer",
+		},
+		CommonNameTemplate: config.DefaultCommonNameTemplate,
+	}
+)
 
 func TestMakeCertManagerCertificate(t *testing.T) {
 	want := &cmv1.Certificate{
@@ -89,7 +116,46 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 			},
 		},
 	}
-	got := MakeCertManagerCertificate(cmConfig, cert)
+	got, err := MakeCertManagerCertificate(cmConfig, cert)
+	if err != nil {
+		t.Errorf("MakeCertManagerCertificate Error: %s", err)
+	}
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
+	}
+}
+
+func TestMakeCertManagerCertificateValidLengthCommonName(t *testing.T) {
+	want := &cmv1.Certificate{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:            "test-cert",
+			Namespace:       "test-ns",
+			OwnerReferences: []metav1.OwnerReference{*kmeta.NewControllerRef(cert)},
+			Labels: map[string]string{
+				servingRouteLabelKey: "test-route",
+			},
+			Annotations: map[string]string{
+				servingCreatorAnnotation: "someone",
+				servingUpdaterAnnotation: "someone",
+			},
+		},
+		Spec: cmv1.CertificateSpec{
+			SecretName: "secret0",
+			CommonName: "k.aaaaaaaaaaaaaaaaaaaaaaaaaaaaa5e9ef16706806dca9cc47a7d55eec088",
+			DNSNames:   append([]string{"k.aaaaaaaaaaaaaaaaaaaaaaaaaaaaa5e9ef16706806dca9cc47a7d55eec088"}, longDNSNames...),
+			IssuerRef: cmmeta.ObjectReference{
+				Kind: "ClusterIssuer",
+				Name: "Letsencrypt-issuer",
+			},
+			SecretTemplate: &cmv1.CertificateSecretTemplate{
+				Labels: map[string]string{networking.CertificateUIDLabelKey: ""},
+			},
+		},
+	}
+	got, err := MakeCertManagerCertificate(cmConfig, certWithLongDomain)
+	if err != nil {
+		t.Errorf("MakeCertManagerCertificate Error: %s", err)
+	}
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
 	}

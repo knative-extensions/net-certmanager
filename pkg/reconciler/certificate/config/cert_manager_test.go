@@ -67,6 +67,7 @@ func TestIssuerRef(t *testing.T) {
 				Name: "letsencrypt-issuer",
 				Kind: "ClusterIssuer",
 			},
+			CommonNameTemplate: DefaultCommonNameTemplate,
 		},
 		config: &corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
@@ -75,6 +76,69 @@ func TestIssuerRef(t *testing.T) {
 			},
 			Data: map[string]string{
 				issuerRefKey: "kind: ClusterIssuer\nname: letsencrypt-issuer",
+			},
+		},
+	}}
+
+	for _, tt := range isserRefCases {
+		t.Run(tt.name, func(t *testing.T) {
+			actualConfig, err := NewCertManagerConfigFromConfigMap(tt.config)
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("Test: %q; NewCertManagerConfigFromConfigMap() error = %v, WantErr %v", tt.name, err, tt.wantErr)
+			}
+			if diff := cmp.Diff(actualConfig, tt.wantConfig); diff != "" {
+				t.Fatalf("Want %v, but got %v", tt.wantConfig, actualConfig)
+			}
+		})
+	}
+}
+
+func TestCommonNameTemplate(t *testing.T) {
+	isserRefCases := []struct {
+		name       string
+		wantErr    bool
+		wantConfig *CertManagerConfig
+		config     *corev1.ConfigMap
+	}{{
+		name:    "valid CommonNameTemplate",
+		wantErr: false,
+		wantConfig: &CertManagerConfig{
+			IssuerRef:          &cmmeta.ObjectReference{},
+			CommonNameTemplate: "test.{{.Domain}}",
+		},
+		config: &corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: system.Namespace(),
+				Name:      CertManagerConfigName,
+			},
+			Data: map[string]string{
+				commonNameTemplateKey: "test.{{.Domain}}",
+			},
+		},
+	}, {
+		name:       "invalid CommonNameTemplate: unknown value",
+		wantErr:    true,
+		wantConfig: (*CertManagerConfig)(nil),
+		config: &corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: system.Namespace(),
+				Name:      CertManagerConfigName,
+			},
+			Data: map[string]string{
+				commonNameTemplateKey: "test.{{.Foo}}",
+			},
+		},
+	}, {
+		name:       "invalid CommonNameTemplate: bad domain",
+		wantErr:    true,
+		wantConfig: (*CertManagerConfig)(nil),
+		config: &corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: system.Namespace(),
+				Name:      CertManagerConfigName,
+			},
+			Data: map[string]string{
+				commonNameTemplateKey: "test&foo.{{.Domain}}",
 			},
 		},
 	}}

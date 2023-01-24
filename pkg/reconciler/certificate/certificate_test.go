@@ -62,8 +62,9 @@ import (
 const generation = 23132
 
 var (
-	correctDNSNames   = []string{"correct-dns1.example.com", "correct-dns2.example.com"}
+	correctDNSNames   = []string{"k.example.com", "correct-dns1.example.com", "correct-dns2.example.com"}
 	incorrectDNSNames = []string{"incorrect-dns.example.com"}
+	exampleDomain     = "example.com"
 	notAfter          = &metav1.Time{
 		Time: time.Unix(123, 456),
 	}
@@ -87,6 +88,8 @@ var (
 			},
 		},
 	}
+
+	fooCert, _ = resources.MakeCertManagerCertificate(certmanagerConfig(), knCert("knCert", "foo"))
 )
 
 func TestNewController(t *testing.T) {
@@ -133,7 +136,7 @@ func TestReconcile(t *testing.T) {
 			},
 		},
 		WantCreates: []runtime.Object{
-			resources.MakeCertManagerCertificate(certmanagerConfig(), knCert("knCert", "foo")),
+			fooCert,
 		},
 		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
 			Object: knCertWithStatus("knCert", "foo",
@@ -429,7 +432,7 @@ func TestReconcile(t *testing.T) {
 			Eventf(corev1.EventTypeWarning, "InternalError", "failed to create Cert-Manager Certificate: inducing failure for create certificates"),
 		},
 		WantCreates: []runtime.Object{
-			resources.MakeCertManagerCertificate(certmanagerConfig(), knCert("knCert", "foo")),
+			fooCert,
 		},
 		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
 			Object: knCertWithStatus("knCert", "foo",
@@ -480,11 +483,11 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 			http01Issuer,
 		},
 		WantCreates: []runtime.Object{
-			resources.MakeCertManagerCertificate(certmanagerConfig(), knCert("knCert", "foo")),
+			fooCert,
 		},
 		WantEvents: []string{
 			Eventf(corev1.EventTypeNormal, "Created", "Created Cert-Manager Certificate %s/%s", "foo", "knCert"),
-			Eventf(corev1.EventTypeWarning, "InternalError", "no challenge solver service for domain %s; selector=acme.cert-manager.io/http-domain=1930889501", correctDNSNames[0]),
+			Eventf(corev1.EventTypeWarning, "InternalError", "no challenge solver service for domain %s; selector=acme.cert-manager.io/http-domain=574162163", correctDNSNames[0]),
 		},
 		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
 			Object: knCertWithStatus("knCert", "foo",
@@ -507,8 +510,10 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 		Objects: []runtime.Object{
 			cmSolverService(correctDNSNames[0], "foo"),
 			cmSolverService(correctDNSNames[1], "foo"),
+			cmSolverService(correctDNSNames[2], "foo"),
 			cmChallenge(correctDNSNames[0], "foo"),
 			cmChallenge(correctDNSNames[1], "foo"),
+			cmChallenge(correctDNSNames[2], "foo"),
 			cmCert("knCert", "foo", correctDNSNames),
 			knCert("knCert", "foo"),
 			http01Issuer,
@@ -532,6 +537,14 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 						},
 						ServiceName:      "cm-solver-" + correctDNSNames[1],
 						ServiceNamespace: "foo",
+					}, {
+						URL: &apis.URL{
+							Scheme: "http",
+							Host:   correctDNSNames[2],
+							Path:   "/.well-known/acme-challenge/cm-challenge-token",
+						},
+						ServiceName:      "cm-solver-" + correctDNSNames[2],
+						ServiceNamespace: "foo",
 					}},
 					Status: duckv1.Status{
 						ObservedGeneration: generation,
@@ -551,8 +564,10 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 		Objects: []runtime.Object{
 			cmSolverService(correctDNSNames[0], "foo"),
 			cmSolverService(correctDNSNames[1], "foo"),
+			cmSolverService(correctDNSNames[2], "foo"),
 			cmChallenge(correctDNSNames[0], "foo"),
 			cmChallenge(correctDNSNames[1], "foo"),
+			cmChallenge(correctDNSNames[2], "foo"),
 			cmCertWithStatus("knCert", "foo", correctDNSNames, []cmv1.CertificateCondition{{
 				Type:   cmv1.CertificateConditionReady,
 				Status: cmmeta.ConditionFalse,
@@ -579,6 +594,14 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 							Path:   "/.well-known/acme-challenge/cm-challenge-token",
 						},
 						ServiceName:      "cm-solver-" + correctDNSNames[1],
+						ServiceNamespace: "foo",
+					}, {
+						URL: &apis.URL{
+							Scheme: "http",
+							Host:   correctDNSNames[2],
+							Path:   "/.well-known/acme-challenge/cm-challenge-token",
+						},
+						ServiceName:      "cm-solver-" + correctDNSNames[2],
 						ServiceNamespace: "foo",
 					}},
 					Status: duckv1.Status{
@@ -631,6 +654,7 @@ func certmanagerConfig() *config.CertManagerConfig {
 			Kind: "ClusterIssuer",
 			Name: "Letsencrypt-issuer",
 		},
+		CommonNameTemplate: config.DefaultCommonNameTemplate,
 	}
 }
 
@@ -654,6 +678,7 @@ func knCertWithStatusAndGeneration(name, namespace string, status *v1alpha1.Cert
 		},
 		Spec: v1alpha1.CertificateSpec{
 			DNSNames:   correctDNSNames,
+			Domain:     exampleDomain,
 			SecretName: "secret0",
 		},
 		Status: *status,
@@ -661,7 +686,7 @@ func knCertWithStatusAndGeneration(name, namespace string, status *v1alpha1.Cert
 }
 
 func cmCert(name, namespace string, dnsNames []string) *cmv1.Certificate {
-	cert := resources.MakeCertManagerCertificate(certmanagerConfig(), knCert(name, namespace))
+	cert, _ := resources.MakeCertManagerCertificate(certmanagerConfig(), knCert(name, namespace))
 	cert.Spec.DNSNames = dnsNames
 	return cert
 }
