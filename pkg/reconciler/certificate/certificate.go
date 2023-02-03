@@ -191,7 +191,7 @@ func (c *Reconciler) reconcileCMCertificate(ctx context.Context, knCert *v1alpha
 	return cmCert, nil
 }
 
-func (c *Reconciler) nameExistInOtherReadyCert(namespace, dnsName string) bool {
+func (c *Reconciler) nameExistInOtherReadyCert(kcertName, namespace, dnsName string) bool {
 	certs, err := c.cmCertificateLister.List(labels.Everything())
 	if err != nil {
 		return false
@@ -201,7 +201,7 @@ func (c *Reconciler) nameExistInOtherReadyCert(namespace, dnsName string) bool {
 		for _, cond := range cert.Status.Conditions {
 			if cond.Type == cmv1.CertificateConditionReady {
 				if cond.Status == cmmeta.ConditionTrue {
-					if cert.Spec.CommonName == dnsName {
+					if cert.Spec.CommonName == dnsName && cert.Name != kcertName {
 						return true
 					}
 				}
@@ -235,7 +235,8 @@ func (c *Reconciler) setHTTP01Challenges(knCert *v1alpha1.Certificate, cmCert *c
 		}
 		if len(svcs) == 0 {
 			// TODO: handle renewing certs and possibly log
-			if c.nameExistInOtherReadyCert(knCert.Namespace, dnsName) {
+			if c.nameExistInOtherReadyCert(knCert.Name, knCert.Namespace, dnsName) {
+				fmt.Printf("\nfound name %s in other cert\n\n", dnsName)
 				continue
 			}
 			return fmt.Errorf("no challenge solver service for domain %s; selector=%v", dnsName, selector)
