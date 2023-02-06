@@ -17,9 +17,9 @@ limitations under the License.
 package resources
 
 import (
-	"bytes"
+	"crypto/md5"
 	"fmt"
-	"text/template"
+	"strings"
 
 	cmv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -27,6 +27,11 @@ import (
 	"knative.dev/networking/pkg/apis/networking"
 	"knative.dev/networking/pkg/apis/networking/v1alpha1"
 	"knative.dev/pkg/kmeta"
+)
+
+const (
+	longest = 63
+	md5Len  = 32
 )
 
 // MakeCertManagerCertificate creates a Cert-Manager `Certificate` for requesting a SSL certificate.
@@ -44,19 +49,20 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 	// The Route controller adds spec.domain to existing KCerts
 	// The KCert controller requests new certs with same domain names, but a different CN if spec.domain is set and the other domain name would be too long
 	// cert-manager Certificates are updated only if the existing domain name kept them from being issued.
-	if len(commonName) > 63 {
+	if len(commonName) > longest {
 		if knCert.Spec.Domain != "" {
-			data := config.CommonNameTemplateValues{Domain: knCert.Spec.Domain}
-			var templ *template.Template
-			buf := bytes.Buffer{}
-
-			templ = cmConfig.GetCommonNameTemplate()
-
-			if err := templ.Execute(&buf, data); err != nil {
-				return nil, fmt.Errorf("error executing the CommonNameTemplate: %w", err)
+			//Split out the domain, and create a hash of the remaining part
+			domainSuffix := "." + knCert.Spec.Domain
+			prefix := strings.SplitN(commonName, domainSuffix, 2)[0]
+			if len(prefix) > md5Len {
+				prefix = fmt.Sprintf("%x", md5.Sum([]byte(prefix)))
 			}
+			commonName = prefix + domainSuffix
 
-			commonName = buf.String()
+			//If the new name is still too long, then error
+			if len(commonName) > longest {
+				return nil, fmt.Errorf("error creating Certmanager Certificate: cannot create valid length CommonName: %s", "Domain plus md5 hash of name+namespace data still longer than 63 characters.")
+			}
 			dnsNames = append(dnsNames, commonName)
 		} else {
 			return nil, fmt.Errorf("error creating Certmanager Certificate: %s", "commonName too long and no Domain available")

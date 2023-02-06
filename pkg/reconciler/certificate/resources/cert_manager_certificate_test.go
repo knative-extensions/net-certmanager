@@ -59,8 +59,30 @@ var cert = &v1alpha1.Certificate{
 }
 
 var (
+	longHost         = "somebighost12345678910.somebignamespacename12345678910"
+	domain           = "some.domain.test"
+	longHostDNSNames = []string{longHost + "." + domain}
+	certWithLongHost = &v1alpha1.Certificate{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-cert",
+			Namespace: "test-ns",
+			Labels: map[string]string{
+				servingRouteLabelKey: "test-route",
+			},
+			Annotations: map[string]string{
+				servingCreatorAnnotation: "someone",
+				servingUpdaterAnnotation: "someone",
+			},
+		},
+		Spec: v1alpha1.CertificateSpec{
+			DNSNames:   longHostDNSNames,
+			Domain:     domain,
+			SecretName: "secret0",
+		},
+	}
+
 	longDomain         = fmt.Sprintf("%s.%s", strings.Repeat("a", 54), "com")
-	longDNSNames       = []string{"host1." + longDomain, "host2." + longDomain}
+	longDomainDNSNames = []string{"host1." + longDomain, "host2." + longDomain}
 	certWithLongDomain = &v1alpha1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "test-cert",
@@ -74,7 +96,7 @@ var (
 			},
 		},
 		Spec: v1alpha1.CertificateSpec{
-			DNSNames:   longDNSNames,
+			DNSNames:   longDomainDNSNames,
 			Domain:     longDomain,
 			SecretName: "secret0",
 		},
@@ -125,7 +147,7 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 	}
 }
 
-func TestMakeCertManagerCertificateUseDomainTemplateWhenCommonNameIsTooLong(t *testing.T) {
+func TestMakeCertManagerCertificateLongCommonName(t *testing.T) {
 	want := &cmv1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            "test-cert",
@@ -141,8 +163,8 @@ func TestMakeCertManagerCertificateUseDomainTemplateWhenCommonNameIsTooLong(t *t
 		},
 		Spec: cmv1.CertificateSpec{
 			SecretName: "secret0",
-			CommonName: "k.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com",
-			DNSNames:   append([]string{"k.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com"}, longDNSNames...),
+			CommonName: "3be3726dee8fe24a3dd3c59842f172e1.some.domain.test",
+			DNSNames:   append([]string{"3be3726dee8fe24a3dd3c59842f172e1.some.domain.test"}, longHostDNSNames...),
 			IssuerRef: cmmeta.ObjectReference{
 				Kind: "ClusterIssuer",
 				Name: "Letsencrypt-issuer",
@@ -152,11 +174,24 @@ func TestMakeCertManagerCertificateUseDomainTemplateWhenCommonNameIsTooLong(t *t
 			},
 		},
 	}
-	got, err := MakeCertManagerCertificate(cmConfig, certWithLongDomain)
+	got, err := MakeCertManagerCertificate(cmConfig, certWithLongHost)
 	if err != nil {
 		t.Errorf("MakeCertManagerCertificate Error: %s", err)
 	}
 	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
+	}
+}
+
+func TestMakeCertManagerCertificateDomainIsTooLong(t *testing.T) {
+	wantError := fmt.Errorf("error creating Certmanager Certificate: cannot create valid length CommonName: Domain plus md5 hash of name+namespace data still longer than 63 characters.")
+	cert, gotError := MakeCertManagerCertificate(cmConfig, certWithLongDomain)
+
+	if cert != nil {
+		t.Errorf("Expected no cert, got: %s", cmp.Diff(nil, cert))
+	}
+
+	if diff := cmp.Diff(wantError.Error(), gotError.Error()); diff != "" {
 		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
 	}
 }
