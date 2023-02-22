@@ -43,6 +43,7 @@ var cert = &v1alpha1.Certificate{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "test-cert",
 		Namespace: "test-ns",
+		UID:       "22b3de9e-076e-4e5d-a55d-aff10002527f",
 		Labels: map[string]string{
 			servingRouteLabelKey: "test-route",
 		},
@@ -66,6 +67,7 @@ var (
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "test-cert",
 			Namespace: "test-ns",
+			UID:       "22b3de9e-076e-4e5d-a55d-aff10002527f",
 			Labels: map[string]string{
 				servingRouteLabelKey: "test-route",
 			},
@@ -87,6 +89,7 @@ var (
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "test-cert",
 			Namespace: "test-ns",
+			UID:       "22b3de9e-076e-4e5d-a55d-aff10002527f",
 			Labels: map[string]string{
 				servingRouteLabelKey: "test-route",
 			},
@@ -134,7 +137,7 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 				Name: "Letsencrypt-issuer",
 			},
 			SecretTemplate: &cmv1.CertificateSecretTemplate{
-				Labels: map[string]string{networking.CertificateUIDLabelKey: ""},
+				Labels: map[string]string{networking.CertificateUIDLabelKey: "22b3de9e-076e-4e5d-a55d-aff10002527f"},
 			},
 		},
 	}
@@ -163,14 +166,14 @@ func TestMakeCertManagerCertificateLongCommonName(t *testing.T) {
 		},
 		Spec: cmv1.CertificateSpec{
 			SecretName: "secret0",
-			CommonName: "3be3726dee8fe24a3dd3c59842f172e1.some.domain.test",
-			DNSNames:   append([]string{"3be3726dee8fe24a3dd3c59842f172e1.some.domain.test"}, longHostDNSNames...),
+			CommonName: "21ylrip1w1ch9t68q4rx0zt6n.some.domain.test",
+			DNSNames:   append([]string{"21ylrip1w1ch9t68q4rx0zt6n.some.domain.test"}, longHostDNSNames...),
 			IssuerRef: cmmeta.ObjectReference{
 				Kind: "ClusterIssuer",
 				Name: "Letsencrypt-issuer",
 			},
 			SecretTemplate: &cmv1.CertificateSecretTemplate{
-				Labels: map[string]string{networking.CertificateUIDLabelKey: ""},
+				Labels: map[string]string{networking.CertificateUIDLabelKey: "22b3de9e-076e-4e5d-a55d-aff10002527f"},
 			},
 		},
 	}
@@ -183,15 +186,46 @@ func TestMakeCertManagerCertificateLongCommonName(t *testing.T) {
 	}
 }
 
+func TestMakeCertManagerCertificateDomainMappingIsTooLong(t *testing.T) {
+	wantError := fmt.Errorf("error creating Certmanager Certificate: DomainMapping name (this.is.aaaaaaaaaaaaaaa.reallyreallyreallyreallyreallylong.domainmapping) longer than 63 characters")
+	cert, gotError := MakeCertManagerCertificate(cmConfig, &v1alpha1.Certificate{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-cert-from-domain-mapping",
+			Namespace: "test-ns",
+			UID:       "22b3de9e-076e-4e5d-a55d-aff10002527f",
+			Labels: map[string]string{
+				servingRouteLabelKey: "test-route",
+			},
+			Annotations: map[string]string{
+				servingCreatorAnnotation: "someone",
+				servingUpdaterAnnotation: "someone",
+			},
+		},
+		Spec: v1alpha1.CertificateSpec{
+			DNSNames:   []string{"this.is.aaaaaaaaaaaaaaa.reallyreallyreallyreallyreallylong.domainmapping"},
+			Domain:     "this.is.aaaaaaaaaaaaaaa.reallyreallyreallyreallyreallylong.domainmapping",
+			SecretName: "secret0",
+		},
+	})
+
+	if cert != nil {
+		t.Errorf("Expected no cert, got: %s", cmp.Diff(nil, cert))
+	}
+
+	if diff := cmp.Diff(wantError.Error(), gotError.Message); diff != "" {
+		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
+	}
+}
+
 func TestMakeCertManagerCertificateDomainIsTooLong(t *testing.T) {
-	wantError := fmt.Errorf("error creating Certmanager Certificate: cannot create valid length CommonName: Domain plus md5 hash of name+namespace data still longer than 63 characters.")
+	wantError := fmt.Errorf("error creating Certmanager Certificate: cannot create valid length CommonName: (host1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com) still longer than 63 characters, cannot shorten")
 	cert, gotError := MakeCertManagerCertificate(cmConfig, certWithLongDomain)
 
 	if cert != nil {
 		t.Errorf("Expected no cert, got: %s", cmp.Diff(nil, cert))
 	}
 
-	if diff := cmp.Diff(wantError.Error(), gotError.Error()); diff != "" {
+	if diff := cmp.Diff(wantError.Error(), gotError.Message); diff != "" {
 		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
 	}
 }

@@ -6,6 +6,7 @@ require (
 	github.com/cert-manager/cert-manager v1.8.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-cmp v0.5.8
+	github.com/martinlindhe/base36 v1.1.1
 	go.uber.org/zap v1.19.1
 	k8s.io/api v0.25.4
 	k8s.io/apimachinery v0.25.4

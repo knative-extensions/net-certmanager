@@ -101,11 +101,14 @@ func (c *Reconciler) reconcile(ctx context.Context, knCert *v1alpha1.Certificate
 
 	cmConfig := config.FromContext(ctx).CertManager
 
-	cmCert, err := resources.MakeCertManagerCertificate(cmConfig, knCert)
-	if err != nil {
-		return err
+	cmCert, errCondition := resources.MakeCertManagerCertificate(cmConfig, knCert)
+	if errCondition != nil {
+		certificateCondSet.Manage(&knCert.Status).SetCondition(*errCondition)
+		knCert.Status.MarkNotReady(errCondition.Reason, errCondition.Message)
+		return fmt.Errorf(errCondition.Message)
 	}
-	cmCert, err = c.reconcileCMCertificate(ctx, knCert, cmCert)
+
+	cmCert, err := c.reconcileCMCertificate(ctx, knCert, cmCert)
 	if err != nil {
 		return err
 	}
