@@ -6,6 +6,7 @@ require (
 	github.com/cert-manager/cert-manager v1.8.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-cmp v0.5.8
+	github.com/google/uuid v1.3.0
 	github.com/martinlindhe/base36 v1.1.1
 	go.uber.org/zap v1.19.1
 	k8s.io/api v0.25.4
@@ -43,7 +44,6 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
