@@ -85,7 +85,9 @@ func (c *Reconciler) ReconcileKind(ctx context.Context, knCert *v1alpha1.Certifi
 	// updates regardless of whether the reconciliation errored out.
 	err := c.reconcile(ctx, knCert)
 	if err != nil {
-		knCert.Status.MarkNotReady(notReconciledReason, notReconciledMessage)
+		if knCert.Status.GetCondition(v1alpha1.CertificateConditionReady).Status != corev1.ConditionFalse {
+			knCert.Status.MarkNotReady(notReconciledReason, notReconciledMessage)
+		}
 	}
 	return err
 }
@@ -103,8 +105,7 @@ func (c *Reconciler) reconcile(ctx context.Context, knCert *v1alpha1.Certificate
 
 	cmCert, errCondition := resources.MakeCertManagerCertificate(cmConfig, knCert)
 	if errCondition != nil {
-		certificateCondSet.Manage(&knCert.Status).SetCondition(*errCondition)
-		knCert.Status.MarkNotReady(errCondition.Reason, errCondition.Message)
+		knCert.Status.MarkFailed(errCondition.Reason, errCondition.Message)
 		return fmt.Errorf(errCondition.Message)
 	}
 

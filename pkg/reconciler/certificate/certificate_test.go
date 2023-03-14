@@ -333,18 +333,11 @@ func TestReconcile(t *testing.T) {
 						ObservedGeneration: 0,
 						Conditions: duckv1.Conditions{
 							{
-								Type:     "CreateCertManagerCertificate",
+								Type:     v1alpha1.CertificateConditionReady,
 								Status:   corev1.ConditionFalse,
+								Severity: apis.ConditionSeverityError,
 								Reason:   "CommonName Too Long",
 								Message:  "error creating Certmanager Certificate: cannot create valid length CommonName: (hello.ns.reallyreallyreallyreallyreallyreallyreallylong.domainname) still longer than 63 characters, cannot shorten",
-								Severity: apis.ConditionSeverityError,
-							},
-							{
-								Type:     v1alpha1.CertificateConditionReady,
-								Status:   corev1.ConditionUnknown,
-								Severity: apis.ConditionSeverityError,
-								Reason:   "ReconcileFailed",
-								Message:  "Cert-Manager certificate has not yet been reconciled.",
 							},
 						},
 					},
