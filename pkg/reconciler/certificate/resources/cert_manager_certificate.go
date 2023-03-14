@@ -59,7 +59,7 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 		if knCert.Spec.Domain != "" && knCert.Spec.Domain != commonName {
 			//Split out the domain, and create a hash of the remaining part
 			domainSuffix := "." + knCert.Spec.Domain
-			prefix := strings.SplitN(commonName, domainSuffix, 2)[0]
+			prefix := strings.TrimSuffix(commonName, domainSuffix)
 			if len(prefix) > base36Len {
 				attemptedToShorten = true
 
