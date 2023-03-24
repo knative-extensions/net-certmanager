@@ -4,9 +4,7 @@ coverage:
   status:
     project:
       default:
-        # TODO: increase target.
-        # https://github.com/knative-sandbox/net-certmanager/issues/431
-        target: 75
+        target: 80
         threshold: 1%
     patch:
       # Disable the coverage threshold of the patch, so that PRs are
