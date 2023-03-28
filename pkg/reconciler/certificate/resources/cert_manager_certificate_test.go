@@ -110,7 +110,6 @@ var (
 			Kind: "ClusterIssuer",
 			Name: "Letsencrypt-issuer",
 		},
-		CommonNameTemplate: config.DefaultCommonNameTemplate,
 	}
 )
 

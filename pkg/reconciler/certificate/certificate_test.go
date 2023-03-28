@@ -681,7 +681,6 @@ func certmanagerConfig() *config.CertManagerConfig {
 			Kind: "ClusterIssuer",
 			Name: "Letsencrypt-issuer",
 		},
-		CommonNameTemplate: config.DefaultCommonNameTemplate,
 	}
 }
 
