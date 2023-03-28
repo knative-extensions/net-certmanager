@@ -43,6 +43,7 @@ var cert = &v1alpha1.Certificate{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "test-cert",
 		Namespace: "test-ns",
+		UID:       "22b3de9e-076e-4e5d-a55d-aff10002527f",
 		Labels: map[string]string{
 			servingRouteLabelKey: "test-route",
 		},
@@ -59,12 +60,14 @@ var cert = &v1alpha1.Certificate{
 }
 
 var (
-	longDomain         = fmt.Sprintf("%s.%s", strings.Repeat("a", 62), "com")
-	longDNSNames       = []string{"host1." + longDomain, "host2." + longDomain}
-	certWithLongDomain = &v1alpha1.Certificate{
+	longHost         = "somebighost12345678910.somebignamespacename12345678910"
+	domain           = "some.domain.test"
+	longHostDNSNames = []string{longHost + "." + domain}
+	certWithLongHost = &v1alpha1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "test-cert",
 			Namespace: "test-ns",
+			UID:       "22b3de9e-076e-4e5d-a55d-aff10002527f",
 			Labels: map[string]string{
 				servingRouteLabelKey: "test-route",
 			},
@@ -74,7 +77,29 @@ var (
 			},
 		},
 		Spec: v1alpha1.CertificateSpec{
-			DNSNames:   longDNSNames,
+			DNSNames:   longHostDNSNames,
+			Domain:     domain,
+			SecretName: "secret0",
+		},
+	}
+
+	longDomain         = fmt.Sprintf("%s.%s", strings.Repeat("a", 54), "com")
+	longDomainDNSNames = []string{"host1." + longDomain, "host2." + longDomain}
+	certWithLongDomain = &v1alpha1.Certificate{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-cert",
+			Namespace: "test-ns",
+			UID:       "22b3de9e-076e-4e5d-a55d-aff10002527f",
+			Labels: map[string]string{
+				servingRouteLabelKey: "test-route",
+			},
+			Annotations: map[string]string{
+				servingCreatorAnnotation: "someone",
+				servingUpdaterAnnotation: "someone",
+			},
+		},
+		Spec: v1alpha1.CertificateSpec{
+			DNSNames:   longDomainDNSNames,
 			Domain:     longDomain,
 			SecretName: "secret0",
 		},
@@ -112,7 +137,7 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 				Name: "Letsencrypt-issuer",
 			},
 			SecretTemplate: &cmv1.CertificateSecretTemplate{
-				Labels: map[string]string{networking.CertificateUIDLabelKey: ""},
+				Labels: map[string]string{networking.CertificateUIDLabelKey: "22b3de9e-076e-4e5d-a55d-aff10002527f"},
 			},
 		},
 	}
@@ -125,7 +150,7 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 	}
 }
 
-func TestMakeCertManagerCertificateValidLengthCommonName(t *testing.T) {
+func TestMakeCertManagerCertificateLongCommonName(t *testing.T) {
 	want := &cmv1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            "test-cert",
@@ -141,22 +166,66 @@ func TestMakeCertManagerCertificateValidLengthCommonName(t *testing.T) {
 		},
 		Spec: cmv1.CertificateSpec{
 			SecretName: "secret0",
-			CommonName: "k.aaaaaaaaaaaaaaaaaaaaaaaaaaaaa5e9ef16706806dca9cc47a7d55eec088",
-			DNSNames:   append([]string{"k.aaaaaaaaaaaaaaaaaaaaaaaaaaaaa5e9ef16706806dca9cc47a7d55eec088"}, longDNSNames...),
+			CommonName: "21ylrip1w1ch9t68q4rx0zt6n.some.domain.test",
+			DNSNames:   append([]string{"21ylrip1w1ch9t68q4rx0zt6n.some.domain.test"}, longHostDNSNames...),
 			IssuerRef: cmmeta.ObjectReference{
 				Kind: "ClusterIssuer",
 				Name: "Letsencrypt-issuer",
 			},
 			SecretTemplate: &cmv1.CertificateSecretTemplate{
-				Labels: map[string]string{networking.CertificateUIDLabelKey: ""},
+				Labels: map[string]string{networking.CertificateUIDLabelKey: "22b3de9e-076e-4e5d-a55d-aff10002527f"},
 			},
 		},
 	}
-	got, err := MakeCertManagerCertificate(cmConfig, certWithLongDomain)
+	got, err := MakeCertManagerCertificate(cmConfig, certWithLongHost)
 	if err != nil {
 		t.Errorf("MakeCertManagerCertificate Error: %s", err)
 	}
 	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
+	}
+}
+
+func TestMakeCertManagerCertificateDomainMappingIsTooLong(t *testing.T) {
+	wantError := fmt.Errorf("error creating Certmanager Certificate: DomainMapping name (this.is.aaaaaaaaaaaaaaa.reallyreallyreallyreallyreallylong.domainmapping) longer than 63 characters")
+	cert, gotError := MakeCertManagerCertificate(cmConfig, &v1alpha1.Certificate{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-cert-from-domain-mapping",
+			Namespace: "test-ns",
+			UID:       "22b3de9e-076e-4e5d-a55d-aff10002527f",
+			Labels: map[string]string{
+				servingRouteLabelKey: "test-route",
+			},
+			Annotations: map[string]string{
+				servingCreatorAnnotation: "someone",
+				servingUpdaterAnnotation: "someone",
+			},
+		},
+		Spec: v1alpha1.CertificateSpec{
+			DNSNames:   []string{"this.is.aaaaaaaaaaaaaaa.reallyreallyreallyreallyreallylong.domainmapping"},
+			Domain:     "this.is.aaaaaaaaaaaaaaa.reallyreallyreallyreallyreallylong.domainmapping",
+			SecretName: "secret0",
+		},
+	})
+
+	if cert != nil {
+		t.Errorf("Expected no cert, got: %s", cmp.Diff(nil, cert))
+	}
+
+	if diff := cmp.Diff(wantError.Error(), gotError.Message); diff != "" {
+		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
+	}
+}
+
+func TestMakeCertManagerCertificateDomainIsTooLong(t *testing.T) {
+	wantError := fmt.Errorf("error creating Certmanager Certificate: cannot create valid length CommonName: (host1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com) still longer than 63 characters, cannot shorten")
+	cert, gotError := MakeCertManagerCertificate(cmConfig, certWithLongDomain)
+
+	if cert != nil {
+		t.Errorf("Expected no cert, got: %s", cmp.Diff(nil, cert))
+	}
+
+	if diff := cmp.Diff(wantError.Error(), gotError.Message); diff != "" {
 		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
 	}
 }
