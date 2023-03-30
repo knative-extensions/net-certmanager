@@ -85,7 +85,9 @@ func (c *Reconciler) ReconcileKind(ctx context.Context, knCert *v1alpha1.Certifi
 	// updates regardless of whether the reconciliation errored out.
 	err := c.reconcile(ctx, knCert)
 	if err != nil {
-		knCert.Status.MarkNotReady(notReconciledReason, notReconciledMessage)
+		if knCert.Status.GetCondition(v1alpha1.CertificateConditionReady).Status != corev1.ConditionFalse {
+			knCert.Status.MarkNotReady(notReconciledReason, notReconciledMessage)
+		}
 	}
 	return err
 }
@@ -101,25 +103,18 @@ func (c *Reconciler) reconcile(ctx context.Context, knCert *v1alpha1.Certificate
 
 	cmConfig := config.FromContext(ctx).CertManager
 
-	cmCert, err := resources.MakeCertManagerCertificate(cmConfig, knCert)
-	if err != nil {
-		return err
+	cmCert, errCondition := resources.MakeCertManagerCertificate(cmConfig, knCert)
+	if errCondition != nil {
+		knCert.Status.MarkFailed(errCondition.Reason, errCondition.Message)
+		return fmt.Errorf(errCondition.Message)
 	}
-	cmCert, err = c.reconcileCMCertificate(ctx, knCert, cmCert)
+
+	cmCert, err := c.reconcileCMCertificate(ctx, knCert, cmCert)
 	if err != nil {
 		return err
 	}
 
 	knCert.Status.NotAfter = cmCert.Status.NotAfter
-
-	// add a temporary renewing state when cm certificate is being renewed
-	// this will reconfigure the ingress in order to route HTTP01 challenge traffic
-	// before cm certificate expiration
-	// https://github.com/knative-sandbox/net-certmanager/issues/416
-	renewing := false
-	if cmCert.Status.RenewalTime != nil && time.Now().After(cmCert.Status.RenewalTime.Time) {
-		renewing = true
-	}
 
 	// Propagate cert-manager Certificate status to Knative Certificate.
 	cmCertReadyCondition := resources.GetReadyCondition(cmCert)
@@ -133,8 +128,12 @@ func (c *Reconciler) reconcile(ctx context.Context, knCert *v1alpha1.Certificate
 		knCert.Status.MarkNotReady(cmCertReadyCondition.Reason, cmCertReadyCondition.Message)
 		return c.setHTTP01Challenges(knCert, cmCert)
 	case cmCertReadyCondition.Status == cmmeta.ConditionTrue:
-		if renewing {
-			// set renew condition
+		if cmCert.Status.RenewalTime != nil && time.Now().After(cmCert.Status.RenewalTime.Time) {
+			// add a temporary renewing state when cm certificate is being renewed
+			// this will reconfigure the ingress in order to route HTTP01 challenge traffic
+			// before cm certificate expiration
+			// https://github.com/knative-sandbox/net-certmanager/issues/416
+			logger.Infof("Cert (%s) has passed its renewal time, setting renewing condition on KCert (%s).", cmCert.Name, knCert.Name)
 			renewCondition := apis.Condition{
 				Type:   renewingEvent,
 				Status: corev1.ConditionTrue,
@@ -191,26 +190,6 @@ func (c *Reconciler) reconcileCMCertificate(ctx context.Context, knCert *v1alpha
 	return cmCert, nil
 }
 
-func (c *Reconciler) nameExistInOtherReadyCert(namespace, dnsName string) bool {
-	certs, err := c.cmCertificateLister.List(labels.Everything())
-	if err != nil {
-		return false
-	}
-
-	for _, cert := range certs {
-		for _, cond := range cert.Status.Conditions {
-			if cond.Type == cmv1.CertificateConditionReady {
-				if cond.Status == cmmeta.ConditionTrue {
-					if cert.Spec.CommonName == dnsName {
-						return true
-					}
-				}
-			}
-		}
-	}
-	return false
-}
-
 func (c *Reconciler) setHTTP01Challenges(knCert *v1alpha1.Certificate, cmCert *cmv1.Certificate) error {
 	if isHTTP, err := c.isHTTPChallenge(cmCert); err != nil {
 		return err
@@ -234,10 +213,7 @@ func (c *Reconciler) setHTTP01Challenges(knCert *v1alpha1.Certificate, cmCert *c
 			return fmt.Errorf("failed to list services: %w", err)
 		}
 		if len(svcs) == 0 {
-			// TODO: handle renewing certs and possibly log
-			if c.nameExistInOtherReadyCert(knCert.Namespace, dnsName) {
-				continue
-			}
+			//If the cert is renewing, it could be possible that this isn't an error. Should this change depending on the case?
 			return fmt.Errorf("no challenge solver service for domain %s; selector=%v", dnsName, selector)
 		}
 

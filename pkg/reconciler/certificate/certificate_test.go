@@ -318,6 +318,33 @@ func TestReconcile(t *testing.T) {
 		}},
 		Key: "foo/knCert",
 	}, {
+		Name: "set Knative Certificate not ready status with details when common name is too long",
+		Objects: []runtime.Object{
+			knCertDomainTooLong("knCert", "foo", &v1alpha1.CertificateStatus{}, 0),
+		},
+		WantErr: true,
+		WantEvents: []string{
+			"Warning InternalError error creating Certmanager Certificate: cannot create valid length CommonName: (hello.ns.reallyreallyreallyreallyreallyreallyreallylong.domainname) still longer than 63 characters, cannot shorten",
+		},
+		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
+			Object: knCertDomainTooLong("knCert", "foo",
+				&v1alpha1.CertificateStatus{
+					Status: duckv1.Status{
+						ObservedGeneration: 0,
+						Conditions: duckv1.Conditions{
+							{
+								Type:     v1alpha1.CertificateConditionReady,
+								Status:   corev1.ConditionFalse,
+								Severity: apis.ConditionSeverityError,
+								Reason:   "CommonName Too Long",
+								Message:  "error creating Certmanager Certificate: cannot create valid length CommonName: (hello.ns.reallyreallyreallyreallyreallyreallyreallylong.domainname) still longer than 63 characters, cannot shorten",
+							},
+						},
+					},
+				}, 0),
+		}},
+		Key: "foo/knCert",
+	}, {
 		Name: "set Knative Certificate renewing status with CM Certificate Renewing status",
 		Objects: []runtime.Object{
 			knCertWithStatus("knCert", "foo", &v1alpha1.CertificateStatus{
@@ -660,6 +687,25 @@ func certmanagerConfig() *config.CertManagerConfig {
 
 func knCert(name, namespace string) *v1alpha1.Certificate {
 	return knCertWithStatus(name, namespace, &v1alpha1.CertificateStatus{})
+}
+
+func knCertDomainTooLong(name, namespace string, status *v1alpha1.CertificateStatus, gen int) *v1alpha1.Certificate {
+	return &v1alpha1.Certificate{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:       name,
+			Namespace:  namespace,
+			Generation: int64(gen),
+			Annotations: map[string]string{
+				netapi.CertificateClassAnnotationKey: netcfg.CertManagerCertificateClassName,
+			},
+		},
+		Spec: v1alpha1.CertificateSpec{
+			DNSNames:   []string{"hello.ns.reallyreallyreallyreallyreallyreallyreallylong.domainname"},
+			Domain:     "reallyreallyreallyreallyreallyreallyreallylong.domainname",
+			SecretName: "secret0",
+		},
+		Status: *status,
+	}
 }
 
 func knCertWithStatus(name, namespace string, status *v1alpha1.CertificateStatus) *v1alpha1.Certificate {
