@@ -20,6 +20,7 @@ import (
 	"context"
 	"testing"
 
+	cmeta "github.com/cert-manager/cert-manager/pkg/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
 	configmaptesting "knative.dev/pkg/configmap/testing"
 	logtesting "knative.dev/pkg/logging/testing"
@@ -43,9 +44,12 @@ func TestStoreImmutableConfig(t *testing.T) {
 	store.OnConfigChanged(configmaptesting.ConfigMapFromTestFile(t, CertManagerConfigName))
 	config := store.Load()
 
-	config.CertManager.IssuerRef.Kind = "newKind"
+	config.CertManager.IssuerRef = &cmeta.ObjectReference{
+		Kind: "newKind",
+	}
+
 	newConfig := store.Load()
-	if newConfig.CertManager.IssuerRef.Kind == "newKind" {
+	if newConfig.CertManager.IssuerRef != nil && newConfig.CertManager.IssuerRef.Kind == "newKind" {
 		t.Error("CertManager config is not immutable")
 	}
 }

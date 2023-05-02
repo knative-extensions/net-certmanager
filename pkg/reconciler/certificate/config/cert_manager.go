@@ -24,7 +24,8 @@ import (
 )
 
 const (
-	issuerRefKey = "issuerRef"
+	issuerRefKey         = "issuerRef"
+	internalIssuerRefKey = "internalIssuerRef"
 
 	// CertManagerConfigName is the name of the configmap containing all
 	// configuration related to Cert-Manager.
@@ -34,20 +35,24 @@ const (
 // CertManagerConfig contains Cert-Manager related configuration defined in the
 // `config-certmanager` config map.
 type CertManagerConfig struct {
-	IssuerRef *cmeta.ObjectReference
+	IssuerRef         *cmeta.ObjectReference
+	InternalIssuerRef *cmeta.ObjectReference
 }
 
 // NewCertManagerConfigFromConfigMap creates an CertManagerConfig from the supplied ConfigMap
 func NewCertManagerConfigFromConfigMap(configMap *corev1.ConfigMap) (*CertManagerConfig, error) {
-	// TODO(zhiminx): do we need to provide the default values here?
-	// TODO: validation check.
-
-	config := &CertManagerConfig{
-		IssuerRef: &cmeta.ObjectReference{},
-	}
+	config := &CertManagerConfig{}
 
 	if v, ok := configMap.Data[issuerRefKey]; ok {
+		config.IssuerRef = &cmeta.ObjectReference{}
 		if err := yaml.Unmarshal([]byte(v), config.IssuerRef); err != nil {
+			return nil, err
+		}
+	}
+
+	if v, ok := configMap.Data[internalIssuerRefKey]; ok {
+		config.InternalIssuerRef = &cmeta.ObjectReference{}
+		if err := yaml.Unmarshal([]byte(v), config.InternalIssuerRef); err != nil {
 			return nil, err
 		}
 	}

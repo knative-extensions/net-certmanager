@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	cmv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
+	cmeta "github.com/cert-manager/cert-manager/pkg/apis/meta/v1"
 	"github.com/google/uuid"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -37,6 +38,8 @@ const (
 	longest                               = 63
 	base36Len                             = 25
 	CreateCertManagerCertificateCondition = "CreateCertManagerCertificate"
+	IssuerNotSetCondition                 = "IssuerNotSet"
+	VisibilityClusterLocal                = "cluster-local"
 )
 
 // MakeCertManagerCertificate creates a Cert-Manager `Certificate` for requesting a SSL certificate.
@@ -66,11 +69,11 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 				parsedUUID, err := uuid.Parse(string(knCert.UID))
 				if err != nil {
 					return nil, &apis.Condition{
-						Type:   apis.ConditionType(CreateCertManagerCertificateCondition),
+						Type:   CreateCertManagerCertificateCondition,
 						Status: corev1.ConditionFalse,
 						Reason: "Failed To Parse UID",
 						Message: fmt.Sprintf(
-							"error creating Certmanager Certificate: failed to parse UID (%s) on KCert (%s): %s",
+							"error creating cert-manager certificate: failed to parse UID (%s) on KCert (%s): %s",
 							knCert.UID,
 							knCert.Name,
 							err,
@@ -86,21 +89,21 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 			if len(commonName) > longest {
 				if attemptedToShorten {
 					return nil, &apis.Condition{
-						Type:   apis.ConditionType(CreateCertManagerCertificateCondition),
+						Type:   CreateCertManagerCertificateCondition,
 						Status: corev1.ConditionFalse,
 						Reason: "CommonName Too Long After Shortening",
 						Message: fmt.Sprintf(
-							"error creating Certmanager Certificate: cannot create valid length CommonName: (%s) still longer than 63 characters after shortening",
+							"error creating cert-manager certificate: cannot create valid length CommonName: (%s) still longer than 63 characters after shortening",
 							commonName,
 						),
 					}
 				} else {
 					return nil, &apis.Condition{
-						Type:   apis.ConditionType(CreateCertManagerCertificateCondition),
+						Type:   CreateCertManagerCertificateCondition,
 						Status: corev1.ConditionFalse,
 						Reason: "CommonName Too Long",
 						Message: fmt.Sprintf(
-							"error creating Certmanager Certificate: cannot create valid length CommonName: (%s) still longer than 63 characters, cannot shorten",
+							"error creating cert-manager certificate: cannot create valid length CommonName: (%s) still longer than 63 characters, cannot shorten",
 							commonName,
 						),
 					}
@@ -110,21 +113,21 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 		} else {
 			if knCert.Spec.Domain == commonName {
 				return nil, &apis.Condition{
-					Type:   apis.ConditionType(CreateCertManagerCertificateCondition),
+					Type:   CreateCertManagerCertificateCondition,
 					Status: corev1.ConditionFalse,
 					Reason: "DomainMapping Name Too Long",
 					Message: fmt.Sprintf(
-						"error creating Certmanager Certificate: DomainMapping name (%s) longer than 63 characters",
+						"error creating cert-manager certificate: DomainMapping name (%s) longer than 63 characters",
 						commonName,
 					),
 				}
 			} else {
 				return nil, &apis.Condition{
-					Type:   apis.ConditionType(CreateCertManagerCertificateCondition),
+					Type:   CreateCertManagerCertificateCondition,
 					Status: corev1.ConditionFalse,
 					Reason: "CommonName Too Long",
 					Message: fmt.Sprintf(
-						"error creating Certmanager Certificate: CommonName (%s) too long and no Domain available",
+						"error creating cert-manager certificate: CommonName (%s) too long and no Domain available",
 						commonName,
 					),
 				}
@@ -134,6 +137,29 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 	}
 
 	dnsNames = append(dnsNames, knCert.Spec.DNSNames...)
+
+	var issuerRef cmeta.ObjectReference
+	if knCert.Labels[networking.VisibilityLabelKey] == VisibilityClusterLocal {
+		if cmConfig.InternalIssuerRef == nil {
+			return nil, &apis.Condition{
+				Type:    IssuerNotSetCondition,
+				Status:  corev1.ConditionFalse,
+				Reason:  "internalIssuerRef not set",
+				Message: "error creating cert-manager certificate: internalIssuerRef was not set in config-certmanager",
+			}
+		}
+		issuerRef = *cmConfig.InternalIssuerRef
+	} else {
+		if cmConfig.IssuerRef == nil {
+			return nil, &apis.Condition{
+				Type:    IssuerNotSetCondition,
+				Status:  corev1.ConditionFalse,
+				Reason:  "issuerRef not set",
+				Message: "error creating cert-manager certificate: issuerRef was not set in config-certmanager",
+			}
+		}
+		issuerRef = *cmConfig.IssuerRef
+	}
 
 	cert := &cmv1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
@@ -147,7 +173,7 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 			CommonName: commonName,
 			SecretName: knCert.Spec.SecretName,
 			DNSNames:   dnsNames,
-			IssuerRef:  *cmConfig.IssuerRef,
+			IssuerRef:  issuerRef,
 			SecretTemplate: &cmv1.CertificateSecretTemplate{
 				Labels: map[string]string{
 					networking.CertificateUIDLabelKey: string(knCert.GetUID()),

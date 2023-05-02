@@ -324,7 +324,7 @@ func TestReconcile(t *testing.T) {
 		},
 		WantErr: true,
 		WantEvents: []string{
-			"Warning InternalError error creating Certmanager Certificate: cannot create valid length CommonName: (hello.ns.reallyreallyreallyreallyreallyreallyreallylong.domainname) still longer than 63 characters, cannot shorten",
+			"Warning InternalError error creating cert-manager certificate: cannot create valid length CommonName: (hello.ns.reallyreallyreallyreallyreallyreallyreallylong.domainname) still longer than 63 characters, cannot shorten",
 		},
 		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
 			Object: knCertDomainTooLong("knCert", "foo",
@@ -337,7 +337,7 @@ func TestReconcile(t *testing.T) {
 								Status:   corev1.ConditionFalse,
 								Severity: apis.ConditionSeverityError,
 								Reason:   "CommonName Too Long",
-								Message:  "error creating Certmanager Certificate: cannot create valid length CommonName: (hello.ns.reallyreallyreallyreallyreallyreallyreallylong.domainname) still longer than 63 characters, cannot shorten",
+								Message:  "error creating cert-manager certificate: cannot create valid length CommonName: (hello.ns.reallyreallyreallyreallyreallyreallyreallylong.domainname) still longer than 63 characters, cannot shorten",
 							},
 						},
 					},

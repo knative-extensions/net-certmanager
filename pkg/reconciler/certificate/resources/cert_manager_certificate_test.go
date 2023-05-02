@@ -186,7 +186,7 @@ func TestMakeCertManagerCertificateLongCommonName(t *testing.T) {
 }
 
 func TestMakeCertManagerCertificateDomainMappingIsTooLong(t *testing.T) {
-	wantError := fmt.Errorf("error creating Certmanager Certificate: DomainMapping name (this.is.aaaaaaaaaaaaaaa.reallyreallyreallyreallyreallylong.domainmapping) longer than 63 characters")
+	wantError := fmt.Errorf("error creating cert-manager certificate: DomainMapping name (this.is.aaaaaaaaaaaaaaa.reallyreallyreallyreallyreallylong.domainmapping) longer than 63 characters")
 	cert, gotError := MakeCertManagerCertificate(cmConfig, &v1alpha1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "test-cert-from-domain-mapping",
@@ -217,7 +217,7 @@ func TestMakeCertManagerCertificateDomainMappingIsTooLong(t *testing.T) {
 }
 
 func TestMakeCertManagerCertificateDomainIsTooLong(t *testing.T) {
-	wantError := fmt.Errorf("error creating Certmanager Certificate: cannot create valid length CommonName: (host1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com) still longer than 63 characters, cannot shorten")
+	wantError := fmt.Errorf("error creating cert-manager certificate: cannot create valid length CommonName: (host1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com) still longer than 63 characters, cannot shorten")
 	cert, gotError := MakeCertManagerCertificate(cmConfig, certWithLongDomain)
 
 	if cert != nil {
