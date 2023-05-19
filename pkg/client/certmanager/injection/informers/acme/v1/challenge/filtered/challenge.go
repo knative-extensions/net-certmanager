@@ -21,15 +21,8 @@ package filtered
 import (
 	context "context"
 
-	apisacmev1 "github.com/cert-manager/cert-manager/pkg/apis/acme/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	cache "k8s.io/client-go/tools/cache"
-	versioned "knative.dev/net-certmanager/pkg/client/certmanager/clientset/versioned"
 	v1 "knative.dev/net-certmanager/pkg/client/certmanager/informers/externalversions/acme/v1"
-	client "knative.dev/net-certmanager/pkg/client/certmanager/injection/client"
 	filtered "knative.dev/net-certmanager/pkg/client/certmanager/injection/informers/factory/filtered"
-	acmev1 "knative.dev/net-certmanager/pkg/client/certmanager/listers/acme/v1"
 	controller "knative.dev/pkg/controller"
 	injection "knative.dev/pkg/injection"
 	logging "knative.dev/pkg/logging"
@@ -37,7 +30,6 @@ import (
 
 func init() {
 	injection.Default.RegisterFilteredInformers(withInformer)
-	injection.Dynamic.RegisterDynamicInformer(withDynamicInformer)
 }
 
 // Key is used for associating the Informer inside the context.Context.
@@ -62,20 +54,6 @@ func withInformer(ctx context.Context) (context.Context, []controller.Informer) 
 	return ctx, infs
 }
 
-func withDynamicInformer(ctx context.Context) context.Context {
-	untyped := ctx.Value(filtered.LabelKey{})
-	if untyped == nil {
-		logging.FromContext(ctx).Panic(
-			"Unable to fetch labelkey from context.")
-	}
-	labelSelectors := untyped.([]string)
-	for _, selector := range labelSelectors {
-		inf := &wrapper{client: client.Get(ctx), selector: selector}
-		ctx = context.WithValue(ctx, Key{Selector: selector}, inf)
-	}
-	return ctx
-}
-
 // Get extracts the typed informer from the context.
 func Get(ctx context.Context, selector string) v1.ChallengeInformer {
 	untyped := ctx.Value(Key{Selector: selector})
@@ -84,53 +62,4 @@ func Get(ctx context.Context, selector string) v1.ChallengeInformer {
 			"Unable to fetch knative.dev/net-certmanager/pkg/client/certmanager/informers/externalversions/acme/v1.ChallengeInformer with selector %s from context.", selector)
 	}
 	return untyped.(v1.ChallengeInformer)
-}
-
-type wrapper struct {
-	client versioned.Interface
-
-	namespace string
-
-	selector string
-}
-
-var _ v1.ChallengeInformer = (*wrapper)(nil)
-var _ acmev1.ChallengeLister = (*wrapper)(nil)
-
-func (w *wrapper) Informer() cache.SharedIndexInformer {
-	return cache.NewSharedIndexInformer(nil, &apisacmev1.Challenge{}, 0, nil)
-}
-
-func (w *wrapper) Lister() acmev1.ChallengeLister {
-	return w
-}
-
-func (w *wrapper) Challenges(namespace string) acmev1.ChallengeNamespaceLister {
-	return &wrapper{client: w.client, namespace: namespace, selector: w.selector}
-}
-
-func (w *wrapper) List(selector labels.Selector) (ret []*apisacmev1.Challenge, err error) {
-	reqs, err := labels.ParseToRequirements(w.selector)
-	if err != nil {
-		return nil, err
-	}
-	selector = selector.Add(reqs...)
-	lo, err := w.client.AcmeV1().Challenges(w.namespace).List(context.TODO(), metav1.ListOptions{
-		LabelSelector: selector.String(),
-		// TODO(mattmoor): Incorporate resourceVersion bounds based on staleness criteria.
-	})
-	if err != nil {
-		return nil, err
-	}
-	for idx := range lo.Items {
-		ret = append(ret, &lo.Items[idx])
-	}
-	return ret, nil
-}
-
-func (w *wrapper) Get(name string) (*apisacmev1.Challenge, error) {
-	// TODO(mattmoor): Check that the fetched object matches the selector.
-	return w.client.AcmeV1().Challenges(w.namespace).Get(context.TODO(), name, metav1.GetOptions{
-		// TODO(mattmoor): Incorporate resourceVersion bounds based on staleness criteria.
-	})
 }
