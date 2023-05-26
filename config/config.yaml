@@ -46,7 +46,7 @@ data:
     issuerRef: |
       kind: ClusterIssuer
       name: letsencrypt-issuer
-    
+
     # internalIssuerRef is a reference to the issuer for cluster internal certificates.
     # InternalIssuerRef should be either `ClusterIssuer` or `Issuer`.
     # Please refer `IssuerRef` in https://github.com/cert-manager/cert-manager/tree/master/pkg/apis/certmanager/v1/types_certificate.go
