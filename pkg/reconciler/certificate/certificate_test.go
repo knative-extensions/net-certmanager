@@ -68,6 +68,12 @@ var (
 	notAfter          = &metav1.Time{
 		Time: time.Unix(123, 456),
 	}
+	internalIssuer = &cmv1.ClusterIssuer{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "knative-internal-encryption-issuer",
+		},
+		Spec: cmv1.IssuerSpec{},
+	}
 	nonHTTP01Issuer = &cmv1.ClusterIssuer{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "Letsencrypt-issuer",
@@ -89,7 +95,8 @@ var (
 		},
 	}
 
-	fooCert, _ = resources.MakeCertManagerCertificate(certmanagerConfig(), knCert("knCert", "foo"))
+	externalCert, _ = resources.MakeCertManagerCertificate(certmanagerConfig(), knCert("knCert", "foo"))
+	internalCert, _ = resources.MakeCertManagerCertificate(certmanagerConfig(), withClusterLocalVisibility(knCert("knCert", "foo")))
 )
 
 func TestNewController(t *testing.T) {
@@ -101,7 +108,8 @@ func TestNewController(t *testing.T) {
 			Namespace: system.Namespace(),
 		},
 		Data: map[string]string{
-			"issuerRef": "kind: ClusterIssuer\nname: letsencrypt-issuer",
+			"issuerRef":         "kind: ClusterIssuer\nname: letsencrypt-issuer",
+			"internalIssuerRef": "kind: ClusterIssuer\nname: knative-internal-encryption-issuer",
 		},
 	})
 
@@ -136,7 +144,7 @@ func TestReconcile(t *testing.T) {
 			},
 		},
 		WantCreates: []runtime.Object{
-			fooCert,
+			externalCert,
 		},
 		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
 			Object: knCertWithStatus("knCert", "foo",
@@ -459,7 +467,7 @@ func TestReconcile(t *testing.T) {
 			Eventf(corev1.EventTypeWarning, "InternalError", "failed to create Cert-Manager Certificate: inducing failure for create certificates"),
 		},
 		WantCreates: []runtime.Object{
-			fooCert,
+			externalCert,
 		},
 		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
 			Object: knCertWithStatus("knCert", "foo",
@@ -475,6 +483,39 @@ func TestReconcile(t *testing.T) {
 						}},
 					},
 				}),
+		}},
+	}, {
+		Name: "create internalIssuer CM certificate matching Knative Certificate, with retry",
+		Key:  "foo/knCert",
+		Objects: []runtime.Object{
+			withClusterLocalVisibility(knCert("knCert", "foo")),
+			internalIssuer,
+		},
+		WantErr: true,
+		WithReactors: []clientgotesting.ReactionFunc{
+			InduceFailure("create", "certificates"),
+		},
+		WantEvents: []string{
+			Eventf(corev1.EventTypeWarning, "CreationFailed", "Failed to create Cert-Manager Certificate knCert/foo: inducing failure for create certificates"),
+			Eventf(corev1.EventTypeWarning, "InternalError", "failed to create Cert-Manager Certificate: inducing failure for create certificates"),
+		},
+		WantCreates: []runtime.Object{
+			internalCert,
+		},
+		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
+			Object: withClusterLocalVisibility(knCertWithStatus("knCert", "foo",
+				&v1alpha1.CertificateStatus{
+					Status: duckv1.Status{
+						ObservedGeneration: generation,
+						Conditions: duckv1.Conditions{{
+							Type:     v1alpha1.CertificateConditionReady,
+							Status:   corev1.ConditionUnknown,
+							Reason:   notReconciledReason,
+							Severity: apis.ConditionSeverityError,
+							Message:  notReconciledMessage,
+						}},
+					},
+				})),
 		}},
 	}}
 
@@ -510,7 +551,7 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 			http01Issuer,
 		},
 		WantCreates: []runtime.Object{
-			fooCert,
+			externalCert,
 		},
 		WantEvents: []string{
 			Eventf(corev1.EventTypeNormal, "Created", "Created Cert-Manager Certificate %s/%s", "foo", "knCert"),
@@ -681,6 +722,10 @@ func certmanagerConfig() *config.CertManagerConfig {
 			Kind: "ClusterIssuer",
 			Name: "Letsencrypt-issuer",
 		},
+		InternalIssuerRef: &cmmeta.ObjectReference{
+			Kind: "ClusterIssuer",
+			Name: "knative-internal-encryption-issuer",
+		},
 	}
 }
 
@@ -728,6 +773,14 @@ func knCertWithStatusAndGeneration(name, namespace string, status *v1alpha1.Cert
 		},
 		Status: *status,
 	}
+}
+
+func withClusterLocalVisibility(certificate *v1alpha1.Certificate) *v1alpha1.Certificate {
+	if certificate.ObjectMeta.Labels == nil {
+		certificate.ObjectMeta.Labels = map[string]string{}
+	}
+	certificate.ObjectMeta.Labels[netapi.VisibilityLabelKey] = resources.VisibilityClusterLocal
+	return certificate
 }
 
 func cmCert(name, namespace string, dnsNames []string) *cmv1.Certificate {

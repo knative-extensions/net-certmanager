@@ -77,6 +77,24 @@ func TestIssuerRef(t *testing.T) {
 				issuerRefKey: "kind: ClusterIssuer\nname: letsencrypt-issuer",
 			},
 		},
+	}, {
+		name:    "valid internalIssuerRef",
+		wantErr: false,
+		wantConfig: &CertManagerConfig{
+			InternalIssuerRef: &cmmeta.ObjectReference{
+				Name: "knative-internal-encryption-issuer",
+				Kind: "ClusterIssuer",
+			},
+		},
+		config: &corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: system.Namespace(),
+				Name:      CertManagerConfigName,
+			},
+			Data: map[string]string{
+				internalIssuerRefKey: "kind: ClusterIssuer\nname: knative-internal-encryption-issuer",
+			},
+		},
 	}}
 
 	for _, tt := range isserRefCases {

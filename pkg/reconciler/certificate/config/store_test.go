@@ -48,8 +48,15 @@ func TestStoreImmutableConfig(t *testing.T) {
 		Kind: "newKind",
 	}
 
+	config.CertManager.InternalIssuerRef = &cmeta.ObjectReference{
+		Kind: "newKind",
+	}
+
 	newConfig := store.Load()
 	if newConfig.CertManager.IssuerRef != nil && newConfig.CertManager.IssuerRef.Kind == "newKind" {
+		t.Error("CertManager config is not immutable")
+	}
+	if newConfig.CertManager.InternalIssuerRef != nil && newConfig.CertManager.InternalIssuerRef.Kind == "newKind" {
 		t.Error("CertManager config is not immutable")
 	}
 }

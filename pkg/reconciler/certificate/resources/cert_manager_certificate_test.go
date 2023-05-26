@@ -59,6 +59,27 @@ var cert = &v1alpha1.Certificate{
 	},
 }
 
+var internalCert = &v1alpha1.Certificate{
+	ObjectMeta: metav1.ObjectMeta{
+		Name:      "test-internal-cert",
+		Namespace: "test-ns",
+		UID:       "22b3de9e-076e-4e5d-a55d-aff10002527i",
+		Labels: map[string]string{
+			servingRouteLabelKey:          "test-route-internal",
+			networking.VisibilityLabelKey: VisibilityClusterLocal,
+		},
+		Annotations: map[string]string{
+			servingCreatorAnnotation: "someone",
+			servingUpdaterAnnotation: "someone",
+		},
+	},
+	Spec: v1alpha1.CertificateSpec{
+		DNSNames:   []string{"host1.ns", "host1.ns.svc", "host1.ns.svc.cluster.local"},
+		Domain:     "cluster.local",
+		SecretName: "secret0",
+	},
+}
+
 var (
 	longHost         = "somebighost12345678910.somebignamespacename12345678910"
 	domain           = "some.domain.test"
@@ -110,6 +131,10 @@ var (
 			Kind: "ClusterIssuer",
 			Name: "Letsencrypt-issuer",
 		},
+		InternalIssuerRef: &cmmeta.ObjectReference{
+			Kind: "ClusterIssuer",
+			Name: "knative-internal-encryption-issuer",
+		},
 	}
 )
 
@@ -141,6 +166,43 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 		},
 	}
 	got, err := MakeCertManagerCertificate(cmConfig, cert)
+	if err != nil {
+		t.Errorf("MakeCertManagerCertificate Error: %s", err)
+	}
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
+	}
+}
+
+func TestMakeInternalCertManagerCertificate(t *testing.T) {
+	want := &cmv1.Certificate{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:            "test-internal-cert",
+			Namespace:       "test-ns",
+			OwnerReferences: []metav1.OwnerReference{*kmeta.NewControllerRef(internalCert)},
+			Labels: map[string]string{
+				servingRouteLabelKey:          "test-route-internal",
+				networking.VisibilityLabelKey: VisibilityClusterLocal,
+			},
+			Annotations: map[string]string{
+				servingCreatorAnnotation: "someone",
+				servingUpdaterAnnotation: "someone",
+			},
+		},
+		Spec: cmv1.CertificateSpec{
+			SecretName: "secret0",
+			CommonName: "host1.ns",
+			DNSNames:   []string{"host1.ns", "host1.ns.svc", "host1.ns.svc.cluster.local"},
+			IssuerRef: cmmeta.ObjectReference{
+				Kind: "ClusterIssuer",
+				Name: "knative-internal-encryption-issuer",
+			},
+			SecretTemplate: &cmv1.CertificateSecretTemplate{
+				Labels: map[string]string{networking.CertificateUIDLabelKey: "22b3de9e-076e-4e5d-a55d-aff10002527i"},
+			},
+		},
+	}
+	got, err := MakeCertManagerCertificate(cmConfig, internalCert)
 	if err != nil {
 		t.Errorf("MakeCertManagerCertificate Error: %s", err)
 	}
