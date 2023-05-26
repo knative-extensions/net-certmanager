@@ -291,6 +291,57 @@ func TestMakeCertManagerCertificateDomainIsTooLong(t *testing.T) {
 	}
 }
 
+func TestMakeCertManagerCertificateInvalidUID(t *testing.T) {
+	wantError := fmt.Errorf("error creating cert-manager certificate: failed to parse UID (wrong) on KCert (test-cert): invalid UUID length: 5")
+
+	wrongUIDCert := certWithLongHost.DeepCopy()
+	wrongUIDCert.UID = "wrong"
+
+	cert, gotError := MakeCertManagerCertificate(cmConfig, wrongUIDCert)
+
+	if cert != nil {
+		t.Errorf("Expected no cert, got: %s", cmp.Diff(nil, cert))
+	}
+
+	if diff := cmp.Diff(wantError.Error(), gotError.Message); diff != "" {
+		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
+	}
+}
+
+func TestMakeCertManagerCertificateIssuerNotSet(t *testing.T) {
+	wantError := fmt.Errorf("error creating cert-manager certificate: issuerRef was not set in config-certmanager")
+
+	cmConfigNoIssuer := cmConfig.DeepCopy()
+	cmConfigNoIssuer.IssuerRef = nil
+
+	cert, gotError := MakeCertManagerCertificate(cmConfigNoIssuer, cert)
+
+	if cert != nil {
+		t.Errorf("Expected no cert, got: %s", cmp.Diff(nil, cert))
+	}
+
+	if diff := cmp.Diff(wantError.Error(), gotError.Message); diff != "" {
+		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
+	}
+}
+
+func TestMakeCertManagerCertificateInternalIssuerNotSet(t *testing.T) {
+	wantError := fmt.Errorf("error creating cert-manager certificate: internalIssuerRef was not set in config-certmanager")
+
+	cmConfigNoIssuer := cmConfig.DeepCopy()
+	cmConfigNoIssuer.InternalIssuerRef = nil
+
+	cert, gotError := MakeCertManagerCertificate(cmConfigNoIssuer, internalCert)
+
+	if cert != nil {
+		t.Errorf("Expected no cert, got: %s", cmp.Diff(nil, cert))
+	}
+
+	if diff := cmp.Diff(wantError.Error(), gotError.Message); diff != "" {
+		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
+	}
+}
+
 func TestGetReadyCondition(t *testing.T) {
 	tests := []struct {
 		name          string

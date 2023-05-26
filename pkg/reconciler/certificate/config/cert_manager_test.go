@@ -56,7 +56,8 @@ func TestIssuerRef(t *testing.T) {
 				Name:      CertManagerConfigName,
 			},
 			Data: map[string]string{
-				issuerRefKey: "wrong format",
+				issuerRefKey:         "wrong format",
+				internalIssuerRefKey: "wrong format",
 			},
 		},
 	}, {
