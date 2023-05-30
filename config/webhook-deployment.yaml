@@ -29,8 +29,6 @@ spec:
       role: net-certmanager-webhook
   template:
     metadata:
-      annotations:
-        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
       labels:
         app: net-certmanager-webhook
         app.kubernetes.io/component: net-certmanager
