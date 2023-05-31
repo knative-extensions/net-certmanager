@@ -28,8 +28,6 @@ spec:
       app: net-certmanager-controller
   template:
     metadata:
-      annotations:
-        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
       labels:
         app: net-certmanager-controller
         app.kubernetes.io/component: net-certmanager
