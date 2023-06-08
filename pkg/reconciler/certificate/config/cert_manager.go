@@ -32,6 +32,12 @@ const (
 	CertManagerConfigName = "config-certmanager"
 )
 
+// has to match the values in config/knative-cluster-issuer.yaml
+var knativeInternalClusterIssuerRef = &cmeta.ObjectReference{
+	Kind: "ClusterIssuer",
+	Name: "knative-internal-encryption-ca",
+}
+
 // CertManagerConfig contains Cert-Manager related configuration defined in the
 // `config-certmanager` config map.
 type CertManagerConfig struct {
@@ -41,17 +47,19 @@ type CertManagerConfig struct {
 
 // NewCertManagerConfigFromConfigMap creates an CertManagerConfig from the supplied ConfigMap
 func NewCertManagerConfigFromConfigMap(configMap *corev1.ConfigMap) (*CertManagerConfig, error) {
-	config := &CertManagerConfig{}
+	// Use Knative self-signed ClusterIssuer as default
+	config := &CertManagerConfig{
+		IssuerRef:         knativeInternalClusterIssuerRef,
+		InternalIssuerRef: knativeInternalClusterIssuerRef,
+	}
 
 	if v, ok := configMap.Data[issuerRefKey]; ok {
-		config.IssuerRef = &cmeta.ObjectReference{}
 		if err := yaml.Unmarshal([]byte(v), config.IssuerRef); err != nil {
 			return nil, err
 		}
 	}
 
 	if v, ok := configMap.Data[internalIssuerRefKey]; ok {
-		config.InternalIssuerRef = &cmeta.ObjectReference{}
 		if err := yaml.Unmarshal([]byte(v), config.InternalIssuerRef); err != nil {
 			return nil, err
 		}

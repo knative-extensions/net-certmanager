@@ -43,6 +43,7 @@ data:
     # IssuerRef should be either `ClusterIssuer` or `Issuer`.
     # Please refer `IssuerRef` in https://github.com/cert-manager/cert-manager/tree/master/pkg/apis/certmanager/v1/types_certificate.go
     # for more details about IssuerRef configuration.
+    # If the issuerRef is not specified, the self-signed `knative-internal-encryption-ca` ClusterIssuer is used.
     issuerRef: |
       kind: ClusterIssuer
       name: letsencrypt-issuer
@@ -51,6 +52,7 @@ data:
     # InternalIssuerRef should be either `ClusterIssuer` or `Issuer`.
     # Please refer `IssuerRef` in https://github.com/cert-manager/cert-manager/tree/master/pkg/apis/certmanager/v1/types_certificate.go
     # for more details about InternalIssuerRef configuration.
+    # If the internalIssuerRef is not specified, the self-signed `knative-internal-encryption-ca` ClusterIssuer is used.
     internalIssuerRef: |
       kind: ClusterIssuer
       name: knative-internal-encryption-issuer
