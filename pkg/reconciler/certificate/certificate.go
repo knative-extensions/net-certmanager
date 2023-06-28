@@ -58,7 +58,13 @@ const (
 	httpDomainLabel      = "acme.cert-manager.io/http-domain"
 	httpChallengePath    = "/.well-known/acme-challenge"
 	renewingEvent        = "Renewing"
+	expiredReason        = "Cert-Manager certificate is expired, but is still marked as ready."
+	expiredEvent         = "ExpiredCertManagerCert"
 )
+
+func expiredMessage(notAfter time.Time) string {
+	return fmt.Sprintf("Current time is past the notAfter time of (%s)", notAfter)
+}
 
 // It comes from cert-manager status:
 // https://github.com/cert-manager/cert-manager/blob/b7e83b53820e712e7cf6b8dce3e5a050f249da79/pkg/controller/certificates/sync.go#L130
@@ -128,7 +134,16 @@ func (c *Reconciler) reconcile(ctx context.Context, knCert *v1alpha1.Certificate
 		knCert.Status.MarkNotReady(cmCertReadyCondition.Reason, cmCertReadyCondition.Message)
 		return c.setHTTP01Challenges(knCert, cmCert)
 	case cmCertReadyCondition.Status == cmmeta.ConditionTrue:
-		if cmCert.Status.RenewalTime != nil && time.Now().After(cmCert.Status.RenewalTime.Time) {
+		if cmCert.Status.NotAfter != nil && time.Now().After(cmCert.Status.NotAfter.Time) {
+			// there is a case where the certificate doesn't get renewed, expires, but hasn't been reconciled by cert-manager. We should have an error status in this case.
+			knCert.Status.MarkFailed(expiredReason, expiredMessage(cmCert.Status.NotAfter.Time))
+			expiredCondition := apis.Condition{
+				Type:   expiredEvent,
+				Status: corev1.ConditionTrue,
+			}
+			certificateCondSet.Manage(&knCert.Status).SetCondition(expiredCondition)
+			return fmt.Errorf("cert-manager certificate (%s) has ready=true status but is expired", cmCert.Name)
+		} else if cmCert.Status.RenewalTime != nil && time.Now().After(cmCert.Status.RenewalTime.Time) {
 			// add a temporary renewing state when cm certificate is being renewed
 			// this will reconfigure the ingress in order to route HTTP01 challenge traffic
 			// before cm certificate expiration

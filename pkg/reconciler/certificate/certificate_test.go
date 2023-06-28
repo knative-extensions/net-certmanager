@@ -66,8 +66,9 @@ var (
 	incorrectDNSNames = []string{"incorrect-dns.example.com"}
 	exampleDomain     = "example.com"
 	notAfter          = &metav1.Time{
-		Time: time.Unix(123, 456),
+		Time: time.Now().Add(1 * time.Hour),
 	}
+	expiredTime           = time.Date(2021, 11, 02, 00, 00, 00, 000000000, time.UTC)
 	clusterInternalIssuer = &cmv1.ClusterIssuer{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "knative-internal-encryption-issuer",
@@ -452,6 +453,61 @@ func TestReconcile(t *testing.T) {
 		}},
 		Key: "foo/knCert",
 	}, {
+		Name:    "Knative Certificate marked not ready when Certmanager Certificate is ready but expired",
+		WantErr: true,
+		Objects: []runtime.Object{
+			knCertWithStatus("knCert", "foo", &v1alpha1.CertificateStatus{
+				Status: duckv1.Status{
+					ObservedGeneration: generation,
+					Conditions: duckv1.Conditions{
+						{
+							Type:     v1alpha1.CertificateConditionReady,
+							Status:   corev1.ConditionTrue,
+							Severity: apis.ConditionSeverityError,
+						},
+					},
+				},
+			}),
+			cmCertWithStatusAndNotAfter("knCert", "foo", correctDNSNames, []cmv1.CertificateCondition{
+				{
+					Type:   cmv1.CertificateConditionReady,
+					Status: cmmeta.ConditionTrue,
+				},
+			}, &metav1.Time{
+				Time: expiredTime,
+			}),
+			nonHTTP01Issuer,
+		},
+		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
+			Object: knCertWithStatus("knCert", "foo",
+				&v1alpha1.CertificateStatus{
+					NotAfter: &metav1.Time{
+						Time: expiredTime,
+					},
+					Status: duckv1.Status{
+						ObservedGeneration: generation,
+						Conditions: duckv1.Conditions{
+							{
+								Type:     expiredEvent,
+								Status:   corev1.ConditionTrue,
+								Severity: apis.ConditionSeverityError,
+							},
+							{
+								Type:     v1alpha1.CertificateConditionReady,
+								Status:   corev1.ConditionFalse,
+								Severity: apis.ConditionSeverityError,
+								Reason:   expiredReason,
+								Message:  expiredMessage(expiredTime),
+							},
+						},
+					},
+				}),
+		}},
+		WantEvents: []string{
+			"Warning InternalError cert-manager certificate (knCert) has ready=true status but is expired",
+		},
+		Key: "foo/knCert",
+	}, {
 		Name: "reconcile cm certificate fails",
 		Key:  "foo/knCert",
 		Objects: []runtime.Object{
@@ -794,6 +850,14 @@ func cmCertWithStatus(name, namespace string, dnsNames []string, conditions []cm
 	cert.Status.Conditions = conditions
 	cert.Status.NotAfter = notAfter
 	cert.Status.RenewalTime = renewalTime
+	return cert
+}
+
+func cmCertWithStatusAndNotAfter(name, namespace string, dnsNames []string, conditions []cmv1.CertificateCondition, expiration *metav1.Time) *cmv1.Certificate {
+	cert := cmCert(name, namespace, dnsNames)
+	cert.Status.Conditions = conditions
+	cert.Status.NotAfter = expiration
+	cert.Status.RenewalTime = expiration
 	return cert
 }
 
