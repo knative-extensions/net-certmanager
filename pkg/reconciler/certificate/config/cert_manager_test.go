@@ -56,8 +56,8 @@ func TestIssuerRef(t *testing.T) {
 				Name:      CertManagerConfigName,
 			},
 			Data: map[string]string{
-				issuerRefKey:         "wrong format",
-				internalIssuerRefKey: "wrong format",
+				issuerRefKey:                "wrong format",
+				clusterInternalIssuerRefKey: "wrong format",
 			},
 		},
 	}, {
@@ -68,7 +68,7 @@ func TestIssuerRef(t *testing.T) {
 				Name: "letsencrypt-issuer",
 				Kind: "ClusterIssuer",
 			},
-			InternalIssuerRef: knativeInternalClusterIssuerRef,
+			ClusterInternalIssuerRef: knativeInternalIssuer,
 		},
 		config: &corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
@@ -80,11 +80,11 @@ func TestIssuerRef(t *testing.T) {
 			},
 		},
 	}, {
-		name:    "valid internalIssuerRef",
+		name:    "valid clusterInternalIssuerRef",
 		wantErr: false,
 		wantConfig: &CertManagerConfig{
-			IssuerRef: knativeInternalClusterIssuerRef,
-			InternalIssuerRef: &cmmeta.ObjectReference{
+			IssuerRef: knativeInternalIssuer,
+			ClusterInternalIssuerRef: &cmmeta.ObjectReference{
 				Name: "knative-internal-encryption-issuer",
 				Kind: "ClusterIssuer",
 			},
@@ -95,7 +95,7 @@ func TestIssuerRef(t *testing.T) {
 				Name:      CertManagerConfigName,
 			},
 			Data: map[string]string{
-				internalIssuerRefKey: "kind: ClusterIssuer\nname: knative-internal-encryption-issuer",
+				clusterInternalIssuerRefKey: "kind: ClusterIssuer\nname: knative-internal-encryption-issuer",
 			},
 		},
 	}}

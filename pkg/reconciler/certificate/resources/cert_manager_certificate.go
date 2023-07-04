@@ -140,15 +140,15 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 
 	var issuerRef cmeta.ObjectReference
 	if knCert.Labels[networking.VisibilityLabelKey] == VisibilityClusterLocal {
-		if cmConfig.InternalIssuerRef == nil {
+		if cmConfig.ClusterInternalIssuerRef == nil {
 			return nil, &apis.Condition{
 				Type:    IssuerNotSetCondition,
 				Status:  corev1.ConditionFalse,
-				Reason:  "internalIssuerRef not set",
-				Message: "error creating cert-manager certificate: internalIssuerRef was not set in config-certmanager",
+				Reason:  "clusterInternalIssuerRef not set",
+				Message: "error creating cert-manager certificate: clusterInternalIssuerRef was not set in config-certmanager",
 			}
 		}
-		issuerRef = *cmConfig.InternalIssuerRef
+		issuerRef = *cmConfig.ClusterInternalIssuerRef
 	} else {
 		if cmConfig.IssuerRef == nil {
 			return nil, &apis.Condition{

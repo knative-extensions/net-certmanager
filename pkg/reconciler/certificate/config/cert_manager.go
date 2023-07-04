@@ -24,8 +24,8 @@ import (
 )
 
 const (
-	issuerRefKey         = "issuerRef"
-	internalIssuerRefKey = "internalIssuerRef"
+	issuerRefKey                = "issuerRef"
+	clusterInternalIssuerRefKey = "clusterInternalIssuerRef"
 
 	// CertManagerConfigName is the name of the configmap containing all
 	// configuration related to Cert-Manager.
@@ -33,7 +33,7 @@ const (
 )
 
 // has to match the values in config/knative-cluster-issuer.yaml
-var knativeInternalClusterIssuerRef = &cmeta.ObjectReference{
+var knativeInternalIssuer = &cmeta.ObjectReference{
 	Kind: "ClusterIssuer",
 	Name: "knative-internal-encryption-ca",
 }
@@ -41,16 +41,16 @@ var knativeInternalClusterIssuerRef = &cmeta.ObjectReference{
 // CertManagerConfig contains Cert-Manager related configuration defined in the
 // `config-certmanager` config map.
 type CertManagerConfig struct {
-	IssuerRef         *cmeta.ObjectReference
-	InternalIssuerRef *cmeta.ObjectReference
+	IssuerRef                *cmeta.ObjectReference
+	ClusterInternalIssuerRef *cmeta.ObjectReference
 }
 
 // NewCertManagerConfigFromConfigMap creates an CertManagerConfig from the supplied ConfigMap
 func NewCertManagerConfigFromConfigMap(configMap *corev1.ConfigMap) (*CertManagerConfig, error) {
 	// Use Knative self-signed ClusterIssuer as default
 	config := &CertManagerConfig{
-		IssuerRef:         knativeInternalClusterIssuerRef,
-		InternalIssuerRef: knativeInternalClusterIssuerRef,
+		IssuerRef:                knativeInternalIssuer,
+		ClusterInternalIssuerRef: knativeInternalIssuer,
 	}
 
 	if v, ok := configMap.Data[issuerRefKey]; ok {
@@ -59,8 +59,8 @@ func NewCertManagerConfigFromConfigMap(configMap *corev1.ConfigMap) (*CertManage
 		}
 	}
 
-	if v, ok := configMap.Data[internalIssuerRefKey]; ok {
-		if err := yaml.Unmarshal([]byte(v), config.InternalIssuerRef); err != nil {
+	if v, ok := configMap.Data[clusterInternalIssuerRefKey]; ok {
+		if err := yaml.Unmarshal([]byte(v), config.ClusterInternalIssuerRef); err != nil {
 			return nil, err
 		}
 	}

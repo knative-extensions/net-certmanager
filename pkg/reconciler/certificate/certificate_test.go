@@ -68,7 +68,7 @@ var (
 	notAfter          = &metav1.Time{
 		Time: time.Unix(123, 456),
 	}
-	internalIssuer = &cmv1.ClusterIssuer{
+	clusterInternalIssuer = &cmv1.ClusterIssuer{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "knative-internal-encryption-issuer",
 		},
@@ -108,8 +108,8 @@ func TestNewController(t *testing.T) {
 			Namespace: system.Namespace(),
 		},
 		Data: map[string]string{
-			"issuerRef":         "kind: ClusterIssuer\nname: letsencrypt-issuer",
-			"internalIssuerRef": "kind: ClusterIssuer\nname: knative-internal-encryption-issuer",
+			"issuerRef":                "kind: ClusterIssuer\nname: letsencrypt-issuer",
+			"clusterInternalIssuerRef": "kind: ClusterIssuer\nname: knative-internal-encryption-issuer",
 		},
 	})
 
@@ -485,11 +485,11 @@ func TestReconcile(t *testing.T) {
 				}),
 		}},
 	}, {
-		Name: "create internalIssuer CM certificate matching Knative Certificate, with retry",
+		Name: "create clusterInternalIssuer CM certificate matching Knative Certificate, with retry",
 		Key:  "foo/knCert",
 		Objects: []runtime.Object{
 			withClusterLocalVisibility(knCert("knCert", "foo")),
-			internalIssuer,
+			clusterInternalIssuer,
 		},
 		WantErr: true,
 		WithReactors: []clientgotesting.ReactionFunc{
@@ -722,7 +722,7 @@ func certmanagerConfig() *config.CertManagerConfig {
 			Kind: "ClusterIssuer",
 			Name: "Letsencrypt-issuer",
 		},
-		InternalIssuerRef: &cmmeta.ObjectReference{
+		ClusterInternalIssuerRef: &cmmeta.ObjectReference{
 			Kind: "ClusterIssuer",
 			Name: "knative-internal-encryption-issuer",
 		},

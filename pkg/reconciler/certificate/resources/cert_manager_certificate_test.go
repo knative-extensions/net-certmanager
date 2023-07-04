@@ -131,7 +131,7 @@ var (
 			Kind: "ClusterIssuer",
 			Name: "Letsencrypt-issuer",
 		},
-		InternalIssuerRef: &cmmeta.ObjectReference{
+		ClusterInternalIssuerRef: &cmmeta.ObjectReference{
 			Kind: "ClusterIssuer",
 			Name: "knative-internal-encryption-issuer",
 		},
@@ -326,10 +326,10 @@ func TestMakeCertManagerCertificateIssuerNotSet(t *testing.T) {
 }
 
 func TestMakeCertManagerCertificateInternalIssuerNotSet(t *testing.T) {
-	wantError := fmt.Errorf("error creating cert-manager certificate: internalIssuerRef was not set in config-certmanager")
+	wantError := fmt.Errorf("error creating cert-manager certificate: clusterInternalIssuerRef was not set in config-certmanager")
 
 	cmConfigNoIssuer := cmConfig.DeepCopy()
-	cmConfigNoIssuer.InternalIssuerRef = nil
+	cmConfigNoIssuer.ClusterInternalIssuerRef = nil
 
 	cert, gotError := MakeCertManagerCertificate(cmConfigNoIssuer, internalCert)
 
