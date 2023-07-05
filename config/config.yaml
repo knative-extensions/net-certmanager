@@ -39,10 +39,20 @@ data:
     # These sample configuration options may be copied out of
     # this block and unindented to actually change the configuration.
 
-    # issuerRef is a reference to the issuer for this certificate.
+    # issuerRef is a reference to the issuer for cluster external certificates used for ingress.
     # IssuerRef should be either `ClusterIssuer` or `Issuer`.
     # Please refer `IssuerRef` in https://github.com/cert-manager/cert-manager/tree/master/pkg/apis/certmanager/v1/types_certificate.go
     # for more details about IssuerRef configuration.
+    # If the issuerRef is not specified, the self-signed `knative-internal-encryption-ca` ClusterIssuer is used.
     issuerRef: |
       kind: ClusterIssuer
       name: letsencrypt-issuer
+
+    # clusterInternalIssuerRef is a reference to the issuer for cluster internal certificates used for ingress.
+    # ClusterInternalIssuerRef should be either `ClusterIssuer` or `Issuer`.
+    # Please refer `IssuerRef` in https://github.com/cert-manager/cert-manager/tree/master/pkg/apis/certmanager/v1/types_certificate.go
+    # for more details about ClusterInternalIssuerRef configuration.
+    # If the clusterInternalIssuerRef is not specified, the self-signed `knative-internal-encryption-ca` ClusterIssuer is used.
+    clusterInternalIssuerRef: |
+      kind: ClusterIssuer
+      name: knative-internal-encryption-issuer
