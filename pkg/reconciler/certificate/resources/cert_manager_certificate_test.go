@@ -83,7 +83,7 @@ var (
 		},
 	}
 
-	longDomain         = fmt.Sprintf("%s.%s", strings.Repeat("a", 54), "com")
+	longDomain         = fmt.Sprintf("%s.%s", strings.Repeat("a", 60), "com")
 	longDomainDNSNames = []string{"host1." + longDomain, "host2." + longDomain}
 	certWithLongDomain = &v1alpha1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
@@ -165,8 +165,8 @@ func TestMakeCertManagerCertificateLongCommonName(t *testing.T) {
 		},
 		Spec: cmv1.CertificateSpec{
 			SecretName: "secret0",
-			CommonName: "21ylrip1w1ch9t68q4rx0zt6n.some.domain.test",
-			DNSNames:   append([]string{"21ylrip1w1ch9t68q4rx0zt6n.some.domain.test"}, longHostDNSNames...),
+			CommonName: "k.some.domain.test",
+			DNSNames:   append([]string{"k.some.domain.test"}, longHostDNSNames...),
 			IssuerRef: cmmeta.ObjectReference{
 				Kind: "ClusterIssuer",
 				Name: "Letsencrypt-issuer",
@@ -186,7 +186,7 @@ func TestMakeCertManagerCertificateLongCommonName(t *testing.T) {
 }
 
 func TestMakeCertManagerCertificateDomainMappingIsTooLong(t *testing.T) {
-	wantError := fmt.Errorf("error creating Certmanager Certificate: DomainMapping name (this.is.aaaaaaaaaaaaaaa.reallyreallyreallyreallyreallylong.domainmapping) longer than 63 characters")
+	wantError := fmt.Errorf("error creating cert-manager certificate: CommonName (this.is.aaaaaaaaaaaaaaa.reallyreallyreallyreallyreallylong.domainmapping) longer than 63 characters")
 	cert, gotError := MakeCertManagerCertificate(cmConfig, &v1alpha1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "test-cert-from-domain-mapping",
@@ -217,7 +217,7 @@ func TestMakeCertManagerCertificateDomainMappingIsTooLong(t *testing.T) {
 }
 
 func TestMakeCertManagerCertificateDomainIsTooLong(t *testing.T) {
-	wantError := fmt.Errorf("error creating Certmanager Certificate: cannot create valid length CommonName: (host1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com) still longer than 63 characters, cannot shorten")
+	wantError := fmt.Errorf("error creating cert-manager certificate: CommonName (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com)(length: 64) too long, prepending short prefix of (k.)(length: 2) will be longer than 64 bytes")
 	cert, gotError := MakeCertManagerCertificate(cmConfig, certWithLongDomain)
 
 	if cert != nil {
