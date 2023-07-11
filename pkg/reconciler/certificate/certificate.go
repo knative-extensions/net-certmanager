@@ -123,10 +123,10 @@ func (c *Reconciler) reconcile(ctx context.Context, knCert *v1alpha1.Certificate
 	switch {
 	case cmCertReadyCondition == nil:
 		knCert.Status.MarkNotReady(noCMConditionReason, noCMConditionMessage)
-		return c.setHTTP01Challenges(knCert, cmCert)
+		return c.setHTTP01Challenges(ctx, knCert, cmCert)
 	case cmCertReadyCondition.Status == cmmeta.ConditionUnknown:
 		knCert.Status.MarkNotReady(cmCertReadyCondition.Reason, cmCertReadyCondition.Message)
-		return c.setHTTP01Challenges(knCert, cmCert)
+		return c.setHTTP01Challenges(ctx, knCert, cmCert)
 	case cmCertReadyCondition.Status == cmmeta.ConditionTrue:
 		if cmCert.Status.RenewalTime != nil && time.Now().After(cmCert.Status.RenewalTime.Time) {
 			// add a temporary renewing state when cm certificate is being renewed
@@ -139,7 +139,7 @@ func (c *Reconciler) reconcile(ctx context.Context, knCert *v1alpha1.Certificate
 				Status: corev1.ConditionTrue,
 			}
 			certificateCondSet.Manage(&knCert.Status).SetCondition(renewCondition)
-			return c.setHTTP01Challenges(knCert, cmCert)
+			return c.setHTTP01Challenges(ctx, knCert, cmCert)
 		}
 		// remove renew condition if exists
 		certificateCondSet.Manage(&knCert.Status).ClearCondition(renewingEvent)
@@ -151,7 +151,7 @@ func (c *Reconciler) reconcile(ctx context.Context, knCert *v1alpha1.Certificate
 		} else {
 			knCert.Status.MarkFailed(cmCertReadyCondition.Reason, cmCertReadyCondition.Message)
 		}
-		return c.setHTTP01Challenges(knCert, cmCert)
+		return c.setHTTP01Challenges(ctx, knCert, cmCert)
 	}
 	return nil
 }
@@ -190,7 +190,8 @@ func (c *Reconciler) reconcileCMCertificate(ctx context.Context, knCert *v1alpha
 	return cmCert, nil
 }
 
-func (c *Reconciler) setHTTP01Challenges(knCert *v1alpha1.Certificate, cmCert *cmv1.Certificate) error {
+func (c *Reconciler) setHTTP01Challenges(ctx context.Context, knCert *v1alpha1.Certificate, cmCert *cmv1.Certificate) error {
+	logger := logging.FromContext(ctx)
 	if isHTTP, err := c.isHTTPChallenge(cmCert); err != nil {
 		return err
 	} else if !isHTTP {
@@ -213,8 +214,14 @@ func (c *Reconciler) setHTTP01Challenges(knCert *v1alpha1.Certificate, cmCert *c
 			return fmt.Errorf("failed to list services: %w", err)
 		}
 		if len(svcs) == 0 {
-			//If the cert is renewing, it could be possible that this isn't an error. Should this change depending on the case?
-			return fmt.Errorf("no challenge solver service for domain %s; selector=%v", dnsName, selector)
+			if dnsName == resources.Prefix+knCert.Spec.Domain {
+				logger.Info("No challenge service found for shortened commonname, could be cached? continuing")
+				continue
+			} else {
+				//If the cert is renewing, it could be possible that this isn't an error. Should this change depending on the case?
+				return fmt.Errorf("no challenge solver service for domain %s; selector=%v", dnsName, selector)
+
+			}
 		}
 
 		for _, svc := range svcs {
