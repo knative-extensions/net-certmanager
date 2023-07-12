@@ -62,7 +62,8 @@ import (
 const generation = 23132
 
 var (
-	correctDNSNames   = []string{"k.example.com", "correct-dns1.example.com", "correct-dns2.example.com"}
+	correctDNSNames   = []string{"correct-dns1.example.com", "correct-dns2.example.com"}
+	shortenedDNSNames = []string{"k.example.com", "reallyreallyreallyreallyreallyreallylongname.namespace.example.com"}
 	incorrectDNSNames = []string{"incorrect-dns.example.com"}
 	exampleDomain     = "example.com"
 	notAfter          = &metav1.Time{
@@ -89,7 +90,8 @@ var (
 		},
 	}
 
-	fooCert, _ = resources.MakeCertManagerCertificate(certmanagerConfig(), knCert("knCert", "foo"))
+	externalCert, _                  = resources.MakeCertManagerCertificate(certmanagerConfig(), knCert("knCert", "foo"))
+	externalCertShortenedDNSNames, _ = resources.MakeCertManagerCertificate(certmanagerConfig(), knCertShortenedDNSNames("knCert", "foo"))
 )
 
 func TestNewController(t *testing.T) {
@@ -136,7 +138,7 @@ func TestReconcile(t *testing.T) {
 			},
 		},
 		WantCreates: []runtime.Object{
-			fooCert,
+			externalCert,
 		},
 		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
 			Object: knCertWithStatus("knCert", "foo",
@@ -324,7 +326,7 @@ func TestReconcile(t *testing.T) {
 		},
 		WantErr: true,
 		WantEvents: []string{
-			"Warning InternalError error creating Certmanager Certificate: cannot create valid length CommonName: (hello.ns.reallyreallyreallyreallyreallyreallyreallylong.domainname) still longer than 63 characters, cannot shorten",
+			"Warning InternalError error creating cert-manager certificate: CommonName (reallyreallyreallyreallyreallyreallyreallyreallylong.domainname)(length: 63) too long, prepending short prefix of (k.)(length: 2) will be longer than 64 bytes",
 		},
 		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
 			Object: knCertDomainTooLong("knCert", "foo",
@@ -337,7 +339,7 @@ func TestReconcile(t *testing.T) {
 								Status:   corev1.ConditionFalse,
 								Severity: apis.ConditionSeverityError,
 								Reason:   "CommonName Too Long",
-								Message:  "error creating Certmanager Certificate: cannot create valid length CommonName: (hello.ns.reallyreallyreallyreallyreallyreallyreallylong.domainname) still longer than 63 characters, cannot shorten",
+								Message:  "error creating cert-manager certificate: CommonName (reallyreallyreallyreallyreallyreallyreallyreallylong.domainname)(length: 63) too long, prepending short prefix of (k.)(length: 2) will be longer than 64 bytes",
 							},
 						},
 					},
@@ -459,7 +461,7 @@ func TestReconcile(t *testing.T) {
 			Eventf(corev1.EventTypeWarning, "InternalError", "failed to create Cert-Manager Certificate: inducing failure for create certificates"),
 		},
 		WantCreates: []runtime.Object{
-			fooCert,
+			externalCert,
 		},
 		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
 			Object: knCertWithStatus("knCert", "foo",
@@ -510,11 +512,11 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 			http01Issuer,
 		},
 		WantCreates: []runtime.Object{
-			fooCert,
+			externalCert,
 		},
 		WantEvents: []string{
 			Eventf(corev1.EventTypeNormal, "Created", "Created Cert-Manager Certificate %s/%s", "foo", "knCert"),
-			Eventf(corev1.EventTypeWarning, "InternalError", "no challenge solver service for domain %s; selector=acme.cert-manager.io/http-domain=574162163", correctDNSNames[0]),
+			Eventf(corev1.EventTypeWarning, "InternalError", "no challenge solver service for domain %s; selector=acme.cert-manager.io/http-domain=1930889501", correctDNSNames[0]),
 		},
 		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
 			Object: knCertWithStatus("knCert", "foo",
@@ -537,10 +539,8 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 		Objects: []runtime.Object{
 			cmSolverService(correctDNSNames[0], "foo"),
 			cmSolverService(correctDNSNames[1], "foo"),
-			cmSolverService(correctDNSNames[2], "foo"),
 			cmChallenge(correctDNSNames[0], "foo"),
 			cmChallenge(correctDNSNames[1], "foo"),
-			cmChallenge(correctDNSNames[2], "foo"),
 			cmCert("knCert", "foo", correctDNSNames),
 			knCert("knCert", "foo"),
 			http01Issuer,
@@ -564,14 +564,6 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 						},
 						ServiceName:      "cm-solver-" + correctDNSNames[1],
 						ServiceNamespace: "foo",
-					}, {
-						URL: &apis.URL{
-							Scheme: "http",
-							Host:   correctDNSNames[2],
-							Path:   "/.well-known/acme-challenge/cm-challenge-token",
-						},
-						ServiceName:      "cm-solver-" + correctDNSNames[2],
-						ServiceNamespace: "foo",
 					}},
 					Status: duckv1.Status{
 						ObservedGeneration: generation,
@@ -591,10 +583,8 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 		Objects: []runtime.Object{
 			cmSolverService(correctDNSNames[0], "foo"),
 			cmSolverService(correctDNSNames[1], "foo"),
-			cmSolverService(correctDNSNames[2], "foo"),
 			cmChallenge(correctDNSNames[0], "foo"),
 			cmChallenge(correctDNSNames[1], "foo"),
-			cmChallenge(correctDNSNames[2], "foo"),
 			cmCertWithStatus("knCert", "foo", correctDNSNames, []cmv1.CertificateCondition{{
 				Type:   cmv1.CertificateConditionReady,
 				Status: cmmeta.ConditionFalse,
@@ -622,14 +612,6 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 						},
 						ServiceName:      "cm-solver-" + correctDNSNames[1],
 						ServiceNamespace: "foo",
-					}, {
-						URL: &apis.URL{
-							Scheme: "http",
-							Host:   correctDNSNames[2],
-							Path:   "/.well-known/acme-challenge/cm-challenge-token",
-						},
-						ServiceName:      "cm-solver-" + correctDNSNames[2],
-						ServiceNamespace: "foo",
 					}},
 					Status: duckv1.Status{
 						ObservedGeneration: generation,
@@ -642,6 +624,49 @@ func TestReconcile_HTTP01Challenges(t *testing.T) {
 					},
 				}),
 		}},
+	}, {
+		//It is possible for a challenge to not be created for a k.{{Domain}} dnsname, since it may have already been created in a previous Kservice
+		Name: "set Status.HTTP01Challenges on Knative certificate when shortened domain with prefix (k.) is reused",
+		Key:  "foo/knCert",
+		Objects: []runtime.Object{
+			cmSolverService(shortenedDNSNames[1], "foo"),
+			cmChallenge(shortenedDNSNames[1], "foo"),
+			cmCert("knCert", "foo", shortenedDNSNames),
+			knCertShortenedDNSNames("knCert", "foo"),
+			http01Issuer,
+		},
+		WantStatusUpdates: []clientgotesting.UpdateActionImpl{
+			{
+				Object: knCertShortenedDNSNamesWithStatus("knCert", "foo",
+					&v1alpha1.CertificateStatus{
+						HTTP01Challenges: []v1alpha1.HTTP01Challenge{{
+							URL: &apis.URL{
+								Scheme: "http",
+								Host:   shortenedDNSNames[1],
+								Path:   "/.well-known/acme-challenge/cm-challenge-token",
+							},
+							ServiceName:      "cm-solver-" + shortenedDNSNames[1],
+							ServiceNamespace: "foo",
+						}},
+						Status: duckv1.Status{
+							ObservedGeneration: generation,
+							Conditions: duckv1.Conditions{{
+								Type:     v1alpha1.CertificateConditionReady,
+								Status:   corev1.ConditionUnknown,
+								Severity: apis.ConditionSeverityError,
+								Reason:   noCMConditionReason,
+								Message:  noCMConditionMessage,
+							}},
+						},
+					}),
+			},
+		},
+		WantUpdates: []clientgotesting.UpdateActionImpl{{
+			Object: externalCertShortenedDNSNames,
+		}},
+		WantEvents: []string{
+			Eventf(corev1.EventTypeNormal, "Updated", "Updated Spec for Cert-Manager Certificate %s/%s", "foo", "knCert"),
+		},
 	}}
 
 	table.Test(t, MakeFactory(func(ctx context.Context, listers *Listers, cmw configmap.Watcher) controller.Reconciler {
@@ -688,6 +713,12 @@ func knCert(name, namespace string) *v1alpha1.Certificate {
 	return knCertWithStatus(name, namespace, &v1alpha1.CertificateStatus{})
 }
 
+func knCertShortenedDNSNames(name, namespace string) *v1alpha1.Certificate {
+	cert := knCertWithStatus(name, namespace, &v1alpha1.CertificateStatus{})
+	cert.Spec.DNSNames = shortenedDNSNames
+	return cert
+}
+
 func knCertDomainTooLong(name, namespace string, status *v1alpha1.CertificateStatus, gen int) *v1alpha1.Certificate {
 	return &v1alpha1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
@@ -699,8 +730,8 @@ func knCertDomainTooLong(name, namespace string, status *v1alpha1.CertificateSta
 			},
 		},
 		Spec: v1alpha1.CertificateSpec{
-			DNSNames:   []string{"hello.ns.reallyreallyreallyreallyreallyreallyreallylong.domainname"},
-			Domain:     "reallyreallyreallyreallyreallyreallyreallylong.domainname",
+			DNSNames:   []string{"hello.ns.reallyreallyreallyreallyreallyreallyreallyreallylong.domainname"},
+			Domain:     "reallyreallyreallyreallyreallyreallyreallyreallylong.domainname",
 			SecretName: "secret0",
 		},
 		Status: *status,
@@ -709,6 +740,12 @@ func knCertDomainTooLong(name, namespace string, status *v1alpha1.CertificateSta
 
 func knCertWithStatus(name, namespace string, status *v1alpha1.CertificateStatus) *v1alpha1.Certificate {
 	return knCertWithStatusAndGeneration(name, namespace, status, generation)
+}
+
+func knCertShortenedDNSNamesWithStatus(name, namespace string, status *v1alpha1.CertificateStatus) *v1alpha1.Certificate {
+	cert := knCertWithStatus(name, namespace, status)
+	cert.Spec.DNSNames = shortenedDNSNames
+	return cert
 }
 
 func knCertWithStatusAndGeneration(name, namespace string, status *v1alpha1.CertificateStatus, gen int) *v1alpha1.Certificate {
