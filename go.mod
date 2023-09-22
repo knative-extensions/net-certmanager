@@ -3,7 +3,7 @@ module knative.dev/net-certmanager
 go 1.18
 
 require (
-	github.com/cert-manager/cert-manager v1.8.0
+	github.com/cert-manager/cert-manager v1.11.5
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-cmp v0.5.9
 	go.uber.org/zap v1.26.0
@@ -25,7 +25,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
-	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
+	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.7.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
@@ -36,7 +36,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/google/gnostic v0.5.7-v3refs // indirect
+	github.com/google/gnostic v0.6.9 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
@@ -88,10 +88,20 @@ require (
 	k8s.io/code-generator v0.26.5 // indirect
 	k8s.io/gengo v0.0.0-20221011193443-fad74ee6edd9 // indirect
 	k8s.io/klog/v2 v2.80.2-0.20221028030830-9ae4992afb54 // indirect
-	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
-	k8s.io/utils v0.0.0-20221108210102-8e77b1f39fe2 // indirect
-	sigs.k8s.io/gateway-api v0.4.1 // indirect
+	k8s.io/kube-openapi v0.0.0-20221207184640-f3cff1453715 // indirect
+	k8s.io/utils v0.0.0-20221128185143-99ec85e7a448 // indirect
+	sigs.k8s.io/gateway-api v0.6.0 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
+
+replace k8s.io/api => k8s.io/api v0.26.5
+
+replace k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.26.5
+
+replace k8s.io/apimachinery => k8s.io/apimachinery v0.26.5
+
+replace k8s.io/code-generator => k8s.io/code-generator v0.26.5
+
+replace k8s.io/client-go => k8s.io/client-go v0.26.5

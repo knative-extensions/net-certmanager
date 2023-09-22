@@ -14,25 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v1alpha2
+package v1beta1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// ParentRef identifies an API object (usually a Gateway) that can be considered
+// ParentReference identifies an API object (usually a Gateway) that can be considered
 // a parent of this resource (usually a route). The only kind of parent resource
 // with "Core" support is Gateway. This API may be extended in the future to
 // support additional kinds of parent resources, such as HTTPRoute.
 //
 // The API object must be valid in the cluster; the Group and Kind must
 // be registered in the cluster for this reference to be valid.
-//
-// References to objects with invalid Group and Kind are not valid, and must
-// be rejected by the implementation, with appropriate Conditions set
-// on the containing object.
-type ParentRef struct {
+type ParentReference struct {
 	// Group is the group of the referent.
+	// When unspecified, "gateway.networking.k8s.io" is inferred.
+	// To set the core API group (such as for a "Service" kind referent),
+	// Group must be explicitly set to "" (empty string).
 	//
 	// Support: Core
 	//
@@ -43,14 +42,21 @@ type ParentRef struct {
 	// Kind is kind of the referent.
 	//
 	// Support: Core (Gateway)
-	// Support: Custom (Other Resources)
+	//
+	// Support: Implementation-specific (Other Resources)
 	//
 	// +kubebuilder:default=Gateway
 	// +optional
 	Kind *Kind `json:"kind,omitempty"`
 
-	// Namespace is the namespace of the referent. When unspecified (or empty
-	// string), this refers to the local namespace of the Route.
+	// Namespace is the namespace of the referent. When unspecified, this refers
+	// to the local namespace of the Route.
+	//
+	// Note that there are specific rules for ParentRefs which cross namespace
+	// boundaries. Cross-namespace references are only valid if they are explicitly
+	// allowed by something in the namespace they are referring to. For example:
+	// Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+	// generic way to enable any other kind of cross-namespace reference.
 	//
 	// Support: Core
 	//
@@ -65,7 +71,9 @@ type ParentRef struct {
 	// SectionName is the name of a section within the target resource. In the
 	// following resources, SectionName is interpreted as the following:
 	//
-	// * Gateway: Listener Name
+	// * Gateway: Listener Name. When both Port (experimental) and SectionName
+	// are specified, the name and port of the selected listener must match
+	// both specified values.
 	//
 	// Implementations MAY choose to support attaching Routes to other resources.
 	// If that is the case, they MUST clearly document how SectionName is
@@ -84,6 +92,35 @@ type ParentRef struct {
 	//
 	// +optional
 	SectionName *SectionName `json:"sectionName,omitempty"`
+
+	// Port is the network port this Route targets. It can be interpreted
+	// differently based on the type of parent resource.
+	//
+	// When the parent resource is a Gateway, this targets all listeners
+	// listening on the specified port that also support this kind of Route(and
+	// select this Route). It's not recommended to set `Port` unless the
+	// networking behaviors specified in a Route must apply to a specific port
+	// as opposed to a listener(s) whose port(s) may be changed. When both Port
+	// and SectionName are specified, the name and port of the selected listener
+	// must match both specified values.
+	//
+	// Implementations MAY choose to support other parent resources.
+	// Implementations supporting other types of parent resources MUST clearly
+	// document how/if Port is interpreted.
+	//
+	// For the purpose of status, an attachment is considered successful as
+	// long as the parent resource accepts it partially. For example, Gateway
+	// listeners can restrict which Routes can attach to them by Route kind,
+	// namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+	// from the referencing Route, the Route MUST be considered successfully
+	// attached. If no Gateway listeners accept attachment from this Route,
+	// the Route MUST be considered detached from the Gateway.
+	//
+	// Support: Extended
+	//
+	// +optional
+	// <gateway:experimental>
+	Port *PortNumber `json:"port,omitempty"`
 }
 
 // CommonRouteSpec defines the common attributes that all Routes MUST include
@@ -109,9 +146,15 @@ type CommonRouteSpec struct {
 	// case, the list of routes attached to those resources should also be
 	// merged.
 	//
+	// Note that for ParentRefs that cross namespace boundaries, there are specific
+	// rules. Cross-namespace references are only valid if they are explicitly
+	// allowed by something in the namespace they are referring to. For example,
+	// Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+	// generic way to enable any other kind of cross-namespace reference.
+	//
 	// +optional
 	// +kubebuilder:validation:MaxItems=32
-	ParentRefs []ParentRef `json:"parentRefs,omitempty"`
+	ParentRefs []ParentReference `json:"parentRefs,omitempty"`
 }
 
 // PortNumber defines a network port.
@@ -123,9 +166,9 @@ type PortNumber int32
 // BackendRef defines how a Route should forward a request to a Kubernetes
 // resource.
 //
-// Note that when a namespace is specified, a ReferencePolicy object
+// Note that when a namespace is specified, a ReferenceGrant object
 // is required in the referent namespace to allow that namespace's
-// owner to accept the reference. See the ReferencePolicy documentation
+// owner to accept the reference. See the ReferenceGrant documentation
 // for details.
 type BackendRef struct {
 	// BackendObjectReference references a Kubernetes object.
@@ -155,14 +198,95 @@ type BackendRef struct {
 // RouteConditionType is a type of condition for a route.
 type RouteConditionType string
 
+// RouteConditionReason is a reason for a route condition.
+type RouteConditionReason string
+
 const (
 	// This condition indicates whether the route has been accepted or rejected
 	// by a Gateway, and why.
-	ConditionRouteAccepted RouteConditionType = "Accepted"
+	//
+	// Possible reasons for this condition to be true are:
+	//
+	// * "Accepted"
+	//
+	// Possible reasons for this condition to be False are:
+	//
+	// * "NotAllowedByListeners"
+	// * "NoMatchingListenerHostname"
+	// * "UnsupportedValue"
+	//
+	// Possible reasons for this condition to be Unknown are:
+	//
+	// * "Pending"
+	//
+	// Controllers may raise this condition with other reasons,
+	// but should prefer to use the reasons listed above to improve
+	// interoperability.
+	RouteConditionAccepted RouteConditionType = "Accepted"
+
+	// This reason is used with the "Accepted" condition when the Route has been
+	// accepted by the Gateway.
+	RouteReasonAccepted RouteConditionReason = "Accepted"
+
+	// This reason is used with the "Accepted" condition when the route has not
+	// been accepted by a Gateway because the Gateway has no Listener whose
+	// allowedRoutes criteria permit the route
+	RouteReasonNotAllowedByListeners RouteConditionReason = "NotAllowedByListeners"
+
+	// This reason is used with the "Accepted" condition when the Gateway has no
+	// compatible Listeners whose Hostname matches the route
+	RouteReasonNoMatchingListenerHostname RouteConditionReason = "NoMatchingListenerHostname"
+
+	// This reason is used with the "Accepted" condition when there are
+	// no matching Parents. In the case of Gateways, this can occur when
+	// a Route ParentRef specifies a Port and/or SectionName that does not
+	// match any Listeners in the Gateway.
+	RouteReasonNoMatchingParent RouteConditionReason = "NoMatchingParent"
+
+	// This reason is used with the "Accepted" condition when a value for an Enum
+	// is not recognized.
+	RouteReasonUnsupportedValue RouteConditionReason = "UnsupportedValue"
+
+	// This reason is used with the "Accepted" when a controller has not yet
+	// reconciled the route.
+	RouteReasonPending RouteConditionReason = "Pending"
 
 	// This condition indicates whether the controller was able to resolve all
 	// the object references for the Route.
-	ConditionRouteResolvedRefs RouteConditionType = "ResolvedRefs"
+	//
+	// Possible reasons for this condition to be true are:
+	//
+	// * "ResolvedRefs"
+	//
+	// Possible reasons for this condition to be false are:
+	//
+	// * "RefNotPermitted"
+	// * "InvalidKind"
+	// * "BackendNotFound"
+	//
+	// Controllers may raise this condition with other reasons,
+	// but should prefer to use the reasons listed above to improve
+	// interoperability.
+	RouteConditionResolvedRefs RouteConditionType = "ResolvedRefs"
+
+	// This reason is used with the "ResolvedRefs" condition when the condition
+	// is true.
+	RouteReasonResolvedRefs RouteConditionReason = "ResolvedRefs"
+
+	// This reason is used with the "ResolvedRefs" condition when
+	// one of the Listener's Routes has a BackendRef to an object in
+	// another namespace, where the object in the other namespace does
+	// not have a ReferenceGrant explicitly allowing the reference.
+	RouteReasonRefNotPermitted RouteConditionReason = "RefNotPermitted"
+
+	// This reason is used with the "ResolvedRefs" condition when
+	// one of the Route's rules has a reference to an unknown or unsupported
+	// Group and/or Kind.
+	RouteReasonInvalidKind RouteConditionReason = "InvalidKind"
+
+	// This reason is used with the "ResolvedRefs" condition when one of the
+	// Route's rules has a reference to a resource that does not exist.
+	RouteReasonBackendNotFound RouteConditionReason = "BackendNotFound"
 )
 
 // RouteParentStatus describes the status of a route with respect to an
@@ -170,7 +294,7 @@ const (
 type RouteParentStatus struct {
 	// ParentRef corresponds with a ParentRef in the spec that this
 	// RouteParentStatus struct describes the status of.
-	ParentRef ParentRef `json:"parentRef"`
+	ParentRef ParentReference `json:"parentRef"`
 
 	// ControllerName is a domain/path string that indicates the name of the
 	// controller that wrote this status. This corresponds with the
@@ -181,6 +305,10 @@ type RouteParentStatus struct {
 	// The format of this field is DOMAIN "/" PATH, where DOMAIN and PATH are
 	// valid Kubernetes names
 	// (https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names).
+	//
+	// Controllers MUST populate this field when writing status. Controllers should ensure that
+	// entries to status populated with their ControllerName are cleaned up when they are no
+	// longer necessary.
 	ControllerName GatewayController `json:"controllerName"`
 
 	// Conditions describes the status of the route with respect to the Gateway.
@@ -201,7 +329,7 @@ type RouteParentStatus struct {
 	//
 	// * The Route refers to a non-existent parent.
 	// * The Route is of a type that the controller does not support.
-	// * The Route is in a namespace the the controller does not have access to.
+	// * The Route is in a namespace the controller does not have access to.
 	//
 	// +listType=map
 	// +listMapKey=type
@@ -235,9 +363,9 @@ type RouteStatus struct {
 // Hostname is the fully qualified domain name of a network host. This matches
 // the RFC 1123 definition of a hostname with 2 notable exceptions:
 //
-// 1. IPs are not allowed.
-// 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
-//    label must appear by itself as the first label.
+//  1. IPs are not allowed.
+//  2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
+//     label must appear by itself as the first label.
 //
 // Hostname can be "precise" which is a domain name without the terminating
 // dot of a network host (e.g. "foo.example.com") or "wildcard", which is a
@@ -252,14 +380,9 @@ type RouteStatus struct {
 // +kubebuilder:validation:Pattern=`^(\*\.)?[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$`
 type Hostname string
 
-// PreciseHostname is the fully qualified domain name of a network host. This matches
-// the RFC 1123 definition of a hostname with 2 notable exceptions:
-//
-// 1. IPs are not allowed.
-// 2. A hostname may not be prefixed with a wildcard label (`*.`).
-//
-// Hostname can be "precise" which is a domain name without the terminating
-// dot of a network host (e.g. "foo.example.com").
+// PreciseHostname is the fully qualified domain name of a network host. This
+// matches the RFC 1123 definition of a hostname with 1 notable exception that
+// numeric IP addresses are not allowed.
 //
 // Note that as per RFC1035 and RFC1123, a *label* must consist of lower case
 // alphanumeric characters or '-', and must start and end with an alphanumeric
@@ -279,7 +402,7 @@ type PreciseHostname string
 // Valid values include:
 //
 // * "" - empty string implies core Kubernetes API group
-// * "networking.k8s.io"
+// * "gateway.networking.k8s.io"
 // * "foo.example.com"
 //
 // Invalid values include:
@@ -401,3 +524,55 @@ type AnnotationKey string
 // +kubebuilder:validation:MinLength=0
 // +kubebuilder:validation:MaxLength=4096
 type AnnotationValue string
+
+// AddressType defines how a network address is represented as a text string.
+// This may take two possible forms:
+//
+// * A predefined CamelCase string identifier (currently limited to `IPAddress` or `Hostname`)
+// * A domain-prefixed string identifier (like `acme.io/CustomAddressType`)
+//
+// Values `IPAddress` and `Hostname` have Extended support.
+//
+// The `NamedAddress` value has been deprecated in favor of implementation
+// specific domain-prefixed strings.
+//
+// All other values, including domain-prefixed values have Implementation-specific support,
+// which are used in implementation-specific behaviors. Support for additional
+// predefined CamelCase identifiers may be added in future releases.
+//
+// +kubebuilder:validation:MinLength=1
+// +kubebuilder:validation:MaxLength=253
+// +kubebuilder:validation:Pattern=`^Hostname|IPAddress|NamedAddress|[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*\/[A-Za-z0-9\/\-._~%!$&'()*+,;=:]+$`
+type AddressType string
+
+const (
+	// A textual representation of a numeric IP address. IPv4
+	// addresses must be in dotted-decimal form. IPv6 addresses
+	// must be in a standard IPv6 text representation
+	// (see [RFC 5952](https://tools.ietf.org/html/rfc5952)).
+	//
+	// This type is intended for specific addresses. Address ranges are not
+	// supported (e.g. you can not use a CIDR range like 127.0.0.0/24 as an
+	// IPAddress).
+	//
+	// Support: Extended
+	IPAddressType AddressType = "IPAddress"
+
+	// A Hostname represents a DNS based ingress point. This is similar to the
+	// corresponding hostname field in Kubernetes load balancer status. For
+	// example, this concept may be used for cloud load balancers where a DNS
+	// name is used to expose a load balancer.
+	//
+	// Support: Extended
+	HostnameAddressType AddressType = "Hostname"
+
+	// A NamedAddress provides a way to reference a specific IP address by name.
+	// For example, this may be a name or other unique identifier that refers
+	// to a resource on a cloud provider such as a static IP.
+	//
+	// The `NamedAddress` type has been deprecated in favor of implementation
+	// specific domain-prefixed strings.
+	//
+	// Support: Implementation-specific
+	NamedAddressType AddressType = "NamedAddress"
+)

@@ -16,8 +16,15 @@ limitations under the License.
 
 package v1
 
-// Common annotation keys added to resources.
 const (
+
+	// Common label keys added to resources
+
+	// Label key that indicates that a resource is of interest to cert-manager controller
+	PartOfCertManagerControllerLabelKey = "controller.cert-manager.io/fao"
+
+	// Common annotation keys added to resources
+
 	// Annotation key for DNS subjectAltNames.
 	AltNamesAnnotationKey = "cert-manager.io/alt-names"
 
@@ -54,6 +61,38 @@ const (
 	// Annotation key used to denote whether a Secret is named on a Certificate
 	// as a 'next private key' Secret resource.
 	IsNextPrivateKeySecretLabelKey = "cert-manager.io/next-private-key"
+
+	// Annotation key used to limit the number of CertificateRequests to be kept for a Certificate.
+	// Minimum value is 1.
+	// If unset all CertificateRequests will be kept.
+	RevisionHistoryLimitAnnotationKey = "cert-manager.io/revision-history-limit"
+
+	// Annotation key used to set the PrivateKeyAlgorithm for a Certificate.
+	// If PrivateKeyAlgorithm is specified and `size` is not provided,
+	// key size of 256 will be used for `ECDSA` key algorithm and
+	// key size of 2048 will be used for `RSA` key algorithm.
+	// key size is ignored when using the `Ed25519` key algorithm.
+	// If unset an algorithm `RSA` will be used.
+	PrivateKeyAlgorithmAnnotationKey = "cert-manager.io/private-key-algorithm"
+
+	// Annotation key used to set the PrivateKeyEncoding for a Certificate.
+	// If provided, allowed values are `PKCS1` and `PKCS8` standing for PKCS#1
+	// and PKCS#8, respectively.
+	// If unset an encoding `PKCS1` will be used.
+	PrivateKeyEncodingAnnotationKey = "cert-manager.io/private-key-encoding"
+
+	// Annotation key used to set the size of the private key for a Certificate.
+	// If PrivateKeyAlgorithm is set to `RSA`, valid values are `2048`, `4096` or `8192`,
+	// and will default to `2048` if not specified.
+	// If PrivateKeyAlgorithm is set to `ECDSA`, valid values are `256`, `384` or `521`,
+	// and will default to `256` if not specified.
+	// If PrivateKeyAlgorithm is set to `Ed25519`, Size is ignored.
+	// No other values are allowed.
+	PrivateKeySizeAnnotationKey = "cert-manager.io/private-key-size"
+
+	// Annotation key used to set the PrivateKeyRotationPolicy for a Certificate.
+	// If unset a policy `Never` will be used.
+	PrivateKeyRotationPolicyAnnotationKey = "cert-manager.io/private-key-rotation-policy"
 )
 
 const (
@@ -144,8 +183,10 @@ const (
 )
 
 // KeyUsage specifies valid usage contexts for keys.
-// See: https://tools.ietf.org/html/rfc5280#section-4.2.1.3
-//      https://tools.ietf.org/html/rfc5280#section-4.2.1.12
+// See:
+// https://tools.ietf.org/html/rfc5280#section-4.2.1.3
+// https://tools.ietf.org/html/rfc5280#section-4.2.1.12
+//
 // Valid KeyUsage values are as follows:
 // "signing",
 // "digital signature",
@@ -197,6 +238,21 @@ const (
 	UsageOCSPSigning       KeyUsage = "ocsp signing"
 	UsageMicrosoftSGC      KeyUsage = "microsoft sgc"
 	UsageNetscapeSGC       KeyUsage = "netscape sgc"
+)
+
+// Keystore specific secret keys
+const (
+	// PKCS12SecretKey is the name of the data entry in the Secret resource
+	// used to store the p12 file.
+	PKCS12SecretKey = "keystore.p12"
+	// Data Entry Name in the Secret resource for PKCS12 containing Certificate Authority
+	PKCS12TruststoreKey = "truststore.p12"
+
+	// JKSSecretKey is the name of the data entry in the Secret resource
+	// used to store the jks file.
+	JKSSecretKey = "keystore.jks"
+	// Data Entry Name in the Secret resource for JKS containing Certificate Authority
+	JKSTruststoreKey = "truststore.jks"
 )
 
 // DefaultKeyUsages contains the default list of key usages

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Copyright 2019 The Knative Authors
 #
@@ -14,10 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/usr/bin/env bash
-
 # Download and unpack cert-manager
-CERT_MANAGER_VERSION=1.8.0
+CERT_MANAGER_VERSION=1.11.5
 YAML_URL=https://github.com/jetstack/cert-manager/releases/download/v${CERT_MANAGER_VERSION}/cert-manager.yaml
 
 # Download the cert-manager yaml file
