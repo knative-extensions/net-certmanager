@@ -19,7 +19,7 @@ package v1
 import (
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
-	gwapi "sigs.k8s.io/gateway-api/apis/v1alpha2"
+	gwapi "sigs.k8s.io/gateway-api/apis/v1beta1"
 
 	cmmeta "github.com/cert-manager/cert-manager/pkg/apis/meta/v1"
 )
@@ -54,12 +54,23 @@ type ACMEIssuer struct {
 	// +kubebuilder:validation:MaxLength=64
 	PreferredChain string `json:"preferredChain"`
 
-	// Enables or disables validation of the ACME server TLS certificate.
-	// If true, requests to the ACME server will not have their TLS certificate
-	// validated (i.e. insecure connections will be allowed).
+	// Base64-encoded bundle of PEM CAs which can be used to validate the certificate
+	// chain presented by the ACME server.
+	// Mutually exclusive with SkipTLSVerify; prefer using CABundle to prevent various
+	// kinds of security vulnerabilities.
+	// If CABundle and SkipTLSVerify are unset, the system certificate bundle inside
+	// the container is used to validate the TLS connection.
+	// +optional
+	CABundle []byte `json:"caBundle,omitempty"`
+
+	// INSECURE: Enables or disables validation of the ACME server TLS certificate.
+	// If true, requests to the ACME server will not have the TLS certificate chain
+	// validated.
+	// Mutually exclusive with CABundle; prefer using CABundle to prevent various
+	// kinds of security vulnerabilities.
 	// Only enable this option in development environments.
-	// The cert-manager system installed roots will be used to verify connections
-	// to the ACME server if this is false.
+	// If CABundle and SkipTLSVerify are unset, the system certificate bundle inside
+	// the container is used to validate the TLS connection.
 	// Defaults to false.
 	// +optional
 	SkipTLSVerify bool `json:"skipTLSVerify,omitempty"`
@@ -263,8 +274,8 @@ type ACMEChallengeSolverHTTP01GatewayHTTPRoute struct {
 	// When solving an HTTP-01 challenge, cert-manager creates an HTTPRoute.
 	// cert-manager needs to know which parentRefs should be used when creating
 	// the HTTPRoute. Usually, the parentRef references a Gateway. See:
-	// https://gateway-api.sigs.k8s.io/v1alpha2/api-types/httproute/#attaching-to-gateways
-	ParentRefs []gwapi.ParentRef `json:"parentRefs,omitempty"`
+	// https://gateway-api.sigs.k8s.io/api-types/httproute/#attaching-to-gateways
+	ParentRefs []gwapi.ParentReference `json:"parentRefs,omitempty"`
 }
 
 type ACMEChallengeSolverHTTP01IngressPodTemplate struct {
@@ -455,13 +466,27 @@ type ACMEIssuerDNS01ProviderDigitalOcean struct {
 // ACMEIssuerDNS01ProviderRoute53 is a structure containing the Route 53
 // configuration for AWS
 type ACMEIssuerDNS01ProviderRoute53 struct {
-	// The AccessKeyID is used for authentication. If not set we fall-back to using env vars, shared credentials file or AWS Instance metadata
+	// The AccessKeyID is used for authentication.
+	// Cannot be set when SecretAccessKeyID is set.
+	// If neither the Access Key nor Key ID are set, we fall-back to using env
+	// vars, shared credentials file or AWS Instance metadata,
 	// see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
 	// +optional
 	AccessKeyID string `json:"accessKeyID,omitempty"`
 
-	// The SecretAccessKey is used for authentication. If not set we fall-back to using env vars, shared credentials file or AWS Instance metadata
-	// https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
+	// The SecretAccessKey is used for authentication. If set, pull the AWS
+	// access key ID from a key within a Kubernetes Secret.
+	// Cannot be set when AccessKeyID is set.
+	// If neither the Access Key nor Key ID are set, we fall-back to using env
+	// vars, shared credentials file or AWS Instance metadata,
+	// see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
+	// +optional
+	SecretAccessKeyID *cmmeta.SecretKeySelector `json:"accessKeyIDSecretRef,omitempty"`
+
+	// The SecretAccessKey is used for authentication.
+	// If neither the Access Key nor Key ID are set, we fall-back to using env
+	// vars, shared credentials file or AWS Instance metadata,
+	// see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
 	// +optional
 	SecretAccessKey cmmeta.SecretKeySelector `json:"secretAccessKeySecretRef"`
 
