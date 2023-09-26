@@ -39,7 +39,7 @@ function test_setup() {
 
   # Bringing up controllers.
   echo ">> Bringing up Cert-Manager"
-  local dir=third_party/cert-manager-1.11.5
+  local dir=third_party/cert-manager-latest
   kubectl apply -f ${dir}/cert-manager.yaml || return 1
   wait_until_pods_running cert-manager || return 1
 
