@@ -56,8 +56,9 @@ func TestIssuerRef(t *testing.T) {
 				Name:      CertManagerConfigName,
 			},
 			Data: map[string]string{
-				issuerRefKey:                "wrong format",
-				clusterInternalIssuerRefKey: "wrong format",
+				issuerRefKey:             "wrong format",
+				clusterLocalIssuerRefKey: "wrong format",
+				systemInternalIssuerRef:  "wrong format",
 			},
 		},
 	}, {
@@ -68,7 +69,8 @@ func TestIssuerRef(t *testing.T) {
 				Name: "letsencrypt-issuer",
 				Kind: "ClusterIssuer",
 			},
-			ClusterInternalIssuerRef: knativeInternalIssuer,
+			ClusterLocalIssuerRef:   knativeSelfSignedIssuer,
+			SystemInternalIssuerRef: knativeSelfSignedIssuer,
 		},
 		config: &corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
@@ -80,12 +82,33 @@ func TestIssuerRef(t *testing.T) {
 			},
 		},
 	}, {
-		name:    "valid clusterInternalIssuerRef",
+		name:    "valid ClusterLocalIssuerRef",
 		wantErr: false,
 		wantConfig: &CertManagerConfig{
-			IssuerRef: knativeInternalIssuer,
-			ClusterInternalIssuerRef: &cmmeta.ObjectReference{
-				Name: "knative-internal-encryption-issuer",
+			IssuerRef: knativeSelfSignedIssuer,
+			ClusterLocalIssuerRef: &cmmeta.ObjectReference{
+				Name: "cluster-local-issuer",
+				Kind: "ClusterIssuer",
+			},
+			SystemInternalIssuerRef: knativeSelfSignedIssuer,
+		},
+		config: &corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: system.Namespace(),
+				Name:      CertManagerConfigName,
+			},
+			Data: map[string]string{
+				clusterLocalIssuerRefKey: "kind: ClusterIssuer\nname: cluster-local-issuer",
+			},
+		},
+	}, {
+		name:    "valid SystemInternalIssuerRef",
+		wantErr: false,
+		wantConfig: &CertManagerConfig{
+			IssuerRef:             knativeSelfSignedIssuer,
+			ClusterLocalIssuerRef: knativeSelfSignedIssuer,
+			SystemInternalIssuerRef: &cmmeta.ObjectReference{
+				Name: "system-internal-issuer",
 				Kind: "ClusterIssuer",
 			},
 		},
@@ -95,7 +118,7 @@ func TestIssuerRef(t *testing.T) {
 				Name:      CertManagerConfigName,
 			},
 			Data: map[string]string{
-				clusterInternalIssuerRefKey: "kind: ClusterIssuer\nname: knative-internal-encryption-issuer",
+				clusterLocalIssuerRefKey: "kind: ClusterIssuer\nname: system-internal-issuer",
 			},
 		},
 	}}

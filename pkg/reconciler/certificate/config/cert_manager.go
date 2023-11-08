@@ -24,8 +24,9 @@ import (
 )
 
 const (
-	issuerRefKey                = "issuerRef"
-	clusterInternalIssuerRefKey = "clusterInternalIssuerRef"
+	issuerRefKey             = "issuerRef"
+	clusterLocalIssuerRefKey = "clusterLocalIssuerRef"
+	systemInternalIssuerRef  = "systemInternalIssuerRef"
 
 	// CertManagerConfigName is the name of the configmap containing all
 	// configuration related to Cert-Manager.
@@ -33,24 +34,26 @@ const (
 )
 
 // has to match the values in config/knative-cluster-issuer.yaml
-var knativeInternalIssuer = &cmeta.ObjectReference{
+var knativeSelfSignedIssuer = &cmeta.ObjectReference{
 	Kind: "ClusterIssuer",
-	Name: "knative-internal-encryption-ca",
+	Name: "knative-selfsigned-issuer",
 }
 
 // CertManagerConfig contains Cert-Manager related configuration defined in the
 // `config-certmanager` config map.
 type CertManagerConfig struct {
-	IssuerRef                *cmeta.ObjectReference
-	ClusterInternalIssuerRef *cmeta.ObjectReference
+	IssuerRef               *cmeta.ObjectReference
+	ClusterLocalIssuerRef   *cmeta.ObjectReference
+	SystemInternalIssuerRef *cmeta.ObjectReference
 }
 
 // NewCertManagerConfigFromConfigMap creates an CertManagerConfig from the supplied ConfigMap
 func NewCertManagerConfigFromConfigMap(configMap *corev1.ConfigMap) (*CertManagerConfig, error) {
 	// Use Knative self-signed ClusterIssuer as default
 	config := &CertManagerConfig{
-		IssuerRef:                knativeInternalIssuer,
-		ClusterInternalIssuerRef: knativeInternalIssuer,
+		IssuerRef:               knativeSelfSignedIssuer,
+		ClusterLocalIssuerRef:   knativeSelfSignedIssuer,
+		SystemInternalIssuerRef: knativeSelfSignedIssuer,
 	}
 
 	if v, ok := configMap.Data[issuerRefKey]; ok {
@@ -59,8 +62,14 @@ func NewCertManagerConfigFromConfigMap(configMap *corev1.ConfigMap) (*CertManage
 		}
 	}
 
-	if v, ok := configMap.Data[clusterInternalIssuerRefKey]; ok {
-		if err := yaml.Unmarshal([]byte(v), config.ClusterInternalIssuerRef); err != nil {
+	if v, ok := configMap.Data[clusterLocalIssuerRefKey]; ok {
+		if err := yaml.Unmarshal([]byte(v), config.ClusterLocalIssuerRef); err != nil {
+			return nil, err
+		}
+	}
+
+	if v, ok := configMap.Data[systemInternalIssuerRef]; ok {
+		if err := yaml.Unmarshal([]byte(v), config.SystemInternalIssuerRef); err != nil {
 			return nil, err
 		}
 	}

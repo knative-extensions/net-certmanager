@@ -21,34 +21,37 @@ metadata:
     app.kubernetes.io/version: devel
     app.kubernetes.io/name: knative-serving
     networking.knative.dev/certificate-provider: cert-manager
+    knative.dev/issuer-install: "true"
 spec:
   selfSigned: {}
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: knative-internal-encryption-issuer
+  name: knative-selfsigned-issuer
   labels:
     app.kubernetes.io/component: net-certmanager
     app.kubernetes.io/version: devel
     app.kubernetes.io/name: knative-serving
     networking.knative.dev/certificate-provider: cert-manager
+    knative.dev/issuer-install: "true"
 spec:
   ca:
-    secretName: knative-internal-encryption-ca
+    secretName: knative-selfsigned-ca
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: knative-internal-encryption-ca
+  name: knative-selfsigned-ca
   namespace: cert-manager #  If you want to use it as a ClusterIssuer the secret must be in the cert-manager namespace.
   labels:
     app.kubernetes.io/component: net-certmanager
     app.kubernetes.io/version: devel
     app.kubernetes.io/name: knative-serving
     networking.knative.dev/certificate-provider: cert-manager
+    knative.dev/issuer-install: "true"
 spec:
-  secretName: knative-internal-encryption-ca
+  secretName: knative-selfsigned-ca
   commonName: knative.dev
   usages:
     - server auth

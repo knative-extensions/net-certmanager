@@ -24,6 +24,7 @@ import (
 	cmv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	cmmeta "github.com/cert-manager/cert-manager/pkg/apis/meta/v1"
 	"github.com/google/go-cmp/cmp"
+	netapi "knative.dev/networking/pkg/config"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -45,7 +46,8 @@ var cert = &v1alpha1.Certificate{
 		Namespace: "test-ns",
 		UID:       "22b3de9e-076e-4e5d-a55d-aff10002527f",
 		Labels: map[string]string{
-			servingRouteLabelKey: "test-route",
+			servingRouteLabelKey:               "test-route",
+			networking.CertificateTypeLabelKey: string(netapi.CertificateExternalDomain),
 		},
 		Annotations: map[string]string{
 			servingCreatorAnnotation: "someone",
@@ -59,14 +61,35 @@ var cert = &v1alpha1.Certificate{
 	},
 }
 
-var internalCert = &v1alpha1.Certificate{
+var localCert = &v1alpha1.Certificate{
 	ObjectMeta: metav1.ObjectMeta{
-		Name:      "test-internal-cert",
+		Name:      "test-local-cert",
 		Namespace: "test-ns",
 		UID:       "22b3de9e-076e-4e5d-a55d-aff10002527i",
 		Labels: map[string]string{
-			servingRouteLabelKey:          "test-route-internal",
-			networking.VisibilityLabelKey: VisibilityClusterLocal,
+			servingRouteLabelKey:               "test-route-local",
+			networking.CertificateTypeLabelKey: string(netapi.CertificateClusterLocalDomain),
+		},
+		Annotations: map[string]string{
+			servingCreatorAnnotation: "someone",
+			servingUpdaterAnnotation: "someone",
+		},
+	},
+	Spec: v1alpha1.CertificateSpec{
+		DNSNames:   []string{"host1.ns", "host1.ns.svc", "host1.ns.svc.cluster.local"},
+		Domain:     "cluster.local",
+		SecretName: "secret0",
+	},
+}
+
+var systemInternalCert = &v1alpha1.Certificate{
+	ObjectMeta: metav1.ObjectMeta{
+		Name:      "test-system-internal-cert",
+		Namespace: "test-ns",
+		UID:       "22b3de9e-076e-4e5d-a55d-aff10002527i",
+		Labels: map[string]string{
+			servingRouteLabelKey:               "test-route-system-internal",
+			networking.CertificateTypeLabelKey: string(netapi.CertificateSystemInternal),
 		},
 		Annotations: map[string]string{
 			servingCreatorAnnotation: "someone",
@@ -90,7 +113,8 @@ var (
 			Namespace: "test-ns",
 			UID:       "22b3de9e-076e-4e5d-a55d-aff10002527f",
 			Labels: map[string]string{
-				servingRouteLabelKey: "test-route",
+				servingRouteLabelKey:               "test-route",
+				networking.CertificateTypeLabelKey: string(netapi.CertificateExternalDomain),
 			},
 			Annotations: map[string]string{
 				servingCreatorAnnotation: "someone",
@@ -112,7 +136,8 @@ var (
 			Namespace: "test-ns",
 			UID:       "22b3de9e-076e-4e5d-a55d-aff10002527f",
 			Labels: map[string]string{
-				servingRouteLabelKey: "test-route",
+				servingRouteLabelKey:               "test-route",
+				networking.CertificateTypeLabelKey: string(netapi.CertificateExternalDomain),
 			},
 			Annotations: map[string]string{
 				servingCreatorAnnotation: "someone",
@@ -131,21 +156,26 @@ var (
 			Kind: "ClusterIssuer",
 			Name: "Letsencrypt-issuer",
 		},
-		ClusterInternalIssuerRef: &cmmeta.ObjectReference{
+		ClusterLocalIssuerRef: &cmmeta.ObjectReference{
 			Kind: "ClusterIssuer",
-			Name: "knative-internal-encryption-issuer",
+			Name: "knative-selfsigned-issuer",
+		},
+		SystemInternalIssuerRef: &cmmeta.ObjectReference{
+			Kind: "ClusterIssuer",
+			Name: "knative-selfsigned-issuer",
 		},
 	}
 )
 
-func TestMakeCertManagerCertificate(t *testing.T) {
+func TestMakeCertManagerExternalCertificate(t *testing.T) {
 	want := &cmv1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            "test-cert",
 			Namespace:       "test-ns",
 			OwnerReferences: []metav1.OwnerReference{*kmeta.NewControllerRef(cert)},
 			Labels: map[string]string{
-				servingRouteLabelKey: "test-route",
+				servingRouteLabelKey:               "test-route",
+				networking.CertificateTypeLabelKey: string(netapi.CertificateExternalDomain),
 			},
 			Annotations: map[string]string{
 				servingCreatorAnnotation: "someone",
@@ -174,15 +204,15 @@ func TestMakeCertManagerCertificate(t *testing.T) {
 	}
 }
 
-func TestMakeInternalCertManagerCertificate(t *testing.T) {
+func TestMakeCertManagerLocalCertificate(t *testing.T) {
 	want := &cmv1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:            "test-internal-cert",
+			Name:            "test-local-cert",
 			Namespace:       "test-ns",
-			OwnerReferences: []metav1.OwnerReference{*kmeta.NewControllerRef(internalCert)},
+			OwnerReferences: []metav1.OwnerReference{*kmeta.NewControllerRef(localCert)},
 			Labels: map[string]string{
-				servingRouteLabelKey:          "test-route-internal",
-				networking.VisibilityLabelKey: VisibilityClusterLocal,
+				servingRouteLabelKey:               "test-route-local",
+				networking.CertificateTypeLabelKey: string(netapi.CertificateClusterLocalDomain),
 			},
 			Annotations: map[string]string{
 				servingCreatorAnnotation: "someone",
@@ -195,14 +225,51 @@ func TestMakeInternalCertManagerCertificate(t *testing.T) {
 			DNSNames:   []string{"host1.ns", "host1.ns.svc", "host1.ns.svc.cluster.local"},
 			IssuerRef: cmmeta.ObjectReference{
 				Kind: "ClusterIssuer",
-				Name: "knative-internal-encryption-issuer",
+				Name: "knative-selfsigned-issuer",
 			},
 			SecretTemplate: &cmv1.CertificateSecretTemplate{
 				Labels: map[string]string{networking.CertificateUIDLabelKey: "22b3de9e-076e-4e5d-a55d-aff10002527i"},
 			},
 		},
 	}
-	got, err := MakeCertManagerCertificate(cmConfig, internalCert)
+	got, err := MakeCertManagerCertificate(cmConfig, localCert)
+	if err != nil {
+		t.Errorf("MakeCertManagerCertificate Error: %s", err)
+	}
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
+	}
+}
+
+func TestMakeCertManagerSystemInternalCertificate(t *testing.T) {
+	want := &cmv1.Certificate{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:            "test-system-internal-cert",
+			Namespace:       "test-ns",
+			OwnerReferences: []metav1.OwnerReference{*kmeta.NewControllerRef(systemInternalCert)},
+			Labels: map[string]string{
+				servingRouteLabelKey:               "test-route-system-internal",
+				networking.CertificateTypeLabelKey: string(netapi.CertificateSystemInternal),
+			},
+			Annotations: map[string]string{
+				servingCreatorAnnotation: "someone",
+				servingUpdaterAnnotation: "someone",
+			},
+		},
+		Spec: cmv1.CertificateSpec{
+			SecretName: "secret0",
+			CommonName: "host1.ns",
+			DNSNames:   []string{"host1.ns", "host1.ns.svc", "host1.ns.svc.cluster.local"},
+			IssuerRef: cmmeta.ObjectReference{
+				Kind: "ClusterIssuer",
+				Name: "knative-selfsigned-issuer",
+			},
+			SecretTemplate: &cmv1.CertificateSecretTemplate{
+				Labels: map[string]string{networking.CertificateUIDLabelKey: "22b3de9e-076e-4e5d-a55d-aff10002527i"},
+			},
+		},
+	}
+	got, err := MakeCertManagerCertificate(cmConfig, systemInternalCert)
 	if err != nil {
 		t.Errorf("MakeCertManagerCertificate Error: %s", err)
 	}
@@ -218,7 +285,8 @@ func TestMakeCertManagerCertificateLongCommonName(t *testing.T) {
 			Namespace:       "test-ns",
 			OwnerReferences: []metav1.OwnerReference{*kmeta.NewControllerRef(cert)},
 			Labels: map[string]string{
-				servingRouteLabelKey: "test-route",
+				servingRouteLabelKey:               "test-route",
+				networking.CertificateTypeLabelKey: string(netapi.CertificateExternalDomain),
 			},
 			Annotations: map[string]string{
 				servingCreatorAnnotation: "someone",
@@ -308,13 +376,30 @@ func TestMakeCertManagerCertificateIssuerNotSet(t *testing.T) {
 	}
 }
 
-func TestMakeCertManagerCertificateInternalIssuerNotSet(t *testing.T) {
-	wantError := fmt.Errorf("error creating cert-manager certificate: clusterInternalIssuerRef was not set in config-certmanager")
+func TestMakeCertManagerCertificateLocalIssuerNotSet(t *testing.T) {
+	wantError := fmt.Errorf("error creating cert-manager certificate: clusterLocalIssuerRef was not set in config-certmanager")
 
 	cmConfigNoIssuer := cmConfig.DeepCopy()
-	cmConfigNoIssuer.ClusterInternalIssuerRef = nil
+	cmConfigNoIssuer.ClusterLocalIssuerRef = nil
 
-	cert, gotError := MakeCertManagerCertificate(cmConfigNoIssuer, internalCert)
+	cert, gotError := MakeCertManagerCertificate(cmConfigNoIssuer, localCert)
+
+	if cert != nil {
+		t.Errorf("Expected no cert, got: %s", cmp.Diff(nil, cert))
+	}
+
+	if diff := cmp.Diff(wantError.Error(), gotError.Message); diff != "" {
+		t.Errorf("MakeCertManagerCertificate (-want, +got) = %s", diff)
+	}
+}
+
+func TestMakeCertManagerCertificateSystemInternalIssuerNotSet(t *testing.T) {
+	wantError := fmt.Errorf("error creating cert-manager certificate: systemInternalIssuerRef was not set in config-certmanager")
+
+	cmConfigNoIssuer := cmConfig.DeepCopy()
+	cmConfigNoIssuer.SystemInternalIssuerRef = nil
+
+	cert, gotError := MakeCertManagerCertificate(cmConfigNoIssuer, systemInternalCert)
 
 	if cert != nil {
 		t.Errorf("Expected no cert, got: %s", cmp.Diff(nil, cert))
