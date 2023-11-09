@@ -23,6 +23,7 @@ import (
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	testing "k8s.io/client-go/testing"
@@ -34,9 +35,9 @@ type FakeRealms struct {
 	Fake *FakeNetworkingV1alpha1
 }
 
-var realmsResource = v1alpha1.SchemeGroupVersion.WithResource("realms")
+var realmsResource = schema.GroupVersionResource{Group: "networking.internal.knative.dev", Version: "v1alpha1", Resource: "realms"}
 
-var realmsKind = v1alpha1.SchemeGroupVersion.WithKind("Realm")
+var realmsKind = schema.GroupVersionKind{Group: "networking.internal.knative.dev", Version: "v1alpha1", Kind: "Realm"}
 
 // Get takes name of the realm, and returns the corresponding realm object, and an error if there is any.
 func (c *FakeRealms) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.Realm, err error) {
