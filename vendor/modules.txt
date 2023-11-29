@@ -21,7 +21,7 @@ github.com/census-instrumentation/opencensus-proto/gen-go/agent/trace/v1
 github.com/census-instrumentation/opencensus-proto/gen-go/metrics/v1
 github.com/census-instrumentation/opencensus-proto/gen-go/resource/v1
 github.com/census-instrumentation/opencensus-proto/gen-go/trace/v1
-# github.com/cert-manager/cert-manager v1.13.1
+# github.com/cert-manager/cert-manager v1.13.1 => github.com/cert-manager/cert-manager v1.13.2
 ## explicit; go 1.20
 github.com/cert-manager/cert-manager/pkg/apis/acme
 github.com/cert-manager/cert-manager/pkg/apis/acme/v1
@@ -108,7 +108,7 @@ github.com/google/uuid
 # github.com/gorilla/websocket v1.5.1
 ## explicit; go 1.20
 github.com/gorilla/websocket
-# github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
+# github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.0
 ## explicit; go 1.17
 github.com/grpc-ecosystem/grpc-gateway/v2/internal/httprule
 github.com/grpc-ecosystem/grpc-gateway/v2/runtime
@@ -298,9 +298,6 @@ google.golang.org/appengine/internal/log
 google.golang.org/appengine/internal/remote_api
 google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/urlfetch
-# google.golang.org/genproto v0.0.0-20231016165738-49dd2c1f3d0b
-## explicit; go 1.19
-google.golang.org/genproto/protobuf/field_mask
 # google.golang.org/genproto/googleapis/api v0.0.0-20231016165738-49dd2c1f3d0b
 ## explicit; go 1.19
 google.golang.org/genproto/googleapis/api/httpbody
@@ -1041,3 +1038,4 @@ sigs.k8s.io/yaml/goyaml.v2
 # k8s.io/code-generator => k8s.io/code-generator v0.27.6
 # k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20230501164219-8b0f38b5fd1f
 # sigs.k8s.io/structured-merge-diff/v4 => sigs.k8s.io/structured-merge-diff/v4 v4.2.3
+# github.com/cert-manager/cert-manager => github.com/cert-manager/cert-manager v1.13.2
