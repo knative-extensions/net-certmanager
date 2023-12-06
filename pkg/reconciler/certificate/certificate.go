@@ -52,7 +52,7 @@ import (
 
 const (
 	noCMConditionReason  = "NoCertManagerCertCondition"
-	noCMConditionMessage = "The ready condition of Cert Manager Certifiate does not exist."
+	noCMConditionMessage = "The ready condition of Cert Manager Certificate does not exist."
 	notReconciledReason  = "ReconcileFailed"
 	notReconciledMessage = "Cert-Manager certificate has not yet been reconciled."
 	httpDomainLabel      = "acme.cert-manager.io/http-domain"

@@ -69,9 +69,15 @@ var (
 	notAfter          = &metav1.Time{
 		Time: time.Unix(123, 456),
 	}
-	clusterInternalIssuer = &cmv1.ClusterIssuer{
+	clusterLocalIssuer = &cmv1.ClusterIssuer{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "knative-internal-encryption-issuer",
+			Name: "knative-selfsigned-issuer",
+		},
+		Spec: cmv1.IssuerSpec{},
+	}
+	systemInternalIssuer = &cmv1.ClusterIssuer{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "knative-selfsigned-issuer",
 		},
 		Spec: cmv1.IssuerSpec{},
 	}
@@ -97,7 +103,8 @@ var (
 	}
 
 	externalCert, _                  = resources.MakeCertManagerCertificate(certmanagerConfig(), knCert("knCert", "foo"))
-	internalCert, _                  = resources.MakeCertManagerCertificate(certmanagerConfig(), withClusterLocalVisibility(knCert("knCert", "foo")))
+	localCert, _                     = resources.MakeCertManagerCertificate(certmanagerConfig(), withCertType(knCert("knCert", "foo"), netcfg.CertificateClusterLocalDomain))
+	systemInternalCert, _            = resources.MakeCertManagerCertificate(certmanagerConfig(), withCertType(knCert("knCert", "foo"), netcfg.CertificateSystemInternal))
 	externalCertShortenedDNSNames, _ = resources.MakeCertManagerCertificate(certmanagerConfig(), knCertShortenedDNSNames("knCert", "foo"))
 )
 
@@ -110,8 +117,7 @@ func TestNewController(t *testing.T) {
 			Namespace: system.Namespace(),
 		},
 		Data: map[string]string{
-			"issuerRef":                "kind: ClusterIssuer\nname: letsencrypt-issuer",
-			"clusterInternalIssuerRef": "kind: ClusterIssuer\nname: knative-internal-encryption-issuer",
+			"issuerRef": "kind: ClusterIssuer\nname: letsencrypt-issuer",
 		},
 	})
 
@@ -487,11 +493,11 @@ func TestReconcile(t *testing.T) {
 				}),
 		}},
 	}, {
-		Name: "create clusterInternalIssuer CM certificate matching Knative Certificate, with retry",
+		Name: "create clusterLocalIssuer CM certificate matching Knative Certificate, with retry",
 		Key:  "foo/knCert",
 		Objects: []runtime.Object{
-			withClusterLocalVisibility(knCert("knCert", "foo")),
-			clusterInternalIssuer,
+			withCertType(knCert("knCert", "foo"), netcfg.CertificateClusterLocalDomain),
+			clusterLocalIssuer,
 		},
 		WantErr: true,
 		WithReactors: []clientgotesting.ReactionFunc{
@@ -502,10 +508,10 @@ func TestReconcile(t *testing.T) {
 			Eventf(corev1.EventTypeWarning, "InternalError", "failed to create Cert-Manager Certificate: inducing failure for create certificates"),
 		},
 		WantCreates: []runtime.Object{
-			internalCert,
+			localCert,
 		},
 		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
-			Object: withClusterLocalVisibility(knCertWithStatus("knCert", "foo",
+			Object: withCertType(knCertWithStatus("knCert", "foo",
 				&v1alpha1.CertificateStatus{
 					Status: duckv1.Status{
 						ObservedGeneration: generation,
@@ -517,7 +523,40 @@ func TestReconcile(t *testing.T) {
 							Message:  notReconciledMessage,
 						}},
 					},
-				})),
+				}), netcfg.CertificateClusterLocalDomain),
+		}},
+	}, {
+		Name: "create systemInternalIssuer CM certificate matching Knative Certificate, with retry",
+		Key:  "foo/knCert",
+		Objects: []runtime.Object{
+			withCertType(knCert("knCert", "foo"), netcfg.CertificateSystemInternal),
+			systemInternalIssuer,
+		},
+		WantErr: true,
+		WithReactors: []clientgotesting.ReactionFunc{
+			InduceFailure("create", "certificates"),
+		},
+		WantEvents: []string{
+			Eventf(corev1.EventTypeWarning, "CreationFailed", "Failed to create Cert-Manager Certificate knCert/foo: inducing failure for create certificates"),
+			Eventf(corev1.EventTypeWarning, "InternalError", "failed to create Cert-Manager Certificate: inducing failure for create certificates"),
+		},
+		WantCreates: []runtime.Object{
+			systemInternalCert,
+		},
+		WantStatusUpdates: []clientgotesting.UpdateActionImpl{{
+			Object: withCertType(knCertWithStatus("knCert", "foo",
+				&v1alpha1.CertificateStatus{
+					Status: duckv1.Status{
+						ObservedGeneration: generation,
+						Conditions: duckv1.Conditions{{
+							Type:     v1alpha1.CertificateConditionReady,
+							Status:   corev1.ConditionUnknown,
+							Reason:   notReconciledReason,
+							Severity: apis.ConditionSeverityError,
+							Message:  notReconciledMessage,
+						}},
+					},
+				}), netcfg.CertificateSystemInternal),
 		}},
 	}}
 
@@ -747,9 +786,13 @@ func certmanagerConfig() *config.CertManagerConfig {
 			Kind: "ClusterIssuer",
 			Name: "Letsencrypt-issuer",
 		},
-		ClusterInternalIssuerRef: &cmmeta.ObjectReference{
+		ClusterLocalIssuerRef: &cmmeta.ObjectReference{
 			Kind: "ClusterIssuer",
-			Name: "knative-internal-encryption-issuer",
+			Name: "knative-selfsigned-issuer",
+		},
+		SystemInternalIssuerRef: &cmmeta.ObjectReference{
+			Kind: "ClusterIssuer",
+			Name: "knative-selfsigned-issuer",
 		},
 	}
 }
@@ -812,11 +855,11 @@ func knCertWithStatusAndGeneration(name, namespace string, status *v1alpha1.Cert
 	}
 }
 
-func withClusterLocalVisibility(certificate *v1alpha1.Certificate) *v1alpha1.Certificate {
+func withCertType(certificate *v1alpha1.Certificate, certType netcfg.CertificateType) *v1alpha1.Certificate {
 	if certificate.ObjectMeta.Labels == nil {
 		certificate.ObjectMeta.Labels = map[string]string{}
 	}
-	certificate.ObjectMeta.Labels[netapi.VisibilityLabelKey] = resources.VisibilityClusterLocal
+	certificate.ObjectMeta.Labels[netapi.CertificateTypeLabelKey] = string(certType)
 	return certificate
 }
 

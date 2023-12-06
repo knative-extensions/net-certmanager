@@ -26,17 +26,16 @@ import (
 	"knative.dev/net-certmanager/pkg/reconciler/certificate/config"
 	"knative.dev/networking/pkg/apis/networking"
 	"knative.dev/networking/pkg/apis/networking/v1alpha1"
+	netapi "knative.dev/networking/pkg/config"
 	"knative.dev/pkg/apis"
 	"knative.dev/pkg/kmeta"
 )
 
 const (
 	longest                               = 63
-	longestDomain                         = 61
 	Prefix                                = "k."
 	CreateCertManagerCertificateCondition = "CreateCertManagerCertificate"
 	IssuerNotSetCondition                 = "IssuerNotSet"
-	VisibilityClusterLocal                = "cluster-local"
 )
 
 // MakeCertManagerCertificate creates a Cert-Manager `Certificate` for requesting a SSL certificate.
@@ -98,7 +97,7 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 		} else {
 			//If there was no domain, we can't shorten anything. We must error.
 			return nil, &apis.Condition{
-				Type:   apis.ConditionType(CreateCertManagerCertificateCondition),
+				Type:   CreateCertManagerCertificateCondition,
 				Status: corev1.ConditionFalse,
 				Reason: "CommonName Too Long",
 				Message: fmt.Sprintf(
@@ -111,18 +110,37 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 
 	dnsNames = append(dnsNames, knCert.Spec.DNSNames...)
 
+	// default to CertificateExternalDomain
+	certType := netapi.CertificateExternalDomain
+	if val, ok := knCert.Labels[networking.CertificateTypeLabelKey]; ok {
+		certType = netapi.CertificateType(val)
+	}
+
 	var issuerRef cmeta.ObjectReference
-	if knCert.Labels[networking.VisibilityLabelKey] == VisibilityClusterLocal {
-		if cmConfig.ClusterInternalIssuerRef == nil {
+	switch certType {
+	case netapi.CertificateClusterLocalDomain:
+		if cmConfig.ClusterLocalIssuerRef == nil {
 			return nil, &apis.Condition{
 				Type:    IssuerNotSetCondition,
 				Status:  corev1.ConditionFalse,
-				Reason:  "clusterInternalIssuerRef not set",
-				Message: "error creating cert-manager certificate: clusterInternalIssuerRef was not set in config-certmanager",
+				Reason:  "clusterLocalIssuerRef not set",
+				Message: "error creating cert-manager certificate: clusterLocalIssuerRef was not set in config-certmanager",
 			}
 		}
-		issuerRef = *cmConfig.ClusterInternalIssuerRef
-	} else {
+		issuerRef = *cmConfig.ClusterLocalIssuerRef
+
+	case netapi.CertificateSystemInternal:
+		if cmConfig.SystemInternalIssuerRef == nil {
+			return nil, &apis.Condition{
+				Type:    IssuerNotSetCondition,
+				Status:  corev1.ConditionFalse,
+				Reason:  "systemInternalIssuerRef not set",
+				Message: "error creating cert-manager certificate: systemInternalIssuerRef was not set in config-certmanager",
+			}
+		}
+		issuerRef = *cmConfig.SystemInternalIssuerRef
+
+	case netapi.CertificateExternalDomain:
 		if cmConfig.IssuerRef == nil {
 			return nil, &apis.Condition{
 				Type:    IssuerNotSetCondition,
@@ -132,6 +150,14 @@ func MakeCertManagerCertificate(cmConfig *config.CertManagerConfig, knCert *v1al
 			}
 		}
 		issuerRef = *cmConfig.IssuerRef
+
+	default:
+		return nil, &apis.Condition{
+			Type:    IssuerNotSetCondition,
+			Status:  corev1.ConditionFalse,
+			Reason:  "certificate type invalid",
+			Message: fmt.Sprintf("error creating cert-manager certificate: certificate type %s is invalid", certType),
+		}
 	}
 
 	cert := &cmv1.Certificate{
