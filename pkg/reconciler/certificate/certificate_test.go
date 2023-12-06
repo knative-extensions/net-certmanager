@@ -117,8 +117,7 @@ func TestNewController(t *testing.T) {
 			Namespace: system.Namespace(),
 		},
 		Data: map[string]string{
-			"issuerRef":                "kind: ClusterIssuer\nname: letsencrypt-issuer",
-			"clusterInternalIssuerRef": "kind: ClusterIssuer\nname: knative-internal-encryption-issuer",
+			"issuerRef": "kind: ClusterIssuer\nname: letsencrypt-issuer",
 		},
 	})
 
