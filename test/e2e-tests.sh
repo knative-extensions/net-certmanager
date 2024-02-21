@@ -18,7 +18,7 @@ source $(dirname $0)/e2e-common.sh
 
 
 # Script entry point.
-initialize $@  --skip-istio-addon
+initialize "$@" --skip-istio-addon --cluster-version=1.28
 
 CERTIFICATE_CLASS="cert-manager.certificate.networking.knative.dev"
 
