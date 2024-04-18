@@ -15,8 +15,8 @@
 # limitations under the License.
 
 # Download and unpack cert-manager
-CERT_MANAGER_VERSION=1.13.3
+CERT_MANAGER_VERSION=1.14.4
 YAML_URL=https://github.com/jetstack/cert-manager/releases/download/v${CERT_MANAGER_VERSION}/cert-manager.yaml
 
 # Download the cert-manager yaml file
-wget $YAML_URL
+wget -O cert-manager.yaml $YAML_URL
